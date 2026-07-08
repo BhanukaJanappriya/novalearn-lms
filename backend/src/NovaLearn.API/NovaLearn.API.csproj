@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    API: the presentation layer and composition root. Wires every layer together,
+    exposes versioned HTTP endpoints, and owns cross-cutting web concerns
+    (auth, CORS, rate limiting, exception handling, Swagger, logging).
+  -->
+
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Settings.Configuration" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Asp.Versioning.Mvc" />
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NovaLearn.Application\NovaLearn.Application.csproj" />
+    <ProjectReference Include="..\NovaLearn.Infrastructure\NovaLearn.Infrastructure.csproj" />
+    <ProjectReference Include="..\NovaLearn.Persistence\NovaLearn.Persistence.csproj" />
+    <ProjectReference Include="..\NovaLearn.Shared\NovaLearn.Shared.csproj" />
+  </ItemGroup>
+
+  <!-- Expose the API type to the integration test project. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="NovaLearn.API.IntegrationTests" />
+  </ItemGroup>
+
+</Project>
