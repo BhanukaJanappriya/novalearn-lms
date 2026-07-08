@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* NovaLearn theme tokens. Values are HSL channels consumed as hsl(var(--token)). */
+@layer base {
+  :root {
+    --background: 210 40% 98%;        /* #F8FAFC light gray */
+    --foreground: 215 28% 17%;        /* #1F2937 dark text */
+
+    --card: 0 0% 100%;                /* #FFFFFF */
+    --card-foreground: 215 28% 17%;
+
+    --primary: 258 90% 66%;           /* #8B5CF6 professional purple */
+    --primary-foreground: 0 0% 100%;
+
+    --accent: 255 92% 76%;            /* #A78BFA */
+    --accent-foreground: 215 28% 17%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --destructive: 0 84% 60%;         /* #EF4444 */
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%;           /* #22C55E */
+    --warning: 38 92% 50%;            /* #F59E0B */
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 258 90% 66%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222 30% 8%;
+    --foreground: 210 40% 96%;
+
+    --card: 222 25% 11%;
+    --card-foreground: 210 40% 96%;
+
+    --primary: 258 90% 70%;
+    --primary-foreground: 222 47% 11%;
+
+    --accent: 255 70% 30%;
+    --accent-foreground: 210 40% 96%;
+
+    --muted: 217 25% 18%;
+    --muted-foreground: 215 20% 65%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 60% 45%;
+    --warning: 38 85% 55%;
+
+    --border: 217 25% 20%;
+    --input: 217 25% 20%;
+    --ring: 258 90% 70%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+}
