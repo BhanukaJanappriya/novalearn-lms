@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Shared: the most primitive layer. Cross-cutting building blocks
+    (Result pattern, error catalog, security helpers). Zero project or
+    third-party dependencies so every other layer may safely reference it.
+  -->
+
+</Project>

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Domain: the core of the system. Entities, value objects, domain events and
+    invariants. It depends only on Shared. It references Microsoft.Extensions.Identity.Stores
+    solely for the IdentityUser/IdentityRole base types (ADR-0002); no other framework leaks in.
+  -->
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" />
+    <PackageReference Include="MediatR.Contracts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NovaLearn.Shared\NovaLearn.Shared.csproj" />
+  </ItemGroup>
+
+</Project>
