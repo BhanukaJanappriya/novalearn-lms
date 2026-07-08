@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Infrastructure: adapters for external concerns behind Application ports —
+    JWT issuance, ASP.NET Identity, the system clock and email delivery.
+    Depends on Application, Domain and Shared. Does not depend on Persistence.
+  -->
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NovaLearn.Application\NovaLearn.Application.csproj" />
+    <ProjectReference Include="..\NovaLearn.Domain\NovaLearn.Domain.csproj" />
+    <ProjectReference Include="..\NovaLearn.Shared\NovaLearn.Shared.csproj" />
+  </ItemGroup>
+
+</Project>
