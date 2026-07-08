@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Application: use cases and orchestration. Depends on Domain and Shared only.
+    Defines ports (interfaces) that Infrastructure/Persistence implement, so it stays
+    free of framework and I/O concerns. CQRS is implemented with MediatR.
+  -->
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NovaLearn.Domain\NovaLearn.Domain.csproj" />
+    <ProjectReference Include="..\NovaLearn.Shared\NovaLearn.Shared.csproj" />
+  </ItemGroup>
+
+</Project>
