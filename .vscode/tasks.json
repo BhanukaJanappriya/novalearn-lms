@@ -1,0 +1,54 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "backend: build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/backend/NovaLearn.sln",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "backend: test (unit)",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "test",
+        "${workspaceFolder}/backend/tests/NovaLearn.Application.UnitTests/NovaLearn.Application.UnitTests.csproj"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": "test"
+    },
+    {
+      "label": "backend: test (all)",
+      "command": "dotnet",
+      "type": "process",
+      "args": ["test", "${workspaceFolder}/backend/NovaLearn.sln"],
+      "problemMatcher": "$msCompile",
+      "group": "test"
+    },
+    {
+      "label": "infra: up",
+      "command": "docker",
+      "type": "process",
+      "args": ["compose", "up", "-d"],
+      "options": { "cwd": "${workspaceFolder}/infra" },
+      "problemMatcher": []
+    },
+    {
+      "label": "frontend: dev",
+      "command": "npm",
+      "type": "process",
+      "args": ["run", "dev"],
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}
