@@ -25,7 +25,8 @@ export function LoginForm() {
     mutationFn: (values: LoginFormValues) => authApi.login(values),
     onSuccess: (data: AuthenticationResponse) => {
       setSession(data.user);
-      navigate("/dashboard", { replace: true });
+      // Land on "/" so the role-aware redirect routes admins to the control center.
+      navigate("/", { replace: true });
     },
   });
 
