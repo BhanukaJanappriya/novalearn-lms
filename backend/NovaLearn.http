@@ -1,0 +1,52 @@
+### NovaLearn API — manual test flow (VS Code "REST Client" extension)
+### Click "Send Request" above each block, top to bottom.
+
+@baseUrl = https://localhost:7001/api/v1
+@email = ada.lovelace@novalearn.local
+@password = Str0ng!Pass
+
+### 1. Register a new account -> 200. A verification link is written to the API console logs.
+# @name register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Ada",
+  "lastName": "Lovelace",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+### 2. Login BEFORE verifying -> 403 (email_not_confirmed). This is expected.
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{email}}", "password": "{{password}}" }
+
+### 3. Verify email.
+### Copy userId + token from the "[DEV EMAIL] ... Link:" line in the API console,
+### then paste them here (the token is URL-encoded in the link — decode or paste raw).
+POST {{baseUrl}}/auth/verify-email
+Content-Type: application/json
+
+{
+  "userId": "PASTE-USER-ID",
+  "token": "PASTE-TOKEN"
+}
+
+### 4. Login after verification -> 200. Captures the access token for step 5.
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{email}}", "password": "{{password}}" }
+
+### 5. Call a protected endpoint with the captured token -> 200.
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{login.response.body.accessToken}}
+
+### 6. Refresh the access token (uses the refresh cookie set on login) -> 200.
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{}
