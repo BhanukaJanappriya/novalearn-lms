@@ -69,3 +69,37 @@
     font-feature-settings: "cv11", "ss01";
   }
 }
+
+@layer components {
+  /* Cursor-reactive spotlight: a soft brand glow follows the pointer across the
+     surface. Position is driven by --spot-x / --spot-y from useSpotlight(). */
+  .spotlight {
+    position: relative;
+  }
+
+  .spotlight::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      240px circle at var(--spot-x, 50%) var(--spot-y, -120%),
+      hsl(var(--primary) / 0.16),
+      transparent 60%
+    );
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .spotlight:hover::after {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spotlight::after {
+      transition: none;
+    }
+  }
+}

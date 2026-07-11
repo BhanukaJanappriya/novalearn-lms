@@ -1,10 +1,12 @@
 import { motion } from "framer-motion";
 import { Activity, CalendarRange, CheckCircle2, ClipboardList, Users } from "lucide-react";
 import { formatNumber } from "@/lib/format";
+import { useSpotlight } from "@/hooks/useSpotlight";
 import type { ExecutiveSummary as SummaryData } from "../api/types";
 
 /** Executive hero: greeting + semester progress ring + at-a-glance status tiles. */
 export function ExecutiveSummary({ data, adminName }: { data: SummaryData; adminName: string }) {
+  const { ref, onMouseMove } = useSpotlight<HTMLDivElement>();
   const tiles = [
     { icon: Users, label: "Active now", value: formatNumber(data.activeUsersNow), tint: "text-primary" },
     { icon: Activity, label: "Server health", value: `${data.serverHealthPct}%`, tint: "text-success" },
@@ -13,9 +15,13 @@ export function ExecutiveSummary({ data, adminName }: { data: SummaryData; admin
   ];
 
   return (
-    <div className="relative overflow-hidden rounded-[18px] border border-border bg-gradient-to-br from-primary/10 via-card to-accent/10 p-6 shadow-soft">
+    <div
+      ref={ref}
+      onMouseMove={onMouseMove}
+      className="spotlight relative overflow-hidden rounded-[18px] border border-border bg-gradient-to-br from-primary/10 via-card to-accent/10 p-6 shadow-soft"
+    >
       <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
-      <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+      <div className="relative z-[2] flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-5">
           <ProgressRing value={data.semesterProgressPct} />
           <div>

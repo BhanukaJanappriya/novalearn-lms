@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { formatKpi } from "@/lib/format";
 import { useCountUp } from "@/hooks/useCountUp";
+import { useSpotlight } from "@/hooks/useSpotlight";
 import type { KpiMetric } from "../api/types";
 import { iconRegistry } from "./iconRegistry";
 import { Sparkline } from "./Sparkline";
@@ -13,6 +14,7 @@ const trendIcon = { up: ArrowUpRight, down: ArrowDownRight, flat: Minus };
 export function KpiCard({ metric }: { metric: KpiMetric }) {
   const navigate = useNavigate();
   const animated = useCountUp(metric.value);
+  const { ref, onMouseMove } = useSpotlight<HTMLButtonElement>();
   const Icon = iconRegistry[metric.icon];
   const TrendIcon = trendIcon[metric.trend];
 
@@ -28,6 +30,8 @@ export function KpiCard({ metric }: { metric: KpiMetric }) {
 
   return (
     <motion.button
+      ref={ref}
+      onMouseMove={onMouseMove}
       type="button"
       disabled={!interactive}
       onClick={() => metric.href && navigate(metric.href)}
@@ -35,7 +39,7 @@ export function KpiCard({ metric }: { metric: KpiMetric }) {
       transition={{ type: "spring", stiffness: 320, damping: 22 }}
       title={metric.hint ?? metric.label}
       className={cn(
-        "group flex w-full flex-col gap-3 rounded-[18px] border border-border bg-card p-5 text-left shadow-soft",
+        "spotlight group flex w-full flex-col gap-3 rounded-[18px] border border-border bg-card p-5 text-left shadow-soft",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         interactive ? "cursor-pointer hover:shadow-lg hover:border-primary/30" : "cursor-default",
       )}

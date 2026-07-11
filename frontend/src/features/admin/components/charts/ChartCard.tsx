@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { useSpotlight } from "@/hooks/useSpotlight";
 
 interface ChartCardProps {
   title: string;
@@ -12,21 +13,24 @@ interface ChartCardProps {
 
 /** Consistent framed container for every analytics chart. */
 export function ChartCard({ title, subtitle, actions, className, children }: ChartCardProps) {
+  const { ref, onMouseMove } = useSpotlight<HTMLElement>();
   return (
     <section
+      ref={ref}
+      onMouseMove={onMouseMove}
       className={cn(
-        "flex flex-col rounded-[18px] border border-border bg-card p-5 shadow-soft",
+        "spotlight flex flex-col rounded-[18px] border border-border bg-card p-5 shadow-soft",
         className,
       )}
     >
-      <header className="mb-4 flex items-start justify-between gap-3">
+      <header className="relative z-[2] mb-4 flex items-start justify-between gap-3">
         <div>
           <h3 className="text-sm font-semibold tracking-tight">{title}</h3>
           {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
         </div>
         {actions && <div className="flex shrink-0 items-center gap-1">{actions}</div>}
       </header>
-      <div className="min-h-0 flex-1">{children}</div>
+      <div className="relative z-[2] min-h-0 flex-1">{children}</div>
     </section>
   );
 }
