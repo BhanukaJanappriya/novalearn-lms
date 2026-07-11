@@ -31,6 +31,7 @@ test-results/
 appsettings.*.local.json
 secrets.json
 *.pfx
+demo-accounts.txt
 
 # ---------- IDE / OS ----------
 .idea/
