@@ -32,6 +32,7 @@ public static class DependencyInjection
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IAdminStatisticsService, AdminStatisticsService>();
 
         AddIdentity(services);
 
