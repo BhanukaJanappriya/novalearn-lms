@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NovaLearn.Application.Common.Interfaces;
+using NovaLearn.Domain.Courses;
 using NovaLearn.Domain.Identity;
 
 namespace NovaLearn.Persistence;
@@ -15,6 +16,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>(options), IUnitOfWork
 {
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+
+    public DbSet<Course> Courses => Set<Course>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
