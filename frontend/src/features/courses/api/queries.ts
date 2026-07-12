@@ -23,6 +23,15 @@ export function useCreateCourse() {
   });
 }
 
+export function useUpdateCourse() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: CreateCoursePayload }) =>
+      coursesApi.update(id, payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: courseKeys.all }),
+  });
+}
+
 export function useDeleteCourse() {
   const queryClient = useQueryClient();
   return useMutation({

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { BookOpen, Trash2, User } from "lucide-react";
+import { BookOpen, Pencil, Trash2, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useSpotlight } from "@/hooks/useSpotlight";
 import type { Course, CourseLevel, CourseStatus } from "../api/types";
@@ -32,11 +32,13 @@ function coverGradient(seed: string): string {
 
 interface CourseCardProps {
   course: Course;
-  canDelete: boolean;
+  /** Whether the current user may edit/delete this course. */
+  canManage: boolean;
+  onEdit: (course: Course) => void;
   onDelete: (course: Course) => void;
 }
 
-export function CourseCard({ course, canDelete, onDelete }: CourseCardProps) {
+export function CourseCard({ course, canManage, onEdit, onDelete }: CourseCardProps) {
   const { ref, onMouseMove } = useSpotlight<HTMLDivElement>();
 
   return (
@@ -84,15 +86,25 @@ export function CourseCard({ course, canDelete, onDelete }: CourseCardProps) {
           <span className="text-sm font-semibold">
             {course.price === 0 ? "Free" : `$${course.price.toFixed(2)}`}
           </span>
-          {canDelete && (
-            <button
-              type="button"
-              onClick={() => onDelete(course)}
-              className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              Delete
-            </button>
+          {canManage && (
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => onEdit(course)}
+                className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => onDelete(course)}
+                className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Delete
+              </button>
+            </div>
           )}
         </div>
       </div>

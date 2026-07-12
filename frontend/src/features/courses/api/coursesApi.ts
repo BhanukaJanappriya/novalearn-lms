@@ -12,6 +12,11 @@ export const coursesApi = {
     return data;
   },
 
+  async update(id: string, payload: CreateCoursePayload): Promise<Course> {
+    const { data } = await apiClient.put<Course>(`/courses/${id}`, payload);
+    return data;
+  },
+
   async remove(id: string): Promise<void> {
     await apiClient.delete(`/courses/${id}`);
   },

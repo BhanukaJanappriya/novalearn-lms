@@ -11,18 +11,29 @@ import { getApiErrorMessage } from "@/lib/apiError";
 import { useCourses, useDeleteCourse } from "../api/queries";
 import type { Course } from "../api/types";
 import { CourseCard } from "../components/CourseCard";
-import { CreateCourseDialog } from "../components/CreateCourseDialog";
+import { CourseFormDialog } from "../components/CourseFormDialog";
 
 export function CoursesPage() {
   const { user } = useAuth();
   const { data: courses, isLoading, isError, refetch } = useCourses();
   const deleteCourse = useDeleteCourse();
-  const [createOpen, setCreateOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Course | null>(null);
 
   const manager = canManageCourses(user);
   const admin = isAdmin(user);
-  const canDelete = (course: Course) => admin || course.lecturerId === user?.id;
+  const canManage = (course: Course) => admin || course.lecturerId === user?.id;
+
+  const openCreate = () => {
+    setEditingCourse(null);
+    setFormOpen(true);
+  };
+
+  const openEdit = (course: Course) => {
+    setEditingCourse(course);
+    setFormOpen(true);
+  };
 
   const confirmDelete = () => {
     if (!pendingDelete) return;
@@ -39,7 +50,7 @@ export function CoursesPage() {
           </p>
         </div>
         {manager && (
-          <Button onClick={() => setCreateOpen(true)}>
+          <Button onClick={openCreate}>
             <Plus className="h-4 w-4" />
             New course
           </Button>
@@ -74,7 +85,7 @@ export function CoursesPage() {
             {manager ? "Create your first course to get started." : "Courses will appear here once they’re added."}
           </p>
           {manager && (
-            <Button className="mt-4" onClick={() => setCreateOpen(true)}>
+            <Button className="mt-4" onClick={openCreate}>
               <Plus className="h-4 w-4" />
               New course
             </Button>
@@ -89,7 +100,8 @@ export function CoursesPage() {
               <CourseCard
                 key={course.id}
                 course={course}
-                canDelete={canDelete(course)}
+                canManage={canManage(course)}
+                onEdit={openEdit}
                 onDelete={setPendingDelete}
               />
             ))}
@@ -97,7 +109,7 @@ export function CoursesPage() {
         </div>
       )}
 
-      <CreateCourseDialog open={createOpen} onClose={() => setCreateOpen(false)} />
+      <CourseFormDialog open={formOpen} course={editingCourse} onClose={() => setFormOpen(false)} />
 
       <Modal
         open={pendingDelete !== null}
