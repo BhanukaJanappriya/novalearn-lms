@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application.Common.Models;
+using NovaLearn.Domain.Courses;
 using NovaLearn.Domain.Identity;
 
 namespace NovaLearn.Persistence.Repositories;
@@ -28,6 +29,11 @@ internal sealed class AdminStatisticsService(ApplicationDbContext context) : IAd
         int failedLogins = await context.Users.SumAsync(u => u.AccessFailedCount, cancellationToken);
         int activeSessions = await context.RefreshTokens
             .CountAsync(rt => rt.RevokedAtUtc == null && rt.ExpiresAtUtc > now, cancellationToken);
+
+        int publishedCourses = await context.Courses
+            .CountAsync(c => c.Status == CourseStatus.Published, cancellationToken);
+        int draftCourses = await context.Courses
+            .CountAsync(c => c.Status == CourseStatus.Draft, cancellationToken);
 
         List<RoleCount> roleCounts = await (
                 from u in context.Users
@@ -65,6 +71,8 @@ internal sealed class AdminStatisticsService(ApplicationDbContext context) : IAd
             NewUsersPrev30Days: newPrev30,
             ActiveSessions: activeSessions,
             FailedLoginAttempts: failedLogins,
+            PublishedCourses: publishedCourses,
+            DraftCourses: draftCourses,
             RoleCounts: roleCounts,
             MonthlyRegistrations: monthlyRegistrations,
             RecentUsers: recentUsers,

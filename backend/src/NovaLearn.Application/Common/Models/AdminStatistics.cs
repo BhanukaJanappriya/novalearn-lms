@@ -14,6 +14,8 @@ public sealed record AdminStatistics(
     int NewUsersPrev30Days,
     int ActiveSessions,
     int FailedLoginAttempts,
+    int PublishedCourses,
+    int DraftCourses,
     IReadOnlyList<RoleCount> RoleCounts,
     IReadOnlyList<MonthlyCount> MonthlyRegistrations,
     IReadOnlyList<AdminUserBrief> RecentUsers,

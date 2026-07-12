@@ -85,9 +85,11 @@ public sealed class GetAdminDashboardQueryHandler(IAdminStatisticsService statis
             Kpi("pending-approvals", "Pending Approvals", stats.UnverifiedUsers, "number", 0, 5, false, "clipboard-check", null),
             Kpi("failed-logins", "Failed Logins", stats.FailedLoginAttempts, "number", -3.0, 5, false, "server", "/admin/security"),
 
+            // Real course counts from the database.
+            Kpi("courses-published", "Courses Published", stats.PublishedCourses, "number", 4.8, 2, true, "book-open", "/admin/courses"),
+            Kpi("courses-draft", "Courses in Draft", stats.DraftCourses, "number", -3.2, 3, false, "file-pen", "/admin/courses"),
+
             // Server-provided until the corresponding slices are built.
-            Kpi("courses-published", "Courses Published", 3126, "number", 4.8, 2, true, "book-open", "/admin/courses"),
-            Kpi("courses-draft", "Courses in Draft", 214, "number", -3.2, 3, false, "file-pen", "/admin/courses"),
             Kpi("certificates-issued", "Certificates Issued", 12905, "number", 5.3, 3, true, "award", "/admin/certificates"),
             Kpi("revenue", "Revenue (MTD)", 486200, "currency", 11.2, 6, true, "dollar-sign", "/admin/finance"),
             Kpi("avg-completion", "Avg. Completion", 78.4, "percent", 1.9, 2, true, "trending-up", null),
