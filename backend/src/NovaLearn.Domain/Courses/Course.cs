@@ -60,6 +60,27 @@ public sealed class Course : BaseEntity
         };
     }
 
+    /// <summary>Applies edited details, keeping the same invariants as <see cref="Create"/>.</summary>
+    public void Update(
+        string title,
+        string code,
+        string? description,
+        string category,
+        CourseLevel level,
+        CourseStatus status,
+        decimal price,
+        string? coverImageUrl)
+    {
+        Title = title.Trim();
+        Code = code.Trim().ToUpperInvariant();
+        Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+        Category = category.Trim();
+        Level = level;
+        Status = status;
+        Price = price < 0 ? 0 : price;
+        CoverImageUrl = string.IsNullOrWhiteSpace(coverImageUrl) ? null : coverImageUrl.Trim();
+    }
+
     public void Publish() => Status = CourseStatus.Published;
 
     public void Unpublish() => Status = CourseStatus.Draft;

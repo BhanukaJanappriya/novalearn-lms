@@ -7,6 +7,7 @@ using NovaLearn.Application.Features.Courses.Common;
 using NovaLearn.Application.Features.Courses.CreateCourse;
 using NovaLearn.Application.Features.Courses.DeleteCourse;
 using NovaLearn.Application.Features.Courses.GetCourses;
+using NovaLearn.Application.Features.Courses.UpdateCourse;
 using NovaLearn.Domain.Identity;
 using NovaLearn.Shared.Results;
 
@@ -44,6 +45,23 @@ public sealed class CoursesController(ISender sender) : ApiControllerBase
 
         Result<CourseDto> result = await sender.Send(command, cancellationToken);
         return HandleResult(result, course => CreatedAtAction(nameof(List), new { id = course.Id }, course));
+    }
+
+    /// <summary>Updates a course (admins any; lecturers only their own).</summary>
+    [HttpPut("{id:guid}")]
+    [Authorize(Roles = ManagerRoles)]
+    [ProducesResponseType(typeof(CourseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Update(Guid id, UpdateCourseRequest request, CancellationToken cancellationToken)
+    {
+        var command = new UpdateCourseCommand(
+            id, request.Title, request.Code, request.Description, request.Category,
+            request.Level, request.Status, request.Price, request.CoverImageUrl);
+
+        return HandleResult(await sender.Send(command, cancellationToken));
     }
 
     /// <summary>Deletes a course (admins any; lecturers only their own).</summary>

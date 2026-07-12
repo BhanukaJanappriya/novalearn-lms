@@ -12,3 +12,14 @@ public sealed record CreateCourseRequest(
     CourseStatus Status,
     decimal Price,
     string? CoverImageUrl);
+
+/// <summary>Body for editing a course (the id comes from the route).</summary>
+public sealed record UpdateCourseRequest(
+    string Title,
+    string Code,
+    string? Description,
+    string Category,
+    CourseLevel Level,
+    CourseStatus Status,
+    decimal Price,
+    string? CoverImageUrl);
