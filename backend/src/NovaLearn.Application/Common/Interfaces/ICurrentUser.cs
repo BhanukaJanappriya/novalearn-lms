@@ -11,4 +11,7 @@ public interface ICurrentUser
 
     /// <summary>Best-effort client IP, used to stamp issued/revoked refresh tokens.</summary>
     string? IpAddress { get; }
+
+    /// <summary>Whether the current caller holds the given role.</summary>
+    bool IsInRole(string role);
 }

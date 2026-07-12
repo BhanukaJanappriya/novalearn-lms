@@ -17,4 +17,6 @@ public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICur
     public bool IsAuthenticated => Principal?.Identity?.IsAuthenticated ?? false;
 
     public string? IpAddress => httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+
+    public bool IsInRole(string role) => Principal?.IsInRole(role) ?? false;
 }
