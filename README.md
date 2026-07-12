@@ -1,5 +1,33 @@
 # NovaLearn LMS
 
+> _Enterprise learning, engineered like enterprise software: a Clean Architecture .NET core and a premium, data driven React admin control center._
+
+**Backend**
+&nbsp;
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-9.0-512BD4?style=flat-square&logo=dotnet&logoColor=white)
+![C#](https://img.shields.io/badge/C%23-12-239120?style=flat-square&logo=csharp&logoColor=white)
+![EF Core](https://img.shields.io/badge/EF_Core-9.0-512BD4?style=flat-square&logo=dotnet&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=flat-square&logo=redis&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-Auth-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)
+![MediatR](https://img.shields.io/badge/MediatR-CQRS-8B5CF6?style=flat-square)
+
+**Frontend**
+&nbsp;
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-6-646CFF?style=flat-square&logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![TanStack Query](https://img.shields.io/badge/TanStack_Query-5-FF4154?style=flat-square&logo=reactquery&logoColor=white)
+![Recharts](https://img.shields.io/badge/Recharts-3-22B5BF?style=flat-square)
+
+**Project**
+&nbsp;
+![Architecture](https://img.shields.io/badge/Architecture-Clean_%7C_DDD_%7C_CQRS-8B5CF6?style=flat-square)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)
+![Status](https://img.shields.io/badge/status-active_development-8B5CF6?style=flat-square)
+![License](https://img.shields.io/badge/license-Proprietary-lightgrey?style=flat-square)
+
 A modern, minimal, enterprise-grade Learning Management System.
 
 Built with **ASP.NET Core 9** (Clean Architecture + DDD + CQRS) and **React 19** (TypeScript, Vite, Tailwind, shadcn/ui).
