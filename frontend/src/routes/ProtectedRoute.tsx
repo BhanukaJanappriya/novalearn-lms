@@ -1,7 +1,8 @@
+import type { ReactElement } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
-import { isAdmin } from "@/lib/roles";
+import { canAccessAdminArea, isAdmin, isLecturer } from "@/lib/roles";
 
 /** Gates authenticated routes; waits for session bootstrap before deciding. */
 export function ProtectedRoute() {
@@ -14,8 +15,8 @@ export function ProtectedRoute() {
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
-/** Gates the admin control center to administrator roles only. */
-export function AdminRoute() {
+/** Gates the admin area to admins and lecturers (lecturers get the course tools). */
+export function AdminAreaRoute() {
   const { user, isAuthenticated, isBootstrapping } = useAuth();
 
   if (isBootstrapping) {
@@ -24,17 +25,24 @@ export function AdminRoute() {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  return isAdmin(user) ? <Outlet /> : <Navigate to="/dashboard" replace />;
+  return canAccessAdminArea(user) ? <Outlet /> : <Navigate to="/dashboard" replace />;
 }
 
-/** Sends admins to the control center and everyone else to their dashboard. */
+/** Restricts a page within the admin area to admins; lecturers go to courses. */
+export function RequireAdmin({ children }: { children: ReactElement }) {
+  const { user } = useAuth();
+  return isAdmin(user) ? children : <Navigate to="/admin/courses" replace />;
+}
+
+/** Routes each role to its natural landing page after sign-in. */
 export function HomeRedirect() {
   const { user, isBootstrapping } = useAuth();
 
   if (isBootstrapping) {
     return <FullScreenLoader />;
   }
-  return <Navigate to={isAdmin(user) ? "/admin" : "/dashboard"} replace />;
+  const target = isAdmin(user) ? "/admin" : isLecturer(user) ? "/admin/courses" : "/dashboard";
+  return <Navigate to={target} replace />;
 }
 
 /** For routes that should be hidden once signed in (login/register). */

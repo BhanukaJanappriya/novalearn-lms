@@ -6,14 +6,17 @@ import { VerifyEmailPage } from "@/pages/VerifyEmailPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
-import { AdminRoute, HomeRedirect, ProtectedRoute, PublicOnlyRoute } from "./ProtectedRoute";
+import { AdminAreaRoute, HomeRedirect, ProtectedRoute, PublicOnlyRoute, RequireAdmin } from "./ProtectedRoute";
 
-// Code-split the admin control center — it (and Recharts) only load for admins.
+// Code-split the admin area — it (and Recharts) only load for admins/lecturers.
 const AdminLayout = lazy(() =>
   import("@/features/admin/layout/AdminLayout").then((m) => ({ default: m.AdminLayout })),
 );
 const AdminDashboardPage = lazy(() =>
   import("@/features/admin/pages/AdminDashboardPage").then((m) => ({ default: m.AdminDashboardPage })),
+);
+const CoursesPage = lazy(() =>
+  import("@/features/courses/pages/CoursesPage").then((m) => ({ default: m.CoursesPage })),
 );
 
 export function AppRoutes() {
@@ -33,7 +36,7 @@ export function AppRoutes() {
         <Route path="/dashboard" element={<DashboardPage />} />
       </Route>
 
-      <Route element={<AdminRoute />}>
+      <Route element={<AdminAreaRoute />}>
         <Route
           path="/admin"
           element={
@@ -45,8 +48,18 @@ export function AppRoutes() {
           <Route
             index
             element={
+              <RequireAdmin>
+                <Suspense fallback={<FullScreenLoader />}>
+                  <AdminDashboardPage />
+                </Suspense>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="courses"
+            element={
               <Suspense fallback={<FullScreenLoader />}>
-                <AdminDashboardPage />
+                <CoursesPage />
               </Suspense>
             }
           />
