@@ -142,4 +142,4 @@ cd frontend && npm test
 
 ## License
 
-Proprietary — © NovaLearn. All rights reserved.
+Proprietary - © NovaLearn. All rights reserved.
