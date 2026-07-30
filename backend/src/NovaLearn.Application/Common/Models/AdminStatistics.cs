@@ -16,15 +16,19 @@ public sealed record AdminStatistics(
     int FailedLoginAttempts,
     int PublishedCourses,
     int DraftCourses,
+    int TotalEnrollments,
+    int ActiveEnrollments,
+    int CompletedEnrollments,
     IReadOnlyList<RoleCount> RoleCounts,
     IReadOnlyList<MonthlyCount> MonthlyRegistrations,
+    IReadOnlyList<MonthlyCount> MonthlyEnrollments,
     IReadOnlyList<AdminUserBrief> RecentUsers,
     IReadOnlyList<AdminUserBrief> RecentUnverifiedUsers);
 
 /// <summary>Number of members assigned to a role.</summary>
 public sealed record RoleCount(string Role, int Count);
 
-/// <summary>Registration count for a single calendar month.</summary>
+/// <summary>A count bucketed into a single calendar month.</summary>
 public sealed record MonthlyCount(int Year, int Month, int Count);
 
 /// <summary>A lightweight user projection for feeds and approval queues.</summary>

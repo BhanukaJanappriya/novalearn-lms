@@ -34,8 +34,8 @@ public sealed class GetAdminDashboardQueryHandler(IAdminStatisticsService statis
 
         return new AdminDashboardResponse(
             Summary: BuildSummary(stats),
-            Kpis: BuildKpis(stats),
-            EnrollmentTrend: BuildEnrollmentTrend(stats, now),
+            Kpis: BuildKpis(stats, now),
+            EnrollmentTrend: BuildMonthlySeries(stats.MonthlyEnrollments, now),
             CompletionTrend: SyntheticSeries(72, 12, 3141),
             RoleDistribution: BuildRoleDistribution(stats),
             WeeklyActivity: BuildWeeklyActivity(),
@@ -60,7 +60,7 @@ public sealed class GetAdminDashboardQueryHandler(IAdminStatisticsService statis
         SystemStatus: "operational",
         AcademicPeriod: "Week 9 of 16 · Fall 2026");
 
-    private static List<KpiMetricDto> BuildKpis(AdminStatistics stats)
+    private static List<KpiMetricDto> BuildKpis(AdminStatistics stats, DateTimeOffset now)
     {
         int RoleCount(string role) => stats.RoleCounts.FirstOrDefault(r => r.Role == role)?.Count ?? 0;
 
@@ -89,6 +89,11 @@ public sealed class GetAdminDashboardQueryHandler(IAdminStatisticsService statis
             Kpi("courses-published", "Courses Published", stats.PublishedCourses, "number", 4.8, 2, true, "book-open", "/admin/courses"),
             Kpi("courses-draft", "Courses in Draft", stats.DraftCourses, "number", -3.2, 3, false, "file-pen", "/admin/courses"),
 
+            // Real enrolment counts from the database.
+            Kpi("total-enrollments", "Total Enrollments", stats.TotalEnrollments, "number",
+                EnrollmentDelta(stats, now), 2, true, "graduation-cap", "/admin/courses",
+                $"{stats.ActiveEnrollments} active · {stats.CompletedEnrollments} completed"),
+
             // Server-provided until the corresponding slices are built.
             Kpi("certificates-issued", "Certificates Issued", 12905, "number", 5.3, 3, true, "award", "/admin/certificates"),
             Kpi("revenue", "Revenue (MTD)", 486200, "currency", 11.2, 6, true, "dollar-sign", "/admin/finance"),
@@ -109,20 +114,45 @@ public sealed class GetAdminDashboardQueryHandler(IAdminStatisticsService statis
             Accents[accentIndex % Accents.Length], Spark(value, id.GetHashCode()), href, hint);
     }
 
-    private static List<TimeSeriesPointDto> BuildEnrollmentTrend(AdminStatistics stats, DateTimeOffset now)
+    /// <summary>Projects month buckets onto the trailing 12 calendar months, zero-filling gaps.</summary>
+    private static List<TimeSeriesPointDto> BuildMonthlySeries(
+        IReadOnlyList<MonthlyCount> buckets, DateTimeOffset now)
     {
         var points = new List<TimeSeriesPointDto>(12);
-        DateTimeOffset cursor = new DateTimeOffset(new DateTime(now.Year, now.Month, 1), TimeSpan.Zero).AddMonths(-11);
+        DateTimeOffset cursor = FirstOfMonth(now).AddMonths(-11);
 
         for (int i = 0; i < 12; i++)
         {
-            int count = stats.MonthlyRegistrations
+            int count = buckets
                 .FirstOrDefault(m => m.Year == cursor.Year && m.Month == cursor.Month)?.Count ?? 0;
             points.Add(new TimeSeriesPointDto(MonthAbbrev[cursor.Month - 1], count, null));
             cursor = cursor.AddMonths(1);
         }
 
         return points;
+    }
+
+    private static DateTimeOffset FirstOfMonth(DateTimeOffset moment) =>
+        new(new DateTime(moment.Year, moment.Month, 1), TimeSpan.Zero);
+
+    /// <summary>Month-over-month change in new enrolments, used as the enrolment KPI's delta.</summary>
+    private static double EnrollmentDelta(AdminStatistics stats, DateTimeOffset now)
+    {
+        DateTimeOffset thisMonth = FirstOfMonth(now);
+        DateTimeOffset lastMonth = thisMonth.AddMonths(-1);
+
+        int Count(DateTimeOffset month) => stats.MonthlyEnrollments
+            .FirstOrDefault(m => m.Year == month.Year && m.Month == month.Month)?.Count ?? 0;
+
+        int current = Count(thisMonth);
+        int previous = Count(lastMonth);
+
+        if (previous == 0)
+        {
+            return current > 0 ? 100 : 0;
+        }
+
+        return Math.Round((current - previous) / (double)previous * 100, 1);
     }
 
     private static List<CategoryDatumDto> BuildRoleDistribution(AdminStatistics stats)

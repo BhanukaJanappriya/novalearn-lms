@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application.Common.Models;
 using NovaLearn.Domain.Courses;
+using NovaLearn.Domain.Enrollments;
 using NovaLearn.Domain.Identity;
 
 namespace NovaLearn.Persistence.Repositories;
@@ -35,6 +36,12 @@ internal sealed class AdminStatisticsService(ApplicationDbContext context) : IAd
         int draftCourses = await context.Courses
             .CountAsync(c => c.Status == CourseStatus.Draft, cancellationToken);
 
+        int totalEnrollments = await context.Enrollments.CountAsync(cancellationToken);
+        int activeEnrollments = await context.Enrollments
+            .CountAsync(e => e.Status == EnrollmentStatus.Active, cancellationToken);
+        int completedEnrollments = await context.Enrollments
+            .CountAsync(e => e.Status == EnrollmentStatus.Completed, cancellationToken);
+
         List<RoleCount> roleCounts = await (
                 from u in context.Users
                 join ur in context.UserRoles on u.Id equals ur.UserId
@@ -50,10 +57,15 @@ internal sealed class AdminStatisticsService(ApplicationDbContext context) : IAd
             .Select(u => u.CreatedAtUtc)
             .ToListAsync(cancellationToken);
 
-        List<MonthlyCount> monthlyRegistrations = createdDates
-            .GroupBy(d => new { d.Year, d.Month })
-            .Select(g => new MonthlyCount(g.Key.Year, g.Key.Month, g.Count()))
-            .ToList();
+        List<MonthlyCount> monthlyRegistrations = Bucket(createdDates);
+
+        // Same in-memory bucketing for enrolments, keyed on when the student actually enrolled.
+        List<DateTimeOffset> enrolledDates = await context.Enrollments
+            .Where(e => e.EnrolledAtUtc >= windowStart)
+            .Select(e => e.EnrolledAtUtc)
+            .ToListAsync(cancellationToken);
+
+        List<MonthlyCount> monthlyEnrollments = Bucket(enrolledDates);
 
         List<AdminUserBrief> recentUsers = await ProjectBriefsAsync(
             context.Users.OrderByDescending(u => u.CreatedAtUtc).Take(8), cancellationToken);
@@ -73,11 +85,21 @@ internal sealed class AdminStatisticsService(ApplicationDbContext context) : IAd
             FailedLoginAttempts: failedLogins,
             PublishedCourses: publishedCourses,
             DraftCourses: draftCourses,
+            TotalEnrollments: totalEnrollments,
+            ActiveEnrollments: activeEnrollments,
+            CompletedEnrollments: completedEnrollments,
             RoleCounts: roleCounts,
             MonthlyRegistrations: monthlyRegistrations,
+            MonthlyEnrollments: monthlyEnrollments,
             RecentUsers: recentUsers,
             RecentUnverifiedUsers: recentUnverified);
     }
+
+    private static List<MonthlyCount> Bucket(IEnumerable<DateTimeOffset> dates) =>
+        dates
+            .GroupBy(d => new { d.Year, d.Month })
+            .Select(g => new MonthlyCount(g.Key.Year, g.Key.Month, g.Count()))
+            .ToList();
 
     private static async Task<List<AdminUserBrief>> ProjectBriefsAsync(
         IQueryable<ApplicationUser> query, CancellationToken cancellationToken)
