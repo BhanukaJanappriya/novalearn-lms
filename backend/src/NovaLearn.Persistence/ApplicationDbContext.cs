@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NovaLearn.Application.Common.Interfaces;
+using NovaLearn.Domain.Content;
 using NovaLearn.Domain.Courses;
 using NovaLearn.Domain.Enrollments;
 using NovaLearn.Domain.Identity;
@@ -19,6 +20,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     public DbSet<Course> Courses => Set<Course>();
+
+    public DbSet<CourseModule> CourseModules => Set<CourseModule>();
+
+    public DbSet<Lesson> Lessons => Set<Lesson>();
 
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
 

@@ -27,6 +27,9 @@ const MyCoursesPage = lazy(() =>
 const CourseRosterPage = lazy(() =>
   import("@/features/enrollments/pages/CourseRosterPage").then((m) => ({ default: m.CourseRosterPage })),
 );
+const CourseBuilderPage = lazy(() =>
+  import("@/features/content/pages/CourseBuilderPage").then((m) => ({ default: m.CourseBuilderPage })),
+);
 
 export function AppRoutes() {
   return (
@@ -93,6 +96,14 @@ export function AppRoutes() {
             element={
               <Suspense fallback={<FullScreenLoader />}>
                 <CourseRosterPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="courses/:courseId/content"
+            element={
+              <Suspense fallback={<FullScreenLoader />}>
+                <CourseBuilderPage />
               </Suspense>
             }
           />

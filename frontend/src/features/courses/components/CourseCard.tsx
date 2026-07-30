@@ -1,6 +1,6 @@
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { BookOpen, Pencil, Trash2, User, Users } from "lucide-react";
+import { motion } from "framer-motion";
+import { BookOpen, Layers, Pencil, Trash2, User, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useSpotlight } from "@/hooks/useSpotlight";
 import type { Course, CourseLevel, CourseStatus } from "../api/types";
@@ -83,13 +83,20 @@ export function CourseCard({ course, canManage, onEdit, onDelete }: CourseCardPr
           {course.lecturerName}
         </div>
 
-        <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
           <span className="text-sm font-semibold">
             {course.price === 0 ? "Free" : `$${course.price.toFixed(2)}`}
           </span>
           {canManage && (
             <div className="flex items-center gap-1">
-              {/* Roster is visible to the same people who may manage the course. */}
+              {/* Content and roster are visible to the same people who may manage the course. */}
+              <Link
+                to={`/admin/courses/${course.id}/content`}
+                className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <Layers className="h-3.5 w-3.5" />
+                Content
+              </Link>
               <Link
                 to={`/admin/courses/${course.id}/students`}
                 className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
