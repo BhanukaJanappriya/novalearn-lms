@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { BookOpen, Pencil, Trash2, User } from "lucide-react";
+import { Link } from "react-router-dom";
+import { BookOpen, Pencil, Trash2, User, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useSpotlight } from "@/hooks/useSpotlight";
 import type { Course, CourseLevel, CourseStatus } from "../api/types";
@@ -88,6 +89,14 @@ export function CourseCard({ course, canManage, onEdit, onDelete }: CourseCardPr
           </span>
           {canManage && (
             <div className="flex items-center gap-1">
+              {/* Roster is visible to the same people who may manage the course. */}
+              <Link
+                to={`/admin/courses/${course.id}/students`}
+                className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <Users className="h-3.5 w-3.5" />
+                Students
+              </Link>
               <button
                 type="button"
                 onClick={() => onEdit(course)}
