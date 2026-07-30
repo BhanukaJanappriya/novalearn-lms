@@ -45,3 +45,7 @@ logs/
 
 # ---------- Docker ----------
 .docker-data/
+
+# ---------- Local tooling ----------
+.claude/settings.local.json
+.claude/worktrees/
