@@ -18,6 +18,11 @@ const AdminDashboardPage = lazy(() =>
 const CoursesPage = lazy(() =>
   import("@/features/courses/pages/CoursesPage").then((m) => ({ default: m.CoursesPage })),
 );
+const CourseBuilderPage = lazy(() =>
+  import("@/features/content/pages/CourseBuilderPage").then((m) => ({
+    default: m.CourseBuilderPage,
+  })),
+);
 
 export function AppRoutes() {
   return (
@@ -60,6 +65,14 @@ export function AppRoutes() {
             element={
               <Suspense fallback={<FullScreenLoader />}>
                 <CoursesPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="courses/:courseId/content"
+            element={
+              <Suspense fallback={<FullScreenLoader />}>
+                <CourseBuilderPage />
               </Suspense>
             }
           />
