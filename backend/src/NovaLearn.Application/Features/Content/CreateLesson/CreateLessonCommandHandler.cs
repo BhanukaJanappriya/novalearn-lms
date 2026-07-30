@@ -38,6 +38,10 @@ public sealed class CreateLessonCommandHandler(
             sortOrder,
             request.IsPreview);
 
+        // The module owns the lesson, but the insert still has to be stated explicitly; see
+        // ICourseContentRepository.AddLessonAsync for why.
+        await content.AddLessonAsync(lesson, cancellationToken);
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return LessonDto.FromEntity(lesson);

@@ -55,6 +55,9 @@ public sealed class CourseContentRepository(ApplicationDbContext dbContext) : IC
     public async Task AddModuleAsync(CourseModule module, CancellationToken cancellationToken) =>
         await dbContext.CourseModules.AddAsync(module, cancellationToken);
 
+    public async Task AddLessonAsync(Lesson lesson, CancellationToken cancellationToken) =>
+        await dbContext.Lessons.AddAsync(lesson, cancellationToken);
+
     public void RemoveModule(CourseModule module)
     {
         // The database cascade only fires on a hard delete; because the interceptor turns these

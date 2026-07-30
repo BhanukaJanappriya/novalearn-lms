@@ -25,6 +25,14 @@ public interface ICourseContentRepository
 
     Task AddModuleAsync(CourseModule module, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Tracks a lesson created through <see cref="CourseModule.AddLesson"/> as an insert.
+    /// <see cref="Domain.Common.BaseEntity"/> assigns the key client-side, so a lesson reached
+    /// only through the module's navigation is tracked as Modified and saves as a no-op UPDATE.
+    /// The insert has to be stated explicitly.
+    /// </summary>
+    Task AddLessonAsync(Lesson lesson, CancellationToken cancellationToken);
+
     /// <summary>Soft-deletes a module and cascades the soft delete to its lessons.</summary>
     void RemoveModule(CourseModule module);
 
