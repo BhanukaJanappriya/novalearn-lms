@@ -41,8 +41,9 @@ Built with **ASP.NET Core 9** (Clean Architecture + DDD + CQRS) and **React 19**
 | Slice | Backend | Frontend | Tests | Status |
 |-------|:-------:|:--------:|:-----:|--------|
 | **Authentication** (register, login, JWT + refresh, email verification, roles) | ✅ | ✅ | ✅ | In progress |
-| Courses & Enrollment | — | — | — | Planned |
-| Content (video, PDF, CMS) | — | — | — | Planned |
+| **Courses** (CRUD, role-secured ownership) | ✅ | ✅ | ✅ | Done |
+| **Enrollment** (catalog, enrol/unenrol, progress, roster) | ✅ | ✅ | ✅ | Done |
+| **Content** (modules, lessons, course builder) | ✅ | ✅ | ✅ | Done |
 | Assignments & Quizzes | — | — | — | Planned |
 | Real-time (SignalR) | — | — | — | Planned |
 
