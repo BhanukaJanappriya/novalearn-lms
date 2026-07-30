@@ -18,6 +18,15 @@ const AdminDashboardPage = lazy(() =>
 const CoursesPage = lazy(() =>
   import("@/features/courses/pages/CoursesPage").then((m) => ({ default: m.CoursesPage })),
 );
+const CatalogPage = lazy(() =>
+  import("@/features/enrollments/pages/CatalogPage").then((m) => ({ default: m.CatalogPage })),
+);
+const MyCoursesPage = lazy(() =>
+  import("@/features/enrollments/pages/MyCoursesPage").then((m) => ({ default: m.MyCoursesPage })),
+);
+const CourseRosterPage = lazy(() =>
+  import("@/features/enrollments/pages/CourseRosterPage").then((m) => ({ default: m.CourseRosterPage })),
+);
 
 export function AppRoutes() {
   return (
@@ -34,6 +43,22 @@ export function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route
+          path="/catalog"
+          element={
+            <Suspense fallback={<FullScreenLoader />}>
+              <CatalogPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/my-courses"
+          element={
+            <Suspense fallback={<FullScreenLoader />}>
+              <MyCoursesPage />
+            </Suspense>
+          }
+        />
       </Route>
 
       <Route element={<AdminAreaRoute />}>
@@ -60,6 +85,14 @@ export function AppRoutes() {
             element={
               <Suspense fallback={<FullScreenLoader />}>
                 <CoursesPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="courses/:courseId/students"
+            element={
+              <Suspense fallback={<FullScreenLoader />}>
+                <CourseRosterPage />
               </Suspense>
             }
           />

@@ -1,39 +1,25 @@
-import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
-import { Logo } from "@/components/Logo";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { Button } from "@/components/ui/button";
+import { Compass, GraduationCap, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { LinkButton } from "@/components/ui/link-button";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { LearnerHeader } from "@/layouts/LearnerHeader";
 import { useAuth } from "@/context/AuthContext";
-import { authApi } from "@/services/authApi";
+import { useMyEnrollments } from "@/features/enrollments/api/queries";
 
 export function DashboardPage() {
-  const { user, clearSession } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { data: enrollments, isLoading } = useMyEnrollments();
 
-  const logout = useMutation({
-    mutationFn: () => authApi.logout(),
-    onSettled: () => {
-      clearSession();
-      navigate("/login", { replace: true });
-    },
-  });
+  const active = (enrollments ?? []).filter((e) => e.status !== "Dropped");
+  const completed = active.filter((e) => e.status === "Completed").length;
+  const averageProgress = active.length
+    ? Math.round(active.reduce((sum, e) => sum + e.progressPercent, 0) / active.length)
+    : 0;
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <Logo />
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <Button variant="outline" size="sm" onClick={() => logout.mutate()} isLoading={logout.isPending}>
-              <LogOut className="h-4 w-4" />
-              Sign out
-            </Button>
-          </div>
-        </div>
-      </header>
+      <LearnerHeader />
 
       <main className="mx-auto max-w-6xl px-6 py-10">
         <h1 className="text-2xl font-semibold tracking-tight">
@@ -63,21 +49,50 @@ export function DashboardPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Courses</CardTitle>
-              <CardDescription>Coming in the next slice.</CardDescription>
+              <CardTitle className="text-base">Enrolled courses</CardTitle>
+              <CardDescription>
+                {completed > 0 ? `${completed} completed so far` : "Everything you have joined"}
+              </CardDescription>
             </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              Browse, enrol and continue learning.
+            <CardContent className="space-y-4">
+              {isLoading ? (
+                <Skeleton className="h-9 w-16" />
+              ) : (
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-semibold tabular-nums">{active.length}</span>
+                  <span className="text-sm text-muted-foreground">
+                    course{active.length === 1 ? "" : "s"}
+                  </span>
+                </div>
+              )}
+              <LinkButton to="/my-courses" variant="outline" size="sm">
+                <GraduationCap className="h-4 w-4" />
+                My courses
+              </LinkButton>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Progress</CardTitle>
-              <CardDescription>Coming soon.</CardDescription>
+              <CardTitle className="text-base">Average progress</CardTitle>
+              <CardDescription>Across your active enrollments</CardDescription>
             </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              Track achievements and certificates.
+            <CardContent className="space-y-4">
+              {isLoading ? (
+                <Skeleton className="h-9 w-20" />
+              ) : (
+                <>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-semibold tabular-nums">{averageProgress}%</span>
+                    <TrendingUp className="h-4 w-4 text-success" aria-hidden />
+                  </div>
+                  <Progress value={averageProgress} label="Average" />
+                </>
+              )}
+              <LinkButton to="/catalog" size="sm">
+                <Compass className="h-4 w-4" />
+                Browse catalog
+              </LinkButton>
             </CardContent>
           </Card>
         </div>

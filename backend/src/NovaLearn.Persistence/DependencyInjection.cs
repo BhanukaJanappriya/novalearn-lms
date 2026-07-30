@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<ICourseRepository, CourseRepository>();
+        services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
         services.AddScoped<IAdminStatisticsService, AdminStatisticsService>();
 
         AddIdentity(services);
