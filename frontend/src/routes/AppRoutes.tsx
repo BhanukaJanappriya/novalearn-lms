@@ -3,7 +3,6 @@ import { Route, Routes } from "react-router-dom";
 import { LoginPage } from "@/pages/LoginPage";
 import { RegisterPage } from "@/pages/RegisterPage";
 import { VerifyEmailPage } from "@/pages/VerifyEmailPage";
-import { DashboardPage } from "@/pages/DashboardPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { AdminAreaRoute, HomeRedirect, ProtectedRoute, PublicOnlyRoute, RequireAdmin } from "./ProtectedRoute";
@@ -17,6 +16,11 @@ const AdminDashboardPage = lazy(() =>
 );
 const CoursesPage = lazy(() =>
   import("@/features/courses/pages/CoursesPage").then((m) => ({ default: m.CoursesPage })),
+);
+const StudentDashboardPage = lazy(() =>
+  import("@/features/student/pages/StudentDashboardPage").then((m) => ({
+    default: m.StudentDashboardPage,
+  })),
 );
 const CatalogPage = lazy(() =>
   import("@/features/enrollments/pages/CatalogPage").then((m) => ({ default: m.CatalogPage })),
@@ -45,7 +49,14 @@ export function AppRoutes() {
       </Route>
 
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <Suspense fallback={<FullScreenLoader />}>
+              <StudentDashboardPage />
+            </Suspense>
+          }
+        />
         <Route
           path="/catalog"
           element={
