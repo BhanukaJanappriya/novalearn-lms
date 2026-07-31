@@ -44,6 +44,7 @@ Built with **ASP.NET Core 9** (Clean Architecture + DDD + CQRS) and **React 19**
 | **Courses** (CRUD, role-secured ownership) | ✅ | ✅ | ✅ | Done |
 | **Enrollment** (catalog, enrol/unenrol, progress, roster) | ✅ | ✅ | ✅ | Done |
 | **Content** (modules, lessons, course builder) | ✅ | ✅ | ✅ | Done |
+| **Student dashboard** (progress, subjects, activity, suggestions) | ✅ | ✅ | ✅ | Done |
 | Assignments & Quizzes | — | — | — | Planned |
 | Real-time (SignalR) | — | — | — | Planned |
 
