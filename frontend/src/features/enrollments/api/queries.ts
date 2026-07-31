@@ -1,4 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { studentKeys } from "@/features/student/api/queries";
 import { enrollmentsApi } from "./enrollmentsApi";
 import type { CatalogFilters } from "./types";
 
@@ -43,6 +44,19 @@ export function useEnrollInCourse() {
     mutationFn: (courseId: string) => enrollmentsApi.enroll(courseId),
     // Enrolling changes the catalogue's isEnrolled/enrolledCount and "my courses".
     onSuccess: () => queryClient.invalidateQueries({ queryKey: enrollmentKeys.all }),
+  });
+}
+
+export function useUpdateProgress() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ enrollmentId, progressPercent }: { enrollmentId: string; progressPercent: number }) =>
+      enrollmentsApi.updateProgress(enrollmentId, progressPercent),
+    // Progress drives the dashboard summary as well as "my courses", so refresh both.
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: enrollmentKeys.all });
+      void queryClient.invalidateQueries({ queryKey: studentKeys.all });
+    },
   });
 }
 

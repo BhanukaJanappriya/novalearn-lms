@@ -26,6 +26,13 @@ export const enrollmentsApi = {
     return data;
   },
 
+  async updateProgress(enrollmentId: string, progressPercent: number): Promise<Enrollment> {
+    const { data } = await apiClient.put<Enrollment>(`/enrollments/${enrollmentId}/progress`, {
+      progressPercent,
+    });
+    return data;
+  },
+
   async unenroll(enrollmentId: string): Promise<void> {
     await apiClient.delete(`/enrollments/${enrollmentId}`);
   },
