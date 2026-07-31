@@ -19,3 +19,7 @@ public sealed record CourseCatalogRequest
 
     public int PageSize { get; init; } = 12;
 }
+
+/// <summary>Body for recording progress through a course.</summary>
+/// <param name="ProgressPercent">Completion percentage, 0 to 100. Reaching 100 completes the enrolment.</param>
+public sealed record UpdateProgressRequest(int ProgressPercent);

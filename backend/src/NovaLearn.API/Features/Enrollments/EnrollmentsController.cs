@@ -9,6 +9,7 @@ using NovaLearn.Application.Features.Enrollments.GetCourseCatalog;
 using NovaLearn.Application.Features.Enrollments.GetCourseRoster;
 using NovaLearn.Application.Features.Enrollments.GetMyEnrollments;
 using NovaLearn.Application.Features.Enrollments.UnenrollFromCourse;
+using NovaLearn.Application.Features.Enrollments.UpdateProgress;
 using NovaLearn.Domain.Identity;
 using NovaLearn.Shared.Common;
 using NovaLearn.Shared.Results;
@@ -68,6 +69,18 @@ public sealed class EnrollmentsController(ISender sender) : ApiControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Mine(CancellationToken cancellationToken) =>
         HandleResult(await sender.Send(new GetMyEnrollmentsQuery(), cancellationToken));
+
+    /// <summary>Records progress through a course (learners their own; admins any).</summary>
+    [HttpPut("enrollments/{id:guid}/progress")]
+    [ProducesResponseType(typeof(EnrollmentDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> UpdateProgress(
+        Guid id, UpdateProgressRequest request, CancellationToken cancellationToken) =>
+        HandleResult(await sender.Send(
+            new UpdateProgressCommand(id, request.ProgressPercent), cancellationToken));
 
     /// <summary>Drops an enrolment (students their own; admins any).</summary>
     [HttpDelete("enrollments/{id:guid}")]

@@ -17,6 +17,9 @@ public static class EnrollmentErrors
     public static readonly Error NotOwner =
         Error.Forbidden("enrollment.not_owner", "You can only manage your own enrollments.");
 
+    public static readonly Error NotActive =
+        Error.Conflict("enrollment.not_active", "You have withdrawn from this course; rejoin it to record progress.");
+
     public static readonly Error NotCourseOwner =
         Error.Forbidden("enrollment.not_course_owner", "You can only view the roster for courses that you own.");
 
