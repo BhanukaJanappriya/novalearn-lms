@@ -37,6 +37,7 @@ public static class DependencyInjection
         services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
         services.AddScoped<IAdminStatisticsService, AdminStatisticsService>();
         services.AddScoped<IStudentDashboardService, StudentDashboardService>();
+        services.AddScoped<IUserDirectory, UserDirectory>();
 
         AddIdentity(services);
 

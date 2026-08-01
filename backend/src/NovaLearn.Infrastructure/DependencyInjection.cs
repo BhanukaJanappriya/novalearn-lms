@@ -29,6 +29,7 @@ public static class DependencyInjection
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IUserAdministration, UserAdministrationService>();
         services.AddScoped<IEmailSender, LoggingEmailSender>();
 
         return services;
