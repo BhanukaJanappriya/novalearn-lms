@@ -15,7 +15,7 @@ import { useCourseCatalog, useEnrollInCourse } from "../api/queries";
 import type { CatalogCourse, CatalogFilters as Filters } from "../api/types";
 import { CatalogCard } from "../components/CatalogCard";
 import { CatalogFilters } from "../components/CatalogFilters";
-import { PaginationControls } from "../components/PaginationControls";
+import { PaginationControls } from "@/components/ui/pagination";
 
 const PAGE_SIZE = 12;
 
@@ -148,6 +148,7 @@ export function CatalogPage() {
             totalPages={data.totalPages}
             totalCount={data.totalCount}
             onPageChange={setPage}
+            noun="course"
           />
         )}
       </main>
