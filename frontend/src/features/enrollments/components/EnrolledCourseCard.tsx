@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { BookOpen, CircleCheckBig, LogOut, PlayCircle } from "lucide-react";
+import { BookOpen, CircleCheckBig, ClipboardList, LogOut, PlayCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { LinkButton } from "@/components/ui/link-button";
 import { Progress } from "@/components/ui/progress";
@@ -67,15 +67,25 @@ export function EnrolledCourseCard({ enrollment, onUnenroll }: EnrolledCourseCar
           <Progress value={enrollment.progressPercent} label={enrollment.courseTitle} />
         </div>
 
-        <div className="mt-auto flex items-center justify-between gap-2 pt-4">
-          <LinkButton
-            to={`/catalog?search=${encodeURIComponent(enrollment.courseCode)}`}
-            size="sm"
-            variant={isComplete ? "outline" : "default"}
-          >
-            <PlayCircle className="h-4 w-4" />
-            {isComplete ? "Review" : "Continue"}
-          </LinkButton>
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-4">
+          <div className="flex items-center gap-2">
+            <LinkButton
+              to={`/catalog?search=${encodeURIComponent(enrollment.courseCode)}`}
+              size="sm"
+              variant={isComplete ? "outline" : "default"}
+            >
+              <PlayCircle className="h-4 w-4" />
+              {isComplete ? "Review" : "Continue"}
+            </LinkButton>
+            <LinkButton
+              to={`/my-courses/${enrollment.courseId}/assignments`}
+              size="sm"
+              variant="outline"
+            >
+              <ClipboardList className="h-4 w-4" />
+              Assignments
+            </LinkButton>
+          </div>
           <button
             type="button"
             onClick={() => onUnenroll(enrollment)}

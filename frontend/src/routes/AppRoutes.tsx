@@ -31,6 +31,19 @@ const MyCoursesPage = lazy(() =>
 const CourseRosterPage = lazy(() =>
   import("@/features/enrollments/pages/CourseRosterPage").then((m) => ({ default: m.CourseRosterPage })),
 );
+const AssignmentsManagerPage = lazy(() =>
+  import("@/features/assessments/pages/AssignmentsManagerPage").then((m) => ({
+    default: m.AssignmentsManagerPage,
+  })),
+);
+const GradebookPage = lazy(() =>
+  import("@/features/assessments/pages/GradebookPage").then((m) => ({ default: m.GradebookPage })),
+);
+const MyAssignmentsPage = lazy(() =>
+  import("@/features/assessments/pages/MyAssignmentsPage").then((m) => ({
+    default: m.MyAssignmentsPage,
+  })),
+);
 const UsersPage = lazy(() =>
   import("@/features/users/pages/UsersPage").then((m) => ({ default: m.UsersPage })),
 );
@@ -65,6 +78,14 @@ export function AppRoutes() {
           element={
             <Suspense fallback={<FullScreenLoader />}>
               <CatalogPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/my-courses/:courseId/assignments"
+          element={
+            <Suspense fallback={<FullScreenLoader />}>
+              <MyAssignmentsPage />
             </Suspense>
           }
         />
@@ -120,6 +141,22 @@ export function AppRoutes() {
             element={
               <Suspense fallback={<FullScreenLoader />}>
                 <CourseRosterPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="courses/:courseId/assignments"
+            element={
+              <Suspense fallback={<FullScreenLoader />}>
+                <AssignmentsManagerPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="courses/:courseId/gradebook"
+            element={
+              <Suspense fallback={<FullScreenLoader />}>
+                <GradebookPage />
               </Suspense>
             }
           />
