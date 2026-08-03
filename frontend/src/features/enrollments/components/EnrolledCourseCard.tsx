@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { BookOpen, CircleCheckBig, ClipboardList, LogOut, PlayCircle } from "lucide-react";
+import { BookOpen, CircleCheckBig, ClipboardList, ListChecks, LogOut, PlayCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { LinkButton } from "@/components/ui/link-button";
 import { Progress } from "@/components/ui/progress";
@@ -84,6 +84,14 @@ export function EnrolledCourseCard({ enrollment, onUnenroll }: EnrolledCourseCar
             >
               <ClipboardList className="h-4 w-4" />
               Assignments
+            </LinkButton>
+            <LinkButton
+              to={`/my-courses/${enrollment.courseId}/quizzes`}
+              size="sm"
+              variant="outline"
+            >
+              <ListChecks className="h-4 w-4" />
+              Quizzes
             </LinkButton>
           </div>
           <button

@@ -44,6 +44,24 @@ const MyAssignmentsPage = lazy(() =>
     default: m.MyAssignmentsPage,
   })),
 );
+const QuizManagerPage = lazy(() =>
+  import("@/features/quizzes/pages/QuizManagerPage").then((m) => ({ default: m.QuizManagerPage })),
+);
+const QuizBuilderPage = lazy(() =>
+  import("@/features/quizzes/pages/QuizBuilderPage").then((m) => ({ default: m.QuizBuilderPage })),
+);
+const QuizResultsPage = lazy(() =>
+  import("@/features/quizzes/pages/QuizResultsPage").then((m) => ({ default: m.QuizResultsPage })),
+);
+const MyQuizzesPage = lazy(() =>
+  import("@/features/quizzes/pages/MyQuizzesPage").then((m) => ({ default: m.MyQuizzesPage })),
+);
+const QuizAttemptPage = lazy(() =>
+  import("@/features/quizzes/pages/QuizAttemptPage").then((m) => ({ default: m.QuizAttemptPage })),
+);
+const AttemptResultPage = lazy(() =>
+  import("@/features/quizzes/pages/AttemptResultPage").then((m) => ({ default: m.AttemptResultPage })),
+);
 const UsersPage = lazy(() =>
   import("@/features/users/pages/UsersPage").then((m) => ({ default: m.UsersPage })),
 );
@@ -78,6 +96,30 @@ export function AppRoutes() {
           element={
             <Suspense fallback={<FullScreenLoader />}>
               <CatalogPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/my-courses/:courseId/quizzes"
+          element={
+            <Suspense fallback={<FullScreenLoader />}>
+              <MyQuizzesPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/my-courses/:courseId/quizzes/:quizId/attempt"
+          element={
+            <Suspense fallback={<FullScreenLoader />}>
+              <QuizAttemptPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/my-courses/:courseId/quizzes/:quizId/result/:attemptId"
+          element={
+            <Suspense fallback={<FullScreenLoader />}>
+              <AttemptResultPage />
             </Suspense>
           }
         />
@@ -149,6 +191,30 @@ export function AppRoutes() {
             element={
               <Suspense fallback={<FullScreenLoader />}>
                 <AssignmentsManagerPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="courses/:courseId/quizzes"
+            element={
+              <Suspense fallback={<FullScreenLoader />}>
+                <QuizManagerPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="courses/:courseId/quizzes/:quizId"
+            element={
+              <Suspense fallback={<FullScreenLoader />}>
+                <QuizBuilderPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="courses/:courseId/quizzes/:quizId/results"
+            element={
+              <Suspense fallback={<FullScreenLoader />}>
+                <QuizResultsPage />
               </Suspense>
             }
           />

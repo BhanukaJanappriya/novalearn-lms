@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { BookOpen, ClipboardList, Layers, Pencil, Trash2, User, Users } from "lucide-react";
+import { BookOpen, ClipboardList, Layers, ListChecks, Pencil, Trash2, User, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useSpotlight } from "@/hooks/useSpotlight";
 import type { Course, CourseLevel, CourseStatus } from "../api/types";
@@ -103,6 +103,13 @@ export function CourseCard({ course, canManage, onEdit, onDelete }: CourseCardPr
               >
                 <ClipboardList className="h-3.5 w-3.5" />
                 Work
+              </Link>
+              <Link
+                to={`/admin/courses/${course.id}/quizzes`}
+                className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <ListChecks className="h-3.5 w-3.5" />
+                Quizzes
               </Link>
               <Link
                 to={`/admin/courses/${course.id}/students`}
