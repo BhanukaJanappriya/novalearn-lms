@@ -66,6 +66,26 @@ public static class DependencyInjection
                 options.MapInboundClaims = false;
                 options.SaveToken = true;
                 options.TokenValidationParameters = validationParameters;
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        // A SignalR WebSocket cannot carry an Authorization header, so the client
+                        // passes the token as a query parameter. Restricted to hub paths so a
+                        // token can never be accepted from a query string on a normal endpoint,
+                        // where it would end up in logs and browser history.
+                        string? accessToken = context.Request.Query["access_token"];
+
+                        if (!string.IsNullOrEmpty(accessToken)
+                            && context.HttpContext.Request.Path.StartsWithSegments("/hubs"))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
         services.AddAuthorization();

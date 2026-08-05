@@ -1,4 +1,6 @@
 using NovaLearn.API.Extensions;
+using NovaLearn.API.Features.Notifications;
+using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application;
 using NovaLearn.Infrastructure;
 using NovaLearn.Persistence;
@@ -20,6 +22,11 @@ builder.Services
     .AddJwtAuthentication(builder.Configuration)
     .AddPresentation(builder.Configuration);
 
+// Real-time delivery. The hub lives in the presentation layer, so the Application layer only
+// knows the INotificationPublisher port.
+builder.Services.AddSignalR();
+builder.Services.AddScoped<INotificationPublisher, SignalRNotificationPublisher>();
+
 WebApplication app = builder.Build();
 
 // --- HTTP pipeline (order matters) ---
@@ -40,6 +47,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
 app.MapHealthChecks("/health");
 
 app.Run();
