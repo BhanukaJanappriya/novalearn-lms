@@ -13,6 +13,7 @@ import {
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 import { cn } from "@/lib/utils";
 
 interface TopBarProps {
@@ -110,6 +111,7 @@ export function TopBar({ userName, userEmail, roles, onLogout, onMobileMenu }: T
           )}
         </div>
 
+        <NotificationBell />
         <ThemeToggle />
 
         {/* Profile */}

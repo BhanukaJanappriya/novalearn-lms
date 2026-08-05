@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { authApi } from "@/services/authApi";
@@ -56,6 +57,7 @@ export function LearnerHeader() {
           </nav>
         </div>
         <div className="flex items-center gap-2">
+          <NotificationBell />
           <ThemeToggle />
           <Button variant="outline" size="sm" onClick={() => logout.mutate()} isLoading={logout.isPending}>
             <LogOut className="h-4 w-4" />
