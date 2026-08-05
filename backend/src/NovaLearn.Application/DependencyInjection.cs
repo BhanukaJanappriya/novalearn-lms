@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using NovaLearn.Application.Common.Behaviours;
 using NovaLearn.Application.Features.Authentication.Common;
+using NovaLearn.Application.Features.Notifications.Common;
 
 namespace NovaLearn.Application;
 
@@ -25,6 +26,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
 
         services.AddScoped<IAuthTokenIssuer, AuthTokenIssuer>();
+        services.AddScoped<NotificationDispatcher>();
 
         return services;
     }
