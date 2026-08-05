@@ -37,6 +37,7 @@ public static class DependencyInjection
         services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
         services.AddScoped<IAssessmentRepository, AssessmentRepository>();
         services.AddScoped<IQuizRepository, QuizRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IAdminStatisticsService, AdminStatisticsService>();
         services.AddScoped<IStudentDashboardService, StudentDashboardService>();
         services.AddScoped<IUserDirectory, UserDirectory>();
