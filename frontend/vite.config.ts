@@ -19,6 +19,14 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      // The SignalR hub sits outside /api and needs ws: true, or the connection
+      // silently falls back to long polling.
+      "/hubs": {
+        target: "https://localhost:7001",
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+      },
     },
   },
 });
