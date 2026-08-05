@@ -48,7 +48,7 @@ Built with **ASP.NET Core 9** (Clean Architecture + DDD + CQRS) and **React 19**
 | **User management** (directory, roles, activation, verification) | ✅ | ✅ | ✅ | Done |
 | **Assignments & Gradebook** (author, submit, mark, grade grid) | ✅ | ✅ | ✅ | Done |
 | **Quizzes** (question bank, timed attempts, auto-marking) | ✅ | ✅ | ✅ | Done |
-| Real-time (SignalR) | — | — | — | Planned |
+| **Real-time** (SignalR notifications, live badge and toast) | ✅ | ✅ | ✅ | Done |
 
 ---
 
