@@ -54,7 +54,7 @@ Built with **ASP.NET Core 9** (Clean Architecture + DDD + CQRS) and **React 19**
 
 ## Architecture
 
-Clean / Onion Architecture — dependencies point inward.
+Clean / Onion Architecture - dependencies point inward.
 
 ```
 API ─▶ Application ─▶ Domain ◀─ Shared
