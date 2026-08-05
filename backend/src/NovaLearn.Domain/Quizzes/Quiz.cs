@@ -1,6 +1,7 @@
 using NovaLearn.Domain.Assessments;
 using NovaLearn.Domain.Common;
 using NovaLearn.Domain.Courses;
+using NovaLearn.Domain.Quizzes.Events;
 
 namespace NovaLearn.Domain.Quizzes;
 
@@ -83,12 +84,30 @@ public sealed class Quiz : BaseEntity
         MaxAttempts = ClampAttempts(maxAttempts);
         PassingScorePercent = ClampPercent(passingScorePercent);
         ShuffleQuestions = shuffleQuestions;
-        Status = status;
+
+        SetStatus(status);
     }
 
-    public void Publish() => Status = AssessmentStatus.Published;
+    public void Publish() => SetStatus(AssessmentStatus.Published);
 
     public void Unpublish() => Status = AssessmentStatus.Draft;
+
+    /// <summary>
+    /// Announces the quiz only as it crosses into Published, so editing a live quiz does not
+    /// notify the whole cohort again.
+    /// </summary>
+    private void SetStatus(AssessmentStatus status)
+    {
+        bool isBecomingVisible = status == AssessmentStatus.Published && Status != AssessmentStatus.Published;
+
+        Status = status;
+
+        if (isBecomingVisible)
+        {
+            RaiseDomainEvent(new QuizPublishedDomainEvent(
+                Id, CourseId, Title, _questions.Count, TimeLimitMinutes));
+        }
+    }
 
     public Question AddQuestion(
         string text, QuestionType type, int points, int sortOrder, IEnumerable<string>? acceptedAnswers)

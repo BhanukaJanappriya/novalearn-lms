@@ -1,3 +1,4 @@
+using NovaLearn.Domain.Assessments.Events;
 using NovaLearn.Domain.Common;
 using NovaLearn.Domain.Courses;
 
@@ -44,7 +45,7 @@ public sealed class Assignment : BaseEntity
         bool allowLateSubmissions,
         AssessmentStatus status)
     {
-        return new Assignment
+        var assignment = new Assignment
         {
             CourseId = courseId,
             Title = title.Trim(),
@@ -54,6 +55,15 @@ public sealed class Assignment : BaseEntity
             AllowLateSubmissions = allowLateSubmissions,
             Status = status
         };
+
+        // An assignment created straight into Published announces itself too.
+        if (status == AssessmentStatus.Published)
+        {
+            assignment.RaiseDomainEvent(new AssignmentPublishedDomainEvent(
+                assignment.Id, courseId, assignment.Title, dueAtUtc));
+        }
+
+        return assignment;
     }
 
     /// <summary>Applies edited details, keeping the same invariants as <see cref="Create"/>.</summary>
@@ -70,12 +80,29 @@ public sealed class Assignment : BaseEntity
         DueAtUtc = dueAtUtc;
         MaxPoints = ClampPoints(maxPoints);
         AllowLateSubmissions = allowLateSubmissions;
-        Status = status;
+
+        SetStatus(status);
     }
 
-    public void Publish() => Status = AssessmentStatus.Published;
+    public void Publish() => SetStatus(AssessmentStatus.Published);
 
     public void Unpublish() => Status = AssessmentStatus.Draft;
+
+    /// <summary>
+    /// Announces the assignment only as it crosses into Published. Raising on every save would
+    /// notify the whole cohort each time a typo was fixed.
+    /// </summary>
+    private void SetStatus(AssessmentStatus status)
+    {
+        bool isBecomingVisible = status == AssessmentStatus.Published && Status != AssessmentStatus.Published;
+
+        Status = status;
+
+        if (isBecomingVisible)
+        {
+            RaiseDomainEvent(new AssignmentPublishedDomainEvent(Id, CourseId, Title, DueAtUtc));
+        }
+    }
 
     /// <summary>Whether work handed in at <paramref name="at"/> counts as late.</summary>
     public bool IsLateAt(DateTimeOffset at) => DueAtUtc is { } due && at > due;

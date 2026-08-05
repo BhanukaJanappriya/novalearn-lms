@@ -1,3 +1,4 @@
+using NovaLearn.Domain.Assessments.Events;
 using NovaLearn.Domain.Common;
 using NovaLearn.Domain.Identity;
 
@@ -49,7 +50,7 @@ public sealed class Submission : BaseEntity
         DateTimeOffset submittedAtUtc,
         bool isLate)
     {
-        return new Submission
+        var submission = new Submission
         {
             AssignmentId = assignmentId,
             StudentId = studentId,
@@ -59,6 +60,11 @@ public sealed class Submission : BaseEntity
             IsLate = isLate,
             Status = SubmissionStatus.Submitted
         };
+
+        submission.RaiseDomainEvent(
+            new SubmissionReceivedDomainEvent(submission.Id, assignmentId, studentId, isLate));
+
+        return submission;
     }
 
     /// <summary>
@@ -77,6 +83,9 @@ public sealed class Submission : BaseEntity
         Feedback = null;
         GradedById = null;
         GradedAtUtc = null;
+
+        // Replaced work needs marking again, so the course owner is told just as for a first hand-in.
+        RaiseDomainEvent(new SubmissionReceivedDomainEvent(Id, AssignmentId, StudentId, isLate));
     }
 
     /// <summary>
@@ -90,6 +99,9 @@ public sealed class Submission : BaseEntity
         GradedById = gradedById;
         GradedAtUtc = gradedAtUtc;
         Status = SubmissionStatus.Graded;
+
+        RaiseDomainEvent(new SubmissionGradedDomainEvent(
+            Id, AssignmentId, StudentId, PointsAwarded ?? 0, maxPoints));
     }
 
     private static string? Normalise(string? value) =>
