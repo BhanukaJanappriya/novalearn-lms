@@ -33,7 +33,7 @@ public sealed class SubmitAttemptCommandHandler(
             return Result.Failure<AttemptResultDto>(QuizErrors.NotAttemptOwner);
         }
 
-        if (attempt.Status == AttemptStatus.Submitted)
+        if (attempt.Status != AttemptStatus.InProgress)
         {
             return Result.Failure<AttemptResultDto>(QuizErrors.AttemptAlreadySubmitted);
         }
@@ -45,8 +45,15 @@ public sealed class SubmitAttemptCommandHandler(
             return Result.Failure<AttemptResultDto>(QuizErrors.QuizNotFound);
         }
 
+        // A required question left blank is a client-side mistake worth catching here too, since
+        // the client is not the only way in.
+        if (attempt.UnansweredRequired(quiz).Count > 0)
+        {
+            return Result.Failure<AttemptResultDto>(QuizErrors.RequiredQuestionsUnanswered);
+        }
+
         // Marking, the score and the pass decision all happen inside the aggregate, so a score
-        // can never be set from outside.
+        // can never be set from outside. Essays are deferred to a person rather than scored.
         attempt.Submit(quiz, dateTime.UtcNow);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);

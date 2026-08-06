@@ -36,12 +36,15 @@ public sealed class GetQuizResultsQueryHandler(
                 a.Student?.FullName ?? "Unknown",
                 a.Student?.Email ?? string.Empty,
                 a.AttemptNumber,
+                a.Status.ToString(),
                 a.SubmittedAtUtc,
                 a.PointsAwarded,
                 a.TotalPoints,
                 a.ScorePercent,
                 a.IsPassed,
-                a.WasLate))
+                a.WasLate,
+                a.HasPendingManualMarking,
+                a.AwaitingMarkingCount))
             .ToList();
 
         return new QuizResultsDto(
@@ -54,6 +57,7 @@ public sealed class GetQuizResultsQueryHandler(
             rows.Count == 0 ? null : Math.Round(rows.Average(r => r.ScorePercent), 1),
             // Counted per learner, not per attempt, so three passes by one person is still one pass.
             rows.Where(r => r.IsPassed).Select(r => r.StudentId).Distinct().Count(),
+            rows.Count(r => r.IsAwaitingMarking),
             rows);
     }
 }

@@ -18,7 +18,9 @@ public sealed record SaveQuestionCommand(
     QuestionType Type,
     int Points,
     IReadOnlyList<string> AcceptedAnswers,
-    IReadOnlyList<QuestionOptionInput> Options) : IRequest<Result<AuthoringQuestionDto>>;
+    IReadOnlyList<QuestionOptionInput> Options,
+    bool IsRequired,
+    string? MarkingGuidance) : IRequest<Result<AuthoringQuestionDto>>;
 
 /// <summary>One option as submitted by the author.</summary>
 public sealed record QuestionOptionInput(string Text, bool IsCorrect);

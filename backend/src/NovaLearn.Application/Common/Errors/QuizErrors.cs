@@ -53,6 +53,16 @@ public static class QuizErrors
             "quiz.not_ready_to_publish",
             "Add at least one question, and give every question a correct answer, before publishing.");
 
+    public static readonly Error AnswerNotMarkable =
+        Error.Conflict(
+            "quiz.answer_not_markable",
+            "That answer is not an essay awaiting marking, so it cannot be marked by hand.");
+
+    public static readonly Error RequiredQuestionsUnanswered =
+        Error.Validation(
+            "quiz.required_unanswered",
+            "Answer every required question before submitting.");
+
     public static readonly Error QuestionNotInAttempt =
         Error.Validation("quiz.question_not_in_attempt", "That question does not belong to this quiz.");
 

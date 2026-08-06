@@ -53,7 +53,7 @@ public sealed class GetCourseQuizzesQueryHandler(
             await quizzes.ListAttemptsForCourseAsync(request.CourseId, callerId, cancellationToken);
 
         ILookup<Guid, QuizAttempt> byQuiz = mine
-            .Where(a => a.Status == AttemptStatus.Submitted)
+            .Where(a => a.Status != AttemptStatus.InProgress)
             .ToLookup(a => a.QuizId);
 
         return all

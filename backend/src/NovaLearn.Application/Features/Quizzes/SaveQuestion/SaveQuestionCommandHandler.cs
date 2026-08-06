@@ -38,7 +38,8 @@ public sealed class SaveQuestionCommandHandler(
         int sortOrder = quiz.Questions.Count == 0 ? 0 : quiz.Questions.Max(q => q.SortOrder) + 1;
 
         Question question = quiz.AddQuestion(
-            request.Text, request.Type, request.Points, sortOrder, request.AcceptedAnswers);
+            request.Text, request.Type, request.Points, sortOrder, request.AcceptedAnswers,
+            request.IsRequired, request.MarkingGuidance);
 
         IReadOnlyList<QuestionOption> options = question.ReplaceOptions(
             request.Options.Select(o => (o.Text, o.IsCorrect)));
@@ -65,7 +66,9 @@ public sealed class SaveQuestionCommandHandler(
             return Result.Failure<AuthoringQuestionDto>(QuizErrors.QuestionNotFound);
         }
 
-        question.Update(request.Text, request.Type, request.Points, request.AcceptedAnswers);
+        question.Update(
+            request.Text, request.Type, request.Points, request.AcceptedAnswers,
+            request.IsRequired, request.MarkingGuidance);
 
         IReadOnlyList<QuestionOption> options = question.ReplaceOptions(
             request.Options.Select(o => (o.Text, o.IsCorrect)));

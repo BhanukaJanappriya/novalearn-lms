@@ -34,7 +34,18 @@ public sealed record SaveQuestionRequest(
     QuestionType Type,
     int Points,
     IReadOnlyList<string>? AcceptedAnswers,
-    IReadOnlyList<QuestionOptionInput>? Options);
+    IReadOnlyList<QuestionOptionInput>? Options,
+    bool IsRequired = false,
+    string? MarkingGuidance = null);
+
+/// <summary>Body for reordering a quiz's questions. Must list every question id, in order.</summary>
+public sealed record ReorderQuestionsRequest(IReadOnlyList<Guid> QuestionIds);
+
+/// <summary>Body for a person marking one essay answer.</summary>
+public sealed record MarkEssayAnswerRequest(int PointsAwarded, string? Feedback);
 
 /// <summary>Body for recording one answer while an attempt is open.</summary>
-public sealed record SaveAnswerRequest(Guid QuestionId, Guid? SelectedOptionId, string? TextAnswer);
+public sealed record SaveAnswerRequest(
+    Guid QuestionId,
+    IReadOnlyList<Guid>? SelectedOptionIds,
+    string? TextAnswer);

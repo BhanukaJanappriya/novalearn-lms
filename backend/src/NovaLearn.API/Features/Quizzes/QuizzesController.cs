@@ -7,10 +7,13 @@ using NovaLearn.Application.Features.Quizzes.Common;
 using NovaLearn.Application.Features.Quizzes.CreateQuiz;
 using NovaLearn.Application.Features.Quizzes.DeleteQuestion;
 using NovaLearn.Application.Features.Quizzes.DeleteQuiz;
+using NovaLearn.Application.Features.Quizzes.DuplicateQuestion;
 using NovaLearn.Application.Features.Quizzes.GetAttemptResult;
 using NovaLearn.Application.Features.Quizzes.GetCourseQuizzes;
 using NovaLearn.Application.Features.Quizzes.GetQuizForAuthoring;
 using NovaLearn.Application.Features.Quizzes.GetQuizResults;
+using NovaLearn.Application.Features.Quizzes.MarkEssayAnswer;
+using NovaLearn.Application.Features.Quizzes.ReorderQuestions;
 using NovaLearn.Application.Features.Quizzes.SaveAnswer;
 using NovaLearn.Application.Features.Quizzes.SaveQuestion;
 using NovaLearn.Application.Features.Quizzes.StartAttempt;
@@ -118,7 +121,9 @@ public sealed class QuizzesController(ISender sender) : ApiControllerBase
             request.Type,
             request.Points,
             request.AcceptedAnswers ?? [],
-            request.Options ?? []);
+            request.Options ?? [],
+            request.IsRequired,
+            request.MarkingGuidance);
 
         return HandleResult(await sender.Send(command, cancellationToken));
     }
@@ -160,7 +165,8 @@ public sealed class QuizzesController(ISender sender) : ApiControllerBase
     public async Task<IActionResult> SaveAnswer(
         Guid attemptId, SaveAnswerRequest request, CancellationToken cancellationToken) =>
         HandleResult(await sender.Send(
-            new SaveAnswerCommand(attemptId, request.QuestionId, request.SelectedOptionId, request.TextAnswer),
+            new SaveAnswerCommand(
+                attemptId, request.QuestionId, request.SelectedOptionIds ?? [], request.TextAnswer),
             cancellationToken));
 
     /// <summary>Hands the attempt in and marks it.</summary>
@@ -171,6 +177,44 @@ public sealed class QuizzesController(ISender sender) : ApiControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> SubmitAttempt(Guid attemptId, CancellationToken cancellationToken) =>
         HandleResult(await sender.Send(new SubmitAttemptCommand(attemptId), cancellationToken));
+
+    /// <summary>Reorders a quiz's questions. Must list every question id.</summary>
+    [HttpPut("quizzes/{quizId:guid}/questions/order")]
+    [Authorize(Roles = ManagerRoles)]
+    [ProducesResponseType(typeof(QuizAuthoringDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReorderQuestions(
+        Guid quizId, ReorderQuestionsRequest request, CancellationToken cancellationToken) =>
+        HandleResult(await sender.Send(
+            new ReorderQuestionsCommand(quizId, request.QuestionIds), cancellationToken));
+
+    /// <summary>Copies a question, answer key and all, to the end of its quiz.</summary>
+    [HttpPost("questions/{questionId:guid}/duplicate")]
+    [Authorize(Roles = ManagerRoles)]
+    [ProducesResponseType(typeof(AuthoringQuestionDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DuplicateQuestion(
+        Guid questionId, CancellationToken cancellationToken) =>
+        HandleResult(await sender.Send(new DuplicateQuestionCommand(questionId), cancellationToken));
+
+    /// <summary>Marks one essay answer by hand. Course owner or admin only.</summary>
+    [HttpPut("attempts/{attemptId:guid}/answers/{answerId:guid}/mark")]
+    [Authorize(Roles = ManagerRoles)]
+    [ProducesResponseType(typeof(AttemptResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> MarkEssayAnswer(
+        Guid attemptId,
+        Guid answerId,
+        MarkEssayAnswerRequest request,
+        CancellationToken cancellationToken) =>
+        HandleResult(await sender.Send(
+            new MarkEssayAnswerCommand(attemptId, answerId, request.PointsAwarded, request.Feedback),
+            cancellationToken));
 
     /// <summary>A marked attempt. The learner who sat it, or staff on that course.</summary>
     [HttpGet("attempts/{attemptId:guid}")]

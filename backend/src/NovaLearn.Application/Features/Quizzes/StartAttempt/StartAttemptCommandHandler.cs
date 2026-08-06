@@ -55,7 +55,8 @@ public sealed class StartAttemptCommandHandler(
         IReadOnlyList<QuizAttempt> previous =
             await quizzes.ListAttemptsForStudentAsync(quiz.Id, studentId, cancellationToken);
 
-        int used = previous.Count(a => a.Status == AttemptStatus.Submitted);
+        // A pending-review attempt still counts as used: it has been handed in.
+        int used = previous.Count(a => a.Status != AttemptStatus.InProgress);
         if (!quiz.AllowsAnotherAttempt(used))
         {
             return Result.Failure<AttemptInProgressDto>(QuizErrors.NoAttemptsLeft);

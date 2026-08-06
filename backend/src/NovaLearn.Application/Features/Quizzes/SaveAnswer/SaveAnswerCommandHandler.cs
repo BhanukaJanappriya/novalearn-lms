@@ -32,7 +32,7 @@ public sealed class SaveAnswerCommandHandler(
             return Result.Failure(QuizErrors.NotAttemptOwner);
         }
 
-        if (attempt.Status == AttemptStatus.Submitted)
+        if (attempt.Status != AttemptStatus.InProgress)
         {
             return Result.Failure(QuizErrors.AttemptAlreadySubmitted);
         }
@@ -52,7 +52,7 @@ public sealed class SaveAnswerCommandHandler(
         bool isNew = attempt.Answers.All(a => a.QuestionId != request.QuestionId);
 
         AttemptAnswer? answer = attempt.Respond(
-            request.QuestionId, request.SelectedOptionId, request.TextAnswer);
+            request.QuestionId, request.SelectedOptionIds, request.TextAnswer);
 
         if (answer is null)
         {

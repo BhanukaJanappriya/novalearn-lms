@@ -35,7 +35,8 @@ public sealed class GetAttemptResultQueryHandler(
         }
 
         // This shape carries correct answers, so an attempt still in progress must not return it.
-        if (attempt.Status != AttemptStatus.Submitted)
+        // PendingReview is fine: it has been handed in, the score is just not final yet.
+        if (attempt.Status == AttemptStatus.InProgress)
         {
             return Result.Failure<AttemptResultDto>(QuizErrors.AttemptNotSubmitted);
         }

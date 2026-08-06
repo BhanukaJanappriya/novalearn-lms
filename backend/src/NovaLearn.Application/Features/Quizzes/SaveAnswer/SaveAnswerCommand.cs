@@ -10,5 +10,5 @@ namespace NovaLearn.Application.Features.Quizzes.SaveAnswer;
 public sealed record SaveAnswerCommand(
     Guid AttemptId,
     Guid QuestionId,
-    Guid? SelectedOptionId,
+    IReadOnlyList<Guid> SelectedOptionIds,
     string? TextAnswer) : IRequest<Result>;
