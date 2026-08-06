@@ -110,12 +110,23 @@ public sealed class Quiz : BaseEntity
     }
 
     public Question AddQuestion(
-        string text, QuestionType type, int points, int sortOrder, IEnumerable<string>? acceptedAnswers)
+        string text,
+        QuestionType type,
+        int points,
+        int sortOrder,
+        IEnumerable<string>? acceptedAnswers,
+        bool isRequired = false,
+        string? markingGuidance = null)
     {
-        Question question = Question.Create(Id, text, type, points, sortOrder, acceptedAnswers);
+        Question question = Question.Create(
+            Id, text, type, points, sortOrder, acceptedAnswers, isRequired, markingGuidance);
+
         _questions.Add(question);
         return question;
     }
+
+    /// <summary>Whether any question on this quiz has to be marked by a person.</summary>
+    public bool HasManuallyMarkedQuestions => _questions.Any(q => q.RequiresManualMarking);
 
     /// <summary>
     /// Whether the quiz can be sat: it needs at least one question, and every question must be

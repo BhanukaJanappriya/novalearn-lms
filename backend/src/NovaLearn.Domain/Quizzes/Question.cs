@@ -31,11 +31,17 @@ public sealed class Question : BaseEntity
     /// <summary>Position within the quiz. Zero-based and never negative.</summary>
     public int SortOrder { get; private set; }
 
+    /// <summary>Whether the learner must answer before they can hand the attempt in.</summary>
+    public bool IsRequired { get; private set; }
+
     /// <summary>
     /// Newline-separated answers accepted for a <see cref="QuestionType.ShortAnswer"/>.
-    /// Null for the option-based types.
+    /// Null for every other type.
     /// </summary>
     public string? AcceptedAnswers { get; private set; }
+
+    /// <summary>Guidance shown to whoever marks an essay. Never shown to the learner.</summary>
+    public string? MarkingGuidance { get; private set; }
 
     public Quiz? Quiz { get; private set; }
 
@@ -50,13 +56,25 @@ public sealed class Question : BaseEntity
                 .Split(AcceptedAnswerSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .ToList();
 
+    /// <summary>Whether this question can only be marked by a person.</summary>
+    public bool RequiresManualMarking => Type == QuestionType.Essay;
+
+    /// <summary>Whether this type is answered by picking from a list.</summary>
+    public bool IsOptionBased =>
+        Type is QuestionType.MultipleChoice or QuestionType.TrueFalse or QuestionType.MultipleResponse;
+
+    /// <summary>Whether the learner may select more than one option.</summary>
+    public bool AllowsMultipleSelections => Type == QuestionType.MultipleResponse;
+
     public static Question Create(
         Guid quizId,
         string text,
         QuestionType type,
         int points,
         int sortOrder,
-        IEnumerable<string>? acceptedAnswers = null)
+        IEnumerable<string>? acceptedAnswers = null,
+        bool isRequired = false,
+        string? markingGuidance = null)
     {
         var question = new Question
         {
@@ -64,23 +82,34 @@ public sealed class Question : BaseEntity
             Text = text.Trim(),
             Type = type,
             Points = ClampPoints(points),
-            SortOrder = sortOrder < 0 ? 0 : sortOrder
+            SortOrder = sortOrder < 0 ? 0 : sortOrder,
+            IsRequired = isRequired
         };
 
         question.SetAcceptedAnswers(acceptedAnswers);
+        question.SetMarkingGuidance(markingGuidance);
         return question;
     }
 
     /// <summary>Applies edited details, keeping the same invariants as <see cref="Create"/>.</summary>
-    public void Update(string text, QuestionType type, int points, IEnumerable<string>? acceptedAnswers)
+    public void Update(
+        string text,
+        QuestionType type,
+        int points,
+        IEnumerable<string>? acceptedAnswers,
+        bool isRequired = false,
+        string? markingGuidance = null)
     {
         Text = text.Trim();
         Type = type;
         Points = ClampPoints(points);
-        SetAcceptedAnswers(acceptedAnswers);
+        IsRequired = isRequired;
 
-        // Changing to a text question makes any options meaningless.
-        if (type == QuestionType.ShortAnswer)
+        SetAcceptedAnswers(acceptedAnswers);
+        SetMarkingGuidance(markingGuidance);
+
+        // Options only mean anything for the pick-from-a-list types.
+        if (!IsOptionBased)
         {
             _options.Clear();
         }
@@ -90,13 +119,13 @@ public sealed class Question : BaseEntity
 
     /// <summary>
     /// Replaces the option set wholesale. Editing options individually would let a question sit
-    /// in a half-valid state (no correct answer, or several), which scoring cannot resolve.
+    /// in a half-valid state (no correct answer, or too many), which scoring cannot resolve.
     /// </summary>
     public IReadOnlyList<QuestionOption> ReplaceOptions(IEnumerable<(string Text, bool IsCorrect)> options)
     {
         _options.Clear();
 
-        if (Type == QuestionType.ShortAnswer)
+        if (!IsOptionBased)
         {
             return [];
         }
@@ -111,28 +140,56 @@ public sealed class Question : BaseEntity
     }
 
     /// <summary>
-    /// Whether this question is complete enough to be answered. An option question needs at
-    /// least two options and exactly one correct; a text question needs an accepted answer.
+    /// Whether this question is complete enough to be answered.
+    ///
+    /// An essay is always answerable: having no answer key is the point, since a person supplies
+    /// the judgement instead.
     /// </summary>
     public bool IsAnswerable() => Type switch
     {
+        QuestionType.Essay => true,
         QuestionType.ShortAnswer => AcceptedAnswerList.Count > 0,
+        QuestionType.MultipleResponse => _options.Count >= 2 && _options.Any(o => o.IsCorrect),
         _ => _options.Count >= 2 && _options.Count(o => o.IsCorrect) == 1
     };
 
     /// <summary>
-    /// Marks an answer, returning the points earned. All or nothing: there is no partial credit
-    /// on a single question.
+    /// Marks an answer, returning the points earned. All or nothing: a multiple-response question
+    /// must match the correct set exactly, so half-right scores nothing.
+    ///
+    /// Returns zero for an essay, which the caller must not treat as a mark. Use
+    /// <see cref="RequiresManualMarking"/> to tell "scored zero" apart from "not scored yet".
     /// </summary>
-    public int Mark(Guid? selectedOptionId, string? textAnswer)
+    public int Mark(IReadOnlyCollection<Guid> selectedOptionIds, string? textAnswer)
     {
         bool correct = Type switch
         {
+            QuestionType.Essay => false,
             QuestionType.ShortAnswer => MatchesAcceptedAnswer(textAnswer),
-            _ => selectedOptionId is { } id && _options.Any(o => o.Id == id && o.IsCorrect)
+            QuestionType.MultipleResponse => MatchesCorrectSet(selectedOptionIds),
+            _ => selectedOptionIds.Count == 1
+                && _options.Any(o => o.Id == selectedOptionIds.First() && o.IsCorrect)
         };
 
         return correct ? Points : 0;
+    }
+
+    /// <summary>Every selected option is correct, and no correct option was missed.</summary>
+    private bool MatchesCorrectSet(IReadOnlyCollection<Guid> selectedOptionIds)
+    {
+        if (selectedOptionIds.Count == 0)
+        {
+            return false;
+        }
+
+        HashSet<Guid> correct = _options.Where(o => o.IsCorrect).Select(o => o.Id).ToHashSet();
+
+        // Guards against an option id from another question being passed in.
+        HashSet<Guid> selected = selectedOptionIds
+            .Where(id => _options.Any(o => o.Id == id))
+            .ToHashSet();
+
+        return correct.Count > 0 && correct.SetEquals(selected);
     }
 
     /// <summary>Case-insensitive, whitespace-tolerant comparison against the accepted answers.</summary>
@@ -151,7 +208,9 @@ public sealed class Question : BaseEntity
 
     private void SetAcceptedAnswers(IEnumerable<string>? acceptedAnswers)
     {
-        if (acceptedAnswers is null)
+        // Only a short-answer question is marked by comparing text, so a key on any other type
+        // would be dead data that the author cannot see.
+        if (acceptedAnswers is null || Type != QuestionType.ShortAnswer)
         {
             AcceptedAnswers = null;
             return;
@@ -163,6 +222,13 @@ public sealed class Question : BaseEntity
             .ToList();
 
         AcceptedAnswers = cleaned.Count == 0 ? null : string.Join(AcceptedAnswerSeparator, cleaned);
+    }
+
+    private void SetMarkingGuidance(string? markingGuidance)
+    {
+        MarkingGuidance = Type == QuestionType.Essay && !string.IsNullOrWhiteSpace(markingGuidance)
+            ? markingGuidance.Trim()
+            : null;
     }
 
     private static int ClampPoints(int points) => Math.Clamp(points, 1, MaxPointsCeiling);
