@@ -55,7 +55,7 @@ public sealed class SaveAnswerCommandHandlerTests
         QuizAttempt attempt = Arrange();
 
         Result result = await _sut.Handle(
-            new SaveAnswerCommand(attempt.Id, _question.Id, _question.Options.First().Id, null),
+            new SaveAnswerCommand(attempt.Id, _question.Id, [_question.Options.First().Id], null),
             CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
@@ -71,7 +71,7 @@ public sealed class SaveAnswerCommandHandlerTests
         QuizAttempt attempt = Arrange(owner: Guid.NewGuid());
 
         Result result = await _sut.Handle(
-            new SaveAnswerCommand(attempt.Id, _question.Id, null, "x"), CancellationToken.None);
+            new SaveAnswerCommand(attempt.Id, _question.Id, [], "x"), CancellationToken.None);
 
         result.Error.Should().Be(QuizErrors.NotAttemptOwner);
         await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
@@ -83,7 +83,7 @@ public sealed class SaveAnswerCommandHandlerTests
         QuizAttempt attempt = Arrange(submitted: true);
 
         Result result = await _sut.Handle(
-            new SaveAnswerCommand(attempt.Id, _question.Id, null, "x"), CancellationToken.None);
+            new SaveAnswerCommand(attempt.Id, _question.Id, [], "x"), CancellationToken.None);
 
         result.Error.Should().Be(QuizErrors.AttemptAlreadySubmitted);
     }
@@ -95,7 +95,7 @@ public sealed class SaveAnswerCommandHandlerTests
         QuizAttempt attempt = Arrange();
 
         Result result = await _sut.Handle(
-            new SaveAnswerCommand(attempt.Id, Guid.NewGuid(), null, "x"), CancellationToken.None);
+            new SaveAnswerCommand(attempt.Id, Guid.NewGuid(), [], "x"), CancellationToken.None);
 
         result.Error.Should().Be(QuizErrors.QuestionNotInAttempt);
         await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
@@ -110,13 +110,13 @@ public sealed class SaveAnswerCommandHandlerTests
     {
         QuizAttempt attempt = Arrange();
         await _sut.Handle(
-            new SaveAnswerCommand(attempt.Id, _question.Id, _question.Options.First().Id, null),
+            new SaveAnswerCommand(attempt.Id, _question.Id, [_question.Options.First().Id], null),
             CancellationToken.None);
 
         _quizzes.ClearReceivedCalls();
 
         Result result = await _sut.Handle(
-            new SaveAnswerCommand(attempt.Id, _question.Id, _question.Options.Last().Id, null),
+            new SaveAnswerCommand(attempt.Id, _question.Id, [_question.Options.Last().Id], null),
             CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
@@ -131,7 +131,7 @@ public sealed class SaveAnswerCommandHandlerTests
             .Returns((QuizAttempt?)null);
 
         Result result = await _sut.Handle(
-            new SaveAnswerCommand(Guid.NewGuid(), Guid.NewGuid(), null, "x"), CancellationToken.None);
+            new SaveAnswerCommand(Guid.NewGuid(), Guid.NewGuid(), [], "x"), CancellationToken.None);
 
         result.Error.Should().Be(QuizErrors.AttemptNotFound);
     }

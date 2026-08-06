@@ -44,15 +44,15 @@ public sealed class QuizAttemptTests
         Quiz quiz = BuildQuiz();
         QuizAttempt attempt = QuizAttempt.Start(quiz.Id, Guid.NewGuid(), 1, Started);
 
-        attempt.Respond(MultipleChoiceOf(quiz).Id, CorrectOptionOf(quiz), null);
-        attempt.Respond(ShortAnswerOf(quiz).Id, null, "paris");
+        attempt.Respond(MultipleChoiceOf(quiz).Id, [CorrectOptionOf(quiz)], null);
+        attempt.Respond(ShortAnswerOf(quiz).Id, [], "paris");
 
         attempt.Submit(quiz, Started.AddMinutes(5));
 
         attempt.PointsAwarded.Should().Be(30);
         attempt.TotalPoints.Should().Be(30);
         attempt.ScorePercent.Should().Be(100);
-        attempt.Status.Should().Be(AttemptStatus.Submitted);
+        attempt.Status.Should().Be(AttemptStatus.Graded);
     }
 
     [Fact]
@@ -61,8 +61,8 @@ public sealed class QuizAttemptTests
         Quiz quiz = BuildQuiz();
         QuizAttempt attempt = QuizAttempt.Start(quiz.Id, Guid.NewGuid(), 1, Started);
 
-        attempt.Respond(MultipleChoiceOf(quiz).Id, WrongOptionOf(quiz), null);
-        attempt.Respond(ShortAnswerOf(quiz).Id, null, "Paris");
+        attempt.Respond(MultipleChoiceOf(quiz).Id, [WrongOptionOf(quiz)], null);
+        attempt.Respond(ShortAnswerOf(quiz).Id, [], "Paris");
 
         attempt.Submit(quiz, Started.AddMinutes(5));
 
@@ -81,7 +81,7 @@ public sealed class QuizAttemptTests
 
         attempt.PointsAwarded.Should().Be(0);
         attempt.ScorePercent.Should().Be(0);
-        attempt.Status.Should().Be(AttemptStatus.Submitted);
+        attempt.Status.Should().Be(AttemptStatus.Graded);
     }
 
     [Fact]
@@ -91,8 +91,8 @@ public sealed class QuizAttemptTests
         QuizAttempt attempt = QuizAttempt.Start(quiz.Id, Guid.NewGuid(), 1, Started);
         Guid questionId = ShortAnswerOf(quiz).Id;
 
-        attempt.Respond(questionId, null, "Lyon");
-        attempt.Respond(questionId, null, "Paris");
+        attempt.Respond(questionId, [], "Lyon");
+        attempt.Respond(questionId, [], "Paris");
 
         attempt.Answers.Should().ContainSingle();
         attempt.Submit(quiz, Started.AddMinutes(2));
@@ -106,7 +106,7 @@ public sealed class QuizAttemptTests
         QuizAttempt attempt = QuizAttempt.Start(quiz.Id, Guid.NewGuid(), 1, Started);
         attempt.Submit(quiz, Started.AddMinutes(1));
 
-        attempt.Respond(ShortAnswerOf(quiz).Id, null, "Paris").Should().BeNull();
+        attempt.Respond(ShortAnswerOf(quiz).Id, [], "Paris").Should().BeNull();
         attempt.PointsAwarded.Should().Be(0, "the late answer must not count");
     }
 
@@ -115,7 +115,7 @@ public sealed class QuizAttemptTests
     {
         Quiz quiz = BuildQuiz();
         QuizAttempt attempt = QuizAttempt.Start(quiz.Id, Guid.NewGuid(), 1, Started);
-        attempt.Respond(ShortAnswerOf(quiz).Id, null, "Paris");
+        attempt.Respond(ShortAnswerOf(quiz).Id, [], "Paris");
         attempt.Submit(quiz, Started.AddMinutes(1));
 
         DateTimeOffset firstSubmission = attempt.SubmittedAtUtc!.Value;
@@ -129,7 +129,7 @@ public sealed class QuizAttemptTests
     {
         Quiz quiz = BuildQuiz(passMark: 60);
         QuizAttempt attempt = QuizAttempt.Start(quiz.Id, Guid.NewGuid(), 1, Started);
-        attempt.Respond(ShortAnswerOf(quiz).Id, null, "Paris");
+        attempt.Respond(ShortAnswerOf(quiz).Id, [], "Paris");
 
         attempt.Submit(quiz, Started.AddMinutes(1));
 
@@ -142,8 +142,8 @@ public sealed class QuizAttemptTests
     {
         Quiz quiz = BuildQuiz(passMark: null);
         QuizAttempt attempt = QuizAttempt.Start(quiz.Id, Guid.NewGuid(), 1, Started);
-        attempt.Respond(MultipleChoiceOf(quiz).Id, CorrectOptionOf(quiz), null);
-        attempt.Respond(ShortAnswerOf(quiz).Id, null, "Paris");
+        attempt.Respond(MultipleChoiceOf(quiz).Id, [CorrectOptionOf(quiz)], null);
+        attempt.Respond(ShortAnswerOf(quiz).Id, [], "Paris");
 
         attempt.Submit(quiz, Started.AddMinutes(1));
 

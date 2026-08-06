@@ -141,7 +141,7 @@ public sealed class StartAttemptCommandHandlerTests
 
         QuizAttempt open = QuizAttempt.Start(quiz.Id, _studentId, 1, Now.AddMinutes(-5));
         Guid chosen = question.Options.First().Id;
-        open.Respond(question.Id, chosen, null);
+        open.Respond(question.Id, [chosen], null);
 
         Arrange(maxAttempts: 1, submittedAttempts: 0, openAttempt: open);
         _quizzes.GetQuizWithQuestionsAsync(quiz.Id, Arg.Any<CancellationToken>()).Returns(quiz);
@@ -152,7 +152,7 @@ public sealed class StartAttemptCommandHandlerTests
 
         result.IsSuccess.Should().BeTrue();
         result.Value.AttemptId.Should().Be(open.Id);
-        result.Value.Questions.Single().SelectedOptionId.Should().Be(chosen);
+        result.Value.Questions.Single().SelectedOptionIds.Should().ContainSingle().Which.Should().Be(chosen);
         await _quizzes.DidNotReceive().AddAttemptAsync(Arg.Any<QuizAttempt>(), Arg.Any<CancellationToken>());
     }
 

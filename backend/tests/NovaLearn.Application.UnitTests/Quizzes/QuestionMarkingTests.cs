@@ -36,7 +36,7 @@ public sealed class QuestionMarkingTests
         Question question = MultipleChoice(points: 10);
         Guid correct = question.Options.Single(o => o.IsCorrect).Id;
 
-        question.Mark(correct, null).Should().Be(10);
+        question.Mark([correct], null).Should().Be(10);
     }
 
     [Fact]
@@ -45,13 +45,13 @@ public sealed class QuestionMarkingTests
         Question question = MultipleChoice();
         Guid wrong = question.Options.First(o => !o.IsCorrect).Id;
 
-        question.Mark(wrong, null).Should().Be(0);
+        question.Mark([wrong], null).Should().Be(0);
     }
 
     [Fact]
     public void An_unanswered_option_question_scores_nothing()
     {
-        MultipleChoice().Mark(null, null).Should().Be(0);
+        MultipleChoice().Mark([], null).Should().Be(0);
     }
 
     /// <summary>Guards against an option id from a different question being passed in.</summary>
@@ -62,7 +62,7 @@ public sealed class QuestionMarkingTests
         Question other = MultipleChoice();
         Guid otherCorrect = other.Options.Single(o => o.IsCorrect).Id;
 
-        question.Mark(otherCorrect, null).Should().Be(0);
+        question.Mark([otherCorrect], null).Should().Be(0);
     }
 
     [Theory]
@@ -74,7 +74,7 @@ public sealed class QuestionMarkingTests
     [InlineData(null, 0)]
     public void Short_answers_match_case_insensitively_and_ignore_surrounding_space(string? given, int expected)
     {
-        ShortAnswer(5, "Paris").Mark(null, given).Should().Be(expected);
+        ShortAnswer(5, "Paris").Mark([], given).Should().Be(expected);
     }
 
     [Fact]
@@ -82,8 +82,8 @@ public sealed class QuestionMarkingTests
     {
         Question question = ShortAnswer(5, "Paris", "City of Light");
 
-        question.Mark(null, "city of light").Should().Be(5);
-        question.Mark(null, "Paris").Should().Be(5);
+        question.Mark([], "city of light").Should().Be(5);
+        question.Mark([], "Paris").Should().Be(5);
     }
 
     [Fact]

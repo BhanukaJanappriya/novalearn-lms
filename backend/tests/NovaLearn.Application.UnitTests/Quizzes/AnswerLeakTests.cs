@@ -93,6 +93,36 @@ public sealed class AnswerLeakTests
         properties.Should().NotContain("CorrectOptionId");
     }
 
+    /// <summary>
+    /// Marking guidance tells a marker what a good essay looks like, which is most of the answer.
+    /// It is a newer field than IsCorrect and just as leakable.
+    /// </summary>
+    [Fact]
+    public void An_essays_marking_guidance_never_reaches_the_learner()
+    {
+        Question essay = Question.Create(
+            Guid.NewGuid(),
+            "Discuss the trade offs",
+            QuestionType.Essay,
+            20,
+            0,
+            markingGuidance: "Award full marks for naming latency and consistency.");
+
+        string json = SerialiseForLearner(essay);
+
+        json.Should().NotContainEquivalentOf("markingGuidance");
+        json.Should().NotContainEquivalentOf("latency and consistency");
+    }
+
+    [Fact]
+    public void The_taking_question_shape_carries_no_marking_guidance()
+    {
+        typeof(TakingQuestionDto)
+            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Select(p => p.Name)
+            .Should().NotContain("MarkingGuidance");
+    }
+
     /// <summary>The authoring shape is the one allowed to carry answers; staff only ever see it.</summary>
     [Fact]
     public void The_authoring_payload_does_carry_the_answer_key()
