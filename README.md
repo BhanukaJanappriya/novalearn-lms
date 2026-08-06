@@ -47,7 +47,7 @@ Built with **ASP.NET Core 9** (Clean Architecture + DDD + CQRS) and **React 19**
 | **Student dashboard** (progress, subjects, activity, suggestions) | ✅ | ✅ | ✅ | Done |
 | **User management** (directory, roles, activation, verification) | ✅ | ✅ | ✅ | Done |
 | **Assignments & Gradebook** (author, submit, mark, grade grid) | ✅ | ✅ | ✅ | Done |
-| **Quizzes** (question bank, timed attempts, auto-marking) | ✅ | ✅ | ✅ | Done |
+| **Quizzes** (5 question types, timed attempts, auto-marking, essays marked by hand) | ✅ | ✅ | ✅ | Done |
 | **Real-time** (SignalR notifications, live badge and toast) | ✅ | ✅ | ✅ | Done |
 
 ---
