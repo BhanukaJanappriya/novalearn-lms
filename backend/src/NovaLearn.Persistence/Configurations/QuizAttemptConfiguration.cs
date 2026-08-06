@@ -47,6 +47,9 @@ public sealed class QuizAttemptConfiguration : IEntityTypeConfiguration<QuizAtte
         builder.HasIndex(a => new { a.QuizId, a.StudentId });
         builder.HasIndex(a => a.StudentId);
 
+        // The marking queue filters attempts by status.
+        builder.HasIndex(a => new { a.QuizId, a.Status });
+
         builder.HasQueryFilter(a => !a.IsDeleted);
     }
 }

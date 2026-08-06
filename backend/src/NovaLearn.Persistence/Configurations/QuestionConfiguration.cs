@@ -20,6 +20,11 @@ public sealed class QuestionConfiguration : IEntityTypeConfiguration<Question>
         // rather than a fourth table: the list is only ever read whole.
         builder.Property(q => q.AcceptedAnswers).HasMaxLength(2000);
 
+        builder.Property(q => q.IsRequired).IsRequired();
+
+        // Shown to whoever marks an essay, never to the learner.
+        builder.Property(q => q.MarkingGuidance).HasMaxLength(2000);
+
         builder.Property(q => q.Type).HasConversion<string>().HasMaxLength(20).IsRequired();
 
         builder.Property(q => q.Version).IsRowVersion();
