@@ -8,7 +8,13 @@ import { Modal } from "@/components/ui/modal";
 import { Textarea } from "@/components/ui/textarea";
 import { getApiErrorMessage } from "@/lib/apiError";
 import type { AuthoringQuestion, QuestionType, SaveQuestionInput } from "../api/types";
-import { defaultOptionsFor, questionTypeLabels } from "../lib/quizzes";
+import {
+  defaultOptionsFor,
+  isOptionBased,
+  questionTypeHints,
+  questionTypeLabels,
+  requiresManualMarking,
+} from "../lib/quizzes";
 
 interface QuestionFormDialogProps {
   question: AuthoringQuestion | null;
@@ -26,7 +32,10 @@ interface OptionDraft {
 
 /**
  * Creates or replaces a question. Options are edited as a set and saved wholesale, matching the
- * server: a question with no correct answer, or two, cannot be marked.
+ * server: a question with no correct answer cannot be marked.
+ *
+ * The form mirrors the server's rules per type, so it will not let the author submit something
+ * the API would reject.
  */
 export function QuestionFormDialog({
   question,
@@ -39,40 +48,55 @@ export function QuestionFormDialog({
   const [text, setText] = useState("");
   const [type, setType] = useState<QuestionType>("MultipleChoice");
   const [points, setPoints] = useState(10);
+  const [isRequired, setIsRequired] = useState(false);
   const [options, setOptions] = useState<OptionDraft[]>(defaultOptionsFor("MultipleChoice"));
   const [acceptedAnswers, setAcceptedAnswers] = useState("");
+  const [markingGuidance, setMarkingGuidance] = useState("");
 
   useEffect(() => {
     if (question) {
       setText(question.text);
       setType(question.type);
       setPoints(question.points);
+      setIsRequired(question.isRequired);
       setOptions(
         question.options.length > 0
           ? question.options.map((o) => ({ text: o.text, isCorrect: o.isCorrect }))
           : defaultOptionsFor(question.type),
       );
       setAcceptedAnswers(question.acceptedAnswers.join("\n"));
+      setMarkingGuidance(question.markingGuidance ?? "");
     } else {
       setText("");
       setType("MultipleChoice");
       setPoints(10);
+      setIsRequired(false);
       setOptions(defaultOptionsFor("MultipleChoice"));
       setAcceptedAnswers("");
+      setMarkingGuidance("");
     }
   }, [question, open]);
 
   const changeType = (next: QuestionType) => {
     setType(next);
-    // True or false has fixed options; the others start from a blank pair.
-    if (next !== "ShortAnswer") {
-      setOptions(defaultOptionsFor(next));
-    }
+    // True or false has fixed options; the others start from a fresh default for the new type.
+    setOptions(defaultOptionsFor(next));
   };
 
-  /** Exactly one option is correct, so choosing one clears the rest. */
-  const markCorrect = (index: number) =>
-    setOptions(options.map((o, i) => ({ ...o, isCorrect: i === index })));
+  /**
+   * Single-answer types allow exactly one key, so choosing one clears the rest. Checkboxes
+   * toggle independently.
+   */
+  const toggleCorrect = (index: number) =>
+    setOptions(
+      options.map((o, i) =>
+        type === "MultipleResponse"
+          ? i === index
+            ? { ...o, isCorrect: !o.isCorrect }
+            : o
+          : { ...o, isCorrect: i === index },
+      ),
+    );
 
   const setOptionText = (index: number, value: string) =>
     setOptions(options.map((o, i) => (i === index ? { ...o, text: value } : o)));
@@ -81,8 +105,8 @@ export function QuestionFormDialog({
 
   const removeOption = (index: number) => {
     const next = options.filter((_, i) => i !== index);
-    // Never leave the set without a correct answer.
-    if (!next.some((o) => o.isCorrect) && next.length > 0) {
+    // A single-answer question must never be left without a key.
+    if (type !== "MultipleResponse" && !next.some((o) => o.isCorrect) && next.length > 0) {
       next[0] = { ...next[0], isCorrect: true };
     }
     setOptions(next);
@@ -93,14 +117,18 @@ export function QuestionFormDialog({
     .map((a) => a.trim())
     .filter(Boolean);
 
+  const optionBased = isOptionBased(type);
+  const isEssay = requiresManualMarking(type);
   const isShortAnswer = type === "ShortAnswer";
   const filledOptions = options.filter((o) => o.text.trim().length > 0);
+  const correctCount = filledOptions.filter((o) => o.isCorrect).length;
 
   const invalid =
     text.trim().length === 0 ||
-    (isShortAnswer
-      ? answerList.length === 0
-      : filledOptions.length < 2 || filledOptions.filter((o) => o.isCorrect).length !== 1);
+    (isShortAnswer && answerList.length === 0) ||
+    (optionBased &&
+      (filledOptions.length < 2 ||
+        (type === "MultipleResponse" ? correctCount < 1 : correctCount !== 1)));
 
   const submit = () =>
     onSubmit({
@@ -109,7 +137,9 @@ export function QuestionFormDialog({
       type,
       points,
       acceptedAnswers: isShortAnswer ? answerList : [],
-      options: isShortAnswer ? [] : filledOptions,
+      options: optionBased ? filledOptions : [],
+      isRequired,
+      markingGuidance: isEssay ? markingGuidance.trim() || null : null,
     });
 
   return (
@@ -117,7 +147,7 @@ export function QuestionFormDialog({
       open={open}
       onClose={onClose}
       title={question ? "Edit question" : "New question"}
-      description={questionTypeLabels[type]}
+      description={questionTypeHints[type]}
     >
       <div className="space-y-4">
         {error ? <Alert variant="error">{getApiErrorMessage(error)}</Alert> : null}
@@ -164,7 +194,22 @@ export function QuestionFormDialog({
           </div>
         </div>
 
-        {isShortAnswer ? (
+        <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border p-3">
+          <input
+            type="checkbox"
+            checked={isRequired}
+            onChange={(e) => setIsRequired(e.target.checked)}
+            className="h-4 w-4 rounded border-border accent-primary"
+          />
+          <span className="text-sm">
+            Required
+            <span className="block text-xs text-muted-foreground">
+              Learners cannot submit the quiz until they answer this.
+            </span>
+          </span>
+        </label>
+
+        {isShortAnswer && (
           <div className="space-y-1.5">
             <Label htmlFor="question-accepted">Accepted answers</Label>
             <Textarea
@@ -176,20 +221,40 @@ export function QuestionFormDialog({
               maxLength={2000}
             />
             <p className="text-xs text-muted-foreground">
-              One per line. Matching ignores capitals and surrounding spaces.
+              One per line. Matching ignores capitals and surrounding spaces, and any one of them
+              counts as correct.
             </p>
           </div>
-        ) : (
+        )}
+
+        {isEssay && (
+          <div className="space-y-1.5">
+            <Label htmlFor="question-guidance">Marking guidance</Label>
+            <Textarea
+              id="question-guidance"
+              rows={3}
+              value={markingGuidance}
+              onChange={(e) => setMarkingGuidance(e.target.value)}
+              placeholder="What a full-mark answer covers."
+              maxLength={2000}
+            />
+            <p className="text-xs text-muted-foreground">
+              Optional, and only ever shown to whoever marks this. Learners never see it.
+            </p>
+          </div>
+        )}
+
+        {optionBased && (
           <div className="space-y-2">
             <Label>Options</Label>
             <ul className="space-y-2">
               {options.map((option, index) => (
                 <li key={index} className="flex items-center gap-2">
                   <input
-                    type="radio"
-                    name="correct-option"
+                    type={type === "MultipleResponse" ? "checkbox" : "radio"}
+                    name={type === "MultipleResponse" ? undefined : "correct-option"}
                     checked={option.isCorrect}
-                    onChange={() => markCorrect(index)}
+                    onChange={() => toggleCorrect(index)}
                     aria-label={`Mark option ${index + 1} correct`}
                     className="h-4 w-4 shrink-0 accent-primary"
                   />
@@ -220,7 +285,9 @@ export function QuestionFormDialog({
               </Button>
             )}
             <p className="text-xs text-muted-foreground">
-              Select the radio button next to the correct answer.
+              {type === "MultipleResponse"
+                ? "Tick every correct option. Learners must select exactly that set to score."
+                : "Select the button next to the correct answer."}
             </p>
           </div>
         )}
