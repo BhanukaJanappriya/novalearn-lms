@@ -2,7 +2,15 @@ import type { AssessmentStatus } from "@/features/assessments/api/types";
 
 export type { AssessmentStatus };
 
-export type QuestionType = "MultipleChoice" | "TrueFalse" | "ShortAnswer";
+export type QuestionType =
+  | "MultipleChoice"
+  | "TrueFalse"
+  | "MultipleResponse"
+  | "ShortAnswer"
+  | "Essay";
+
+/** Where an attempt sits. PendingReview means essays are still with a marker. */
+export type AttemptStatus = "InProgress" | "PendingReview" | "Graded";
 
 /** Mirrors the backend `QuizSummaryDto`. Carries no question content for either audience. */
 export interface QuizSummary {
@@ -18,6 +26,7 @@ export interface QuizSummary {
   questionCount: number;
   totalPoints: number;
   isReadyToPublish: boolean;
+  hasManuallyMarkedQuestions: boolean;
   attemptsUsed: number;
   bestScorePercent: number | null;
   hasPassed: boolean;
@@ -48,6 +57,11 @@ export interface AuthoringQuestion {
   type: QuestionType;
   points: number;
   sortOrder: number;
+  isRequired: boolean;
+  /** Shown to whoever marks an essay. Never sent to a learner. */
+  markingGuidance: string | null;
+  requiresManualMarking: boolean;
+  allowsMultipleSelections: boolean;
   acceptedAnswers: string[];
   options: AuthoringOption[];
   isAnswerable: boolean;
@@ -65,6 +79,8 @@ export interface SaveQuestionInput {
   points: number;
   acceptedAnswers: string[];
   options: { text: string; isCorrect: boolean }[];
+  isRequired: boolean;
+  markingGuidance: string | null;
 }
 
 /**
@@ -82,8 +98,12 @@ export interface TakingQuestion {
   type: QuestionType;
   points: number;
   sortOrder: number;
+  isRequired: boolean;
+  allowsMultipleSelections: boolean;
+  /** True when the learner writes prose that a person will mark. */
+  isEssay: boolean;
   options: TakingOption[];
-  selectedOptionId: string | null;
+  selectedOptionIds: string[];
   textAnswer: string | null;
 }
 
@@ -100,17 +120,23 @@ export interface AttemptInProgress {
 
 /** Result shapes, safe to include answers because the attempt is closed. */
 export interface AnswerResult {
+  answerId: string;
   questionId: string;
   questionText: string;
   questionType: QuestionType;
-  selectedOptionId: string | null;
-  selectedOptionText: string | null;
+  selectedOptionIds: string[];
+  selectedOptionTexts: string[];
   textAnswer: string | null;
-  correctOptionText: string | null;
+  correctOptionTexts: string[];
   acceptedAnswers: string[];
-  isCorrect: boolean;
+  /** Null while an essay is still unmarked. */
+  isCorrect: boolean | null;
   pointsAwarded: number;
   pointsPossible: number;
+  requiresManualMarking: boolean;
+  isManuallyMarked: boolean;
+  isAwaitingMarking: boolean;
+  feedback: string | null;
 }
 
 export interface AttemptResult {
@@ -120,13 +146,17 @@ export interface AttemptResult {
   studentId: string;
   studentName: string;
   attemptNumber: number;
+  status: AttemptStatus;
   startedAtUtc: string;
   submittedAtUtc: string | null;
+  markedAtUtc: string | null;
   pointsAwarded: number;
   totalPoints: number;
   scorePercent: number;
   isPassed: boolean;
   wasLate: boolean;
+  isAwaitingMarking: boolean;
+  awaitingMarkingCount: number;
   passingScorePercent: number | null;
   answers: AnswerResult[];
 }
@@ -137,12 +167,15 @@ export interface QuizAttemptSummary {
   studentName: string;
   studentEmail: string;
   attemptNumber: number;
+  status: AttemptStatus;
   submittedAtUtc: string | null;
   pointsAwarded: number;
   totalPoints: number;
   scorePercent: number;
   isPassed: boolean;
   wasLate: boolean;
+  isAwaitingMarking: boolean;
+  awaitingMarkingCount: number;
 }
 
 export interface QuizResults {
@@ -154,5 +187,7 @@ export interface QuizResults {
   distinctLearners: number;
   averageScorePercent: number | null;
   passedCount: number;
+  /** How many attempts still need a person. */
+  awaitingReviewCount: number;
   attempts: QuizAttemptSummary[];
 }

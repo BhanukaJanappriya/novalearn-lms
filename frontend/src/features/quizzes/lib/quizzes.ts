@@ -1,12 +1,32 @@
-import type { QuestionType, QuizSummary } from "../api/types";
+import type { AttemptStatus, QuestionType, QuizSummary } from "../api/types";
 
 type BadgeVariant = "default" | "neutral" | "success" | "warning" | "destructive" | "outline";
 
 export const questionTypeLabels: Record<QuestionType, string> = {
   MultipleChoice: "Multiple choice",
   TrueFalse: "True or false",
+  MultipleResponse: "Checkboxes",
   ShortAnswer: "Short answer",
+  Essay: "Essay",
 };
+
+/** One-line explanation of how each type is marked, shown while authoring. */
+export const questionTypeHints: Record<QuestionType, string> = {
+  MultipleChoice: "One correct option. Marked automatically.",
+  TrueFalse: "A statement to judge. Marked automatically.",
+  MultipleResponse: "Several correct options. All or nothing, marked automatically.",
+  ShortAnswer: "Typed answer matched against your accepted answers. Marked automatically.",
+  Essay: "Long form writing. You mark this one by hand.",
+};
+
+/** The types answered by picking from a list. */
+export function isOptionBased(type: QuestionType): boolean {
+  return type === "MultipleChoice" || type === "TrueFalse" || type === "MultipleResponse";
+}
+
+export function requiresManualMarking(type: QuestionType): boolean {
+  return type === "Essay";
+}
 
 /** Formats a time limit, or says it is untimed. */
 export function formatTimeLimit(minutes: number | null): string {
@@ -31,6 +51,18 @@ export function formatRemaining(msRemaining: number): string {
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
+export const attemptStatusVariant: Record<AttemptStatus, BadgeVariant> = {
+  InProgress: "neutral",
+  PendingReview: "warning",
+  Graded: "success",
+};
+
+export const attemptStatusLabels: Record<AttemptStatus, string> = {
+  InProgress: "In progress",
+  PendingReview: "Awaiting marking",
+  Graded: "Marked",
+};
+
 /** How a learner's standing on a quiz should read. */
 export function learnerQuizStatus(quiz: QuizSummary): { label: string; variant: BadgeVariant } {
   if (quiz.attemptsUsed === 0) {
@@ -45,7 +77,7 @@ export function learnerQuizStatus(quiz: QuizSummary): { label: string; variant: 
   return { label: `Best ${quiz.bestScorePercent}%`, variant: "default" };
 }
 
-/** Two default options, so a new true or false question is usable immediately. */
+/** Sensible starting options so a new question is usable immediately. */
 export function defaultOptionsFor(type: QuestionType): { text: string; isCorrect: boolean }[] {
   if (type === "TrueFalse") {
     return [
@@ -53,8 +85,11 @@ export function defaultOptionsFor(type: QuestionType): { text: string; isCorrect
       { text: "False", isCorrect: false },
     ];
   }
+  if (!isOptionBased(type)) {
+    return [];
+  }
   return [
-    { text: "", isCorrect: true },
+    { text: "", isCorrect: type === "MultipleChoice" },
     { text: "", isCorrect: false },
   ];
 }

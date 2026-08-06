@@ -56,14 +56,39 @@ export const quizzesApi = {
   async saveAnswer(
     attemptId: string,
     questionId: string,
-    selectedOptionId: string | null,
+    selectedOptionIds: string[],
     textAnswer: string | null,
   ): Promise<void> {
     await apiClient.put(`/attempts/${attemptId}/answers`, {
       questionId,
-      selectedOptionId,
+      selectedOptionIds,
       textAnswer,
     });
+  },
+
+  async reorderQuestions(quizId: string, questionIds: string[]): Promise<QuizAuthoring> {
+    const { data } = await apiClient.put<QuizAuthoring>(`/quizzes/${quizId}/questions/order`, {
+      questionIds,
+    });
+    return data;
+  },
+
+  async duplicateQuestion(questionId: string): Promise<void> {
+    await apiClient.post(`/questions/${questionId}/duplicate`);
+  },
+
+  /** Records a person's mark on one essay answer. */
+  async markEssay(
+    attemptId: string,
+    answerId: string,
+    pointsAwarded: number,
+    feedback: string | null,
+  ): Promise<AttemptResult> {
+    const { data } = await apiClient.put<AttemptResult>(
+      `/attempts/${attemptId}/answers/${answerId}/mark`,
+      { pointsAwarded, feedback },
+    );
+    return data;
   },
 
   async submitAttempt(attemptId: string): Promise<AttemptResult> {

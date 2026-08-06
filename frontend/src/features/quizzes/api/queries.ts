@@ -102,14 +102,49 @@ export function useSaveAnswer() {
     mutationFn: ({
       attemptId,
       questionId,
-      selectedOptionId,
+      selectedOptionIds,
       textAnswer,
     }: {
       attemptId: string;
       questionId: string;
-      selectedOptionId: string | null;
+      selectedOptionIds: string[];
       textAnswer: string | null;
-    }) => quizzesApi.saveAnswer(attemptId, questionId, selectedOptionId, textAnswer),
+    }) => quizzesApi.saveAnswer(attemptId, questionId, selectedOptionIds, textAnswer),
+  });
+}
+
+export function useReorderQuestions(quizId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (questionIds: string[]) => quizzesApi.reorderQuestions(quizId, questionIds),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: quizKeys.all }),
+  });
+}
+
+export function useDuplicateQuestion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (questionId: string) => quizzesApi.duplicateQuestion(questionId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: quizKeys.all }),
+  });
+}
+
+/** Marking one essay can finalise the attempt, so the results roster moves too. */
+export function useMarkEssay() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      attemptId,
+      answerId,
+      pointsAwarded,
+      feedback,
+    }: {
+      attemptId: string;
+      answerId: string;
+      pointsAwarded: number;
+      feedback: string | null;
+    }) => quizzesApi.markEssay(attemptId, answerId, pointsAwarded, feedback),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: quizKeys.all }),
   });
 }
 
