@@ -1,13 +1,32 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, CircleAlert, CircleCheck, ListChecks, Pencil, Plus, Trash2, TriangleAlert } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowDown,
+  ArrowUp,
+  CircleAlert,
+  CircleCheck,
+  Copy,
+  ListChecks,
+  Pencil,
+  PenLine,
+  Plus,
+  Trash2,
+  TriangleAlert,
+} from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getApiErrorMessage } from "@/lib/apiError";
-import { useDeleteQuestion, useQuizAuthoring, useSaveQuestion } from "../api/queries";
+import {
+  useDeleteQuestion,
+  useDuplicateQuestion,
+  useQuizAuthoring,
+  useReorderQuestions,
+  useSaveQuestion,
+} from "../api/queries";
 import type { AuthoringQuestion, SaveQuestionInput } from "../api/types";
 import { QuestionFormDialog } from "../components/QuestionFormDialog";
 import { questionTypeLabels } from "../lib/quizzes";
@@ -19,6 +38,8 @@ export function QuizBuilderPage() {
 
   const saveQuestion = useSaveQuestion(quizId);
   const deleteQuestion = useDeleteQuestion();
+  const duplicateQuestion = useDuplicateQuestion();
+  const reorderQuestions = useReorderQuestions(quizId);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<AuthoringQuestion | null>(null);
@@ -30,6 +51,17 @@ export function QuizBuilderPage() {
   const confirmDelete = () => {
     if (!pendingDelete) return;
     deleteQuestion.mutate(pendingDelete.id, { onSuccess: () => setPendingDelete(null) });
+  };
+
+  /** Swaps a question with its neighbour and sends the whole new order. */
+  const move = (index: number, direction: -1 | 1) => {
+    if (!data) return;
+    const ids = data.questions.map((q) => q.id);
+    const target = index + direction;
+    if (target < 0 || target >= ids.length) return;
+
+    [ids[index], ids[target]] = [ids[target], ids[index]];
+    reorderQuestions.mutate(ids);
   };
 
   return (
@@ -72,6 +104,12 @@ export function QuizBuilderPage() {
       {deleteQuestion.isError && (
         <Alert variant="error">{getApiErrorMessage(deleteQuestion.error)}</Alert>
       )}
+      {reorderQuestions.isError && (
+        <Alert variant="error">{getApiErrorMessage(reorderQuestions.error)}</Alert>
+      )}
+      {duplicateQuestion.isError && (
+        <Alert variant="error">{getApiErrorMessage(duplicateQuestion.error)}</Alert>
+      )}
 
       {data && !data.quiz.isReadyToPublish && (
         <div className="flex items-start gap-3 rounded-xl border border-[hsl(var(--warning))]/30 bg-warning/5 p-3 text-sm">
@@ -109,6 +147,13 @@ export function QuizBuilderPage() {
                     <span className="text-xs font-semibold text-muted-foreground">Q{index + 1}</span>
                     <Badge variant="outline">{questionTypeLabels[question.type]}</Badge>
                     <Badge variant="neutral">{question.points} pts</Badge>
+                    {question.isRequired && <Badge variant="default">Required</Badge>}
+                    {question.requiresManualMarking && (
+                      <Badge variant="warning">
+                        <PenLine className="h-3 w-3" aria-hidden />
+                        Marked by hand
+                      </Badge>
+                    )}
                     {!question.isAnswerable && (
                       <Badge variant="warning">
                         <CircleAlert className="h-3 w-3" aria-hidden />
@@ -118,7 +163,13 @@ export function QuizBuilderPage() {
                   </div>
                   <p className="mt-2 whitespace-pre-wrap font-medium">{question.text}</p>
 
-                  {question.type === "ShortAnswer" ? (
+                  {question.type === "Essay" ? (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {question.markingGuidance
+                        ? `Guidance: ${question.markingGuidance}`
+                        : "No marking guidance set."}
+                    </p>
+                  ) : question.type === "ShortAnswer" ? (
                     <p className="mt-2 text-xs text-muted-foreground">
                       Accepts:{" "}
                       <span className="text-success">{question.acceptedAnswers.join(", ") || "nothing yet"}</span>
@@ -144,7 +195,34 @@ export function QuizBuilderPage() {
                   )}
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className="flex flex-wrap items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => move(index, -1)}
+                    disabled={index === 0 || reorderQuestions.isPending}
+                    aria-label={`Move question ${index + 1} up`}
+                  >
+                    <ArrowUp className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => move(index, 1)}
+                    disabled={index === (data?.questions.length ?? 0) - 1 || reorderQuestions.isPending}
+                    aria-label={`Move question ${index + 1} down`}
+                  >
+                    <ArrowDown className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => duplicateQuestion.mutate(question.id)}
+                    disabled={duplicateQuestion.isPending}
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    Duplicate
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"

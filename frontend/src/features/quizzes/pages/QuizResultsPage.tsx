@@ -1,16 +1,21 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, BarChart3, Clock } from "lucide-react";
+import { ArrowLeft, BarChart3, Clock, PenLine } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getApiErrorMessage } from "@/lib/apiError";
 import { timeAgo } from "@/lib/format";
 import { useQuizResults } from "../api/queries";
+import { EssayMarkingDialog } from "../components/EssayMarkingDialog";
+import { attemptStatusLabels, attemptStatusVariant } from "../lib/quizzes";
 
-/** Lecturer view: how the cohort did on one quiz. */
+/** Lecturer view: how the cohort did, and the queue of attempts still needing a person. */
 export function QuizResultsPage() {
   const { courseId = "", quizId = "" } = useParams();
   const { data, isLoading, isError, error } = useQuizResults(quizId);
+  const [marking, setMarking] = useState<string | null>(null);
 
   return (
     <div className="space-y-6">
@@ -42,17 +47,28 @@ export function QuizResultsPage() {
 
       {data && (
         <>
+          {data.awaitingReviewCount > 0 && (
+            <div className="flex items-start gap-3 rounded-xl border border-[hsl(var(--warning))]/30 bg-warning/5 p-3 text-sm">
+              <PenLine className="mt-0.5 h-4 w-4 shrink-0 text-[hsl(var(--warning))]" aria-hidden />
+              <p className="text-muted-foreground">
+                {data.awaitingReviewCount} attempt{data.awaitingReviewCount === 1 ? "" : "s"} contain
+                written answers waiting on you. Their scores stay provisional until you mark them.
+              </p>
+            </div>
+          )}
+
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Tile label="Attempts" value={String(data.attemptCount)} />
             <Tile label="Learners" value={String(data.distinctLearners)} />
             <Tile
-              label="Average score"
-              value={data.averageScorePercent === null ? "—" : `${data.averageScorePercent}%`}
+              label="Awaiting marking"
+              value={String(data.awaitingReviewCount)}
+              accent={data.awaitingReviewCount > 0 ? "text-[hsl(var(--warning))]" : undefined}
             />
             <Tile
-              label="Passed"
-              value={data.passingScorePercent === null ? "—" : String(data.passedCount)}
-              hint={data.passingScorePercent === null ? "No pass mark set" : "Counted per learner"}
+              label="Average score"
+              value={data.averageScorePercent === null ? "—" : `${data.averageScorePercent}%`}
+              hint={data.awaitingReviewCount > 0 ? "Includes provisional scores" : undefined}
             />
           </div>
 
@@ -65,7 +81,7 @@ export function QuizResultsPage() {
             </div>
           ) : (
             <div className="overflow-x-auto rounded-[18px] border border-border">
-              <table className="w-full min-w-[640px] border-collapse text-sm">
+              <table className="w-full min-w-[760px] border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted/40 text-left">
                     <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">Learner</th>
@@ -73,6 +89,9 @@ export function QuizResultsPage() {
                     <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">Score</th>
                     <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">Outcome</th>
                     <th scope="col" className="px-4 py-3 font-medium text-muted-foreground">Submitted</th>
+                    <th scope="col" className="px-4 py-3 text-right font-medium text-muted-foreground">
+                      Marking
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -92,11 +111,15 @@ export function QuizResultsPage() {
                         <span className="font-semibold tabular-nums">{attempt.scorePercent}%</span>
                         <span className="block text-xs text-muted-foreground">
                           {attempt.pointsAwarded}/{attempt.totalPoints}
+                          {attempt.isAwaitingMarking && " so far"}
                         </span>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">
-                          {data.passingScorePercent !== null && (
+                          <Badge variant={attemptStatusVariant[attempt.status]}>
+                            {attemptStatusLabels[attempt.status]}
+                          </Badge>
+                          {!attempt.isAwaitingMarking && data.passingScorePercent !== null && (
                             <Badge variant={attempt.isPassed ? "success" : "warning"}>
                               {attempt.isPassed ? "Passed" : "Not passed"}
                             </Badge>
@@ -112,6 +135,22 @@ export function QuizResultsPage() {
                       <td className="px-4 py-3 text-xs text-muted-foreground">
                         {attempt.submittedAtUtc ? timeAgo(attempt.submittedAtUtc) : "—"}
                       </td>
+                      <td className="px-4 py-3 text-right">
+                        {attempt.isAwaitingMarking ? (
+                          <Button size="sm" onClick={() => setMarking(attempt.attemptId)}>
+                            <PenLine className="h-3.5 w-3.5" />
+                            Mark {attempt.awaitingMarkingCount}
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setMarking(attempt.attemptId)}
+                          >
+                            Review
+                          </Button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -120,15 +159,21 @@ export function QuizResultsPage() {
           )}
         </>
       )}
+
+      <EssayMarkingDialog
+        attemptId={marking}
+        open={marking !== null}
+        onClose={() => setMarking(null)}
+      />
     </div>
   );
 }
 
-function Tile({ label, value, hint }: { label: string; value: string; hint?: string }) {
+function Tile({ label, value, hint, accent }: { label: string; value: string; hint?: string; accent?: string }) {
   return (
     <div className="rounded-[18px] border border-border bg-card p-4 shadow-soft">
       <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
+      <p className={`mt-1 text-2xl font-semibold tabular-nums ${accent ?? ""}`}>{value}</p>
       {hint && <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>}
     </div>
   );

@@ -8,11 +8,20 @@ import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import { LearnerHeader } from "@/layouts/LearnerHeader";
 import { getApiErrorMessage } from "@/lib/apiError";
 import { useSaveAnswer, useStartAttempt, useSubmitAttempt } from "../api/queries";
 import type { AttemptInProgress } from "../api/types";
 import { AttemptTimer } from "../components/AttemptTimer";
+
+/** One question's working state. Option ids are a set so checkboxes and radios share a shape. */
+interface AnswerDraft {
+  optionIds: string[];
+  text: string;
+}
+
+const emptyDraft: AnswerDraft = { optionIds: [], text: "" };
 
 /**
  * Sitting a quiz. Starting is idempotent on the server, so mounting this page either begins a
@@ -27,7 +36,7 @@ export function QuizAttemptPage() {
   const submitAttempt = useSubmitAttempt();
 
   const [attempt, setAttempt] = useState<AttemptInProgress | null>(null);
-  const [answers, setAnswers] = useState<Record<string, { optionId: string | null; text: string }>>({});
+  const [answers, setAnswers] = useState<Record<string, AnswerDraft>>({});
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   // Guards the effect against StrictMode's double mount, which would otherwise fire two starts.
@@ -45,7 +54,7 @@ export function QuizAttemptPage() {
           Object.fromEntries(
             data.questions.map((q) => [
               q.id,
-              { optionId: q.selectedOptionId, text: q.textAnswer ?? "" },
+              { optionIds: q.selectedOptionIds, text: q.textAnswer ?? "" },
             ]),
           ),
         );
@@ -68,30 +77,48 @@ export function QuizAttemptPage() {
     });
   }, [attempt, courseId, navigate, quizId, submitAttempt]);
 
-  const persist = (questionId: string, optionId: string | null, text: string) => {
+  const persist = (questionId: string, optionIds: string[], text: string) => {
     if (!attempt) return;
     saveAnswer.mutate({
       attemptId: attempt.attemptId,
       questionId,
-      selectedOptionId: optionId,
+      selectedOptionIds: optionIds,
       textAnswer: text.trim() || null,
     });
   };
 
+  /** Radio behaviour: the chosen id replaces whatever was there. */
   const chooseOption = (questionId: string, optionId: string) => {
-    setAnswers((current) => ({ ...current, [questionId]: { optionId, text: "" } }));
-    persist(questionId, optionId, "");
+    setAnswers((current) => ({ ...current, [questionId]: { optionIds: [optionId], text: "" } }));
+    persist(questionId, [optionId], "");
+  };
+
+  /** Checkbox behaviour: the id joins or leaves the set. */
+  const toggleOption = (questionId: string, optionId: string) => {
+    const current = answers[questionId]?.optionIds ?? [];
+    const next = current.includes(optionId)
+      ? current.filter((id) => id !== optionId)
+      : [...current, optionId];
+
+    setAnswers((state) => ({ ...state, [questionId]: { optionIds: next, text: "" } }));
+    persist(questionId, next, "");
   };
 
   const typeAnswer = (questionId: string, text: string) =>
-    setAnswers((current) => ({ ...current, [questionId]: { optionId: null, text } }));
+    setAnswers((current) => ({ ...current, [questionId]: { optionIds: [], text } }));
 
-  const answeredCount = attempt
-    ? attempt.questions.filter((q) => {
-        const answer = answers[q.id];
-        return answer && (answer.optionId !== null || answer.text.trim().length > 0);
-      }).length
-    : 0;
+  const isAnswered = (questionId: string) => {
+    const answer = answers[questionId];
+    return Boolean(answer && (answer.optionIds.length > 0 || answer.text.trim().length > 0));
+  };
+
+  const missingRequired = attempt
+    ? attempt.questions.filter((q) => q.isRequired && !isAnswered(q.id))
+    : [];
+
+  const answeredCount = attempt ? attempt.questions.filter((q) => isAnswered(q.id)).length : 0;
+
+  const essayCount = attempt ? attempt.questions.filter((q) => q.isEssay).length : 0;
 
   if (startAttempt.isPending || (!attempt && !startAttempt.isError)) {
     return (
@@ -145,6 +172,8 @@ export function QuizAttemptPage() {
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 Attempt {attempt.attemptNumber} · {attempt.totalPoints} points
+                {essayCount > 0 &&
+                  ` · ${essayCount} written answer${essayCount === 1 ? "" : "s"} marked by your lecturer`}
               </p>
             </div>
             {attempt.deadlineUtc && (
@@ -174,7 +203,7 @@ export function QuizAttemptPage() {
 
         <ol className="space-y-4">
           {attempt.questions.map((question, index) => {
-            const answer = answers[question.id] ?? { optionId: null, text: "" };
+            const answer = answers[question.id] ?? emptyDraft;
 
             return (
               <li
@@ -185,42 +214,79 @@ export function QuizAttemptPage() {
                   <p className="font-medium">
                     <span className="mr-2 text-sm text-muted-foreground">Q{index + 1}</span>
                     {question.text}
+                    {question.isRequired && (
+                      <span className="ml-1 text-destructive" aria-label="Required">
+                        *
+                      </span>
+                    )}
                   </p>
-                  <Badge variant="neutral">{question.points} pts</Badge>
+                  <span className="flex shrink-0 flex-wrap items-center justify-end gap-1">
+                    {question.isEssay && <Badge variant="warning">Marked by hand</Badge>}
+                    <Badge variant="neutral">{question.points} pts</Badge>
+                  </span>
                 </div>
 
-                {question.type === "ShortAnswer" ? (
+                {question.isEssay ? (
+                  <>
+                    <Textarea
+                      className="mt-4"
+                      rows={8}
+                      value={answer.text}
+                      onChange={(e) => typeAnswer(question.id, e.target.value)}
+                      onBlur={() => persist(question.id, [], answer.text)}
+                      placeholder="Write your answer"
+                      aria-label={`Answer to question ${index + 1}`}
+                      maxLength={20000}
+                    />
+                    <p className="mt-1.5 text-xs text-muted-foreground">
+                      Your lecturer marks this one, so your score will not be final straight away.
+                    </p>
+                  </>
+                ) : question.type === "ShortAnswer" ? (
                   <Input
                     className="mt-4"
                     value={answer.text}
                     onChange={(e) => typeAnswer(question.id, e.target.value)}
-                    onBlur={() => persist(question.id, null, answer.text)}
+                    onBlur={() => persist(question.id, [], answer.text)}
                     placeholder="Type your answer"
                     aria-label={`Answer to question ${index + 1}`}
                     maxLength={2000}
                   />
                 ) : (
                   <ul className="mt-4 space-y-2">
-                    {question.options.map((option) => (
-                      <li key={option.id}>
-                        <label
-                          className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition-colors ${
-                            answer.optionId === option.id
-                              ? "border-primary bg-primary/5"
-                              : "border-border hover:bg-muted/50"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name={question.id}
-                            checked={answer.optionId === option.id}
-                            onChange={() => chooseOption(question.id, option.id)}
-                            className="h-4 w-4 shrink-0 accent-primary"
-                          />
-                          <span className="text-sm">{option.text}</span>
-                        </label>
+                    {question.options.map((option) => {
+                      const selected = answer.optionIds.includes(option.id);
+
+                      return (
+                        <li key={option.id}>
+                          <label
+                            className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition-colors ${
+                              selected
+                                ? "border-primary bg-primary/5"
+                                : "border-border hover:bg-muted/50"
+                            }`}
+                          >
+                            <input
+                              type={question.allowsMultipleSelections ? "checkbox" : "radio"}
+                              name={question.allowsMultipleSelections ? undefined : question.id}
+                              checked={selected}
+                              onChange={() =>
+                                question.allowsMultipleSelections
+                                  ? toggleOption(question.id, option.id)
+                                  : chooseOption(question.id, option.id)
+                              }
+                              className="h-4 w-4 shrink-0 accent-primary"
+                            />
+                            <span className="text-sm">{option.text}</span>
+                          </label>
+                        </li>
+                      );
+                    })}
+                    {question.allowsMultipleSelections && (
+                      <li className="pt-1 text-xs text-muted-foreground">
+                        Select every answer that applies.
                       </li>
-                    ))}
+                    )}
                   </ul>
                 )}
               </li>
@@ -230,9 +296,17 @@ export function QuizAttemptPage() {
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-muted-foreground">
-            Answers save as you go. You can leave and come back.
+            {missingRequired.length > 0
+              ? `${missingRequired.length} required question${
+                  missingRequired.length === 1 ? "" : "s"
+                } still to answer.`
+              : "Answers save as you go. You can leave and come back."}
           </p>
-          <Button onClick={() => setConfirmOpen(true)} isLoading={submitAttempt.isPending}>
+          <Button
+            onClick={() => setConfirmOpen(true)}
+            isLoading={submitAttempt.isPending}
+            disabled={missingRequired.length > 0}
+          >
             Submit attempt
           </Button>
         </div>
@@ -250,7 +324,9 @@ export function QuizAttemptPage() {
             <p className="text-muted-foreground">
               {answeredCount < attempt.questions.length
                 ? `You have answered ${answeredCount} of ${attempt.questions.length}. Unanswered questions score zero.`
-                : "Your attempt will be marked straight away and cannot be changed."}
+                : "Your attempt cannot be changed once submitted."}
+              {essayCount > 0 &&
+                " Your written answers go to your lecturer, so the score you see first is provisional."}
             </p>
           </div>
           <div className="flex justify-end gap-2">
