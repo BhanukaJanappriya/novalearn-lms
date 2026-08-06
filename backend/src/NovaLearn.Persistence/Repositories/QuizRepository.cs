@@ -113,7 +113,7 @@ public sealed class QuizRepository(ApplicationDbContext dbContext) : IQuizReposi
         Guid quizId, CancellationToken cancellationToken) =>
         await dbContext.QuizAttempts
             .Include(a => a.Student)
-            .Where(a => a.QuizId == quizId && a.Status == AttemptStatus.Submitted)
+            .Where(a => a.QuizId == quizId && a.Status != AttemptStatus.InProgress)
             .OrderByDescending(a => a.SubmittedAtUtc)
             .ToListAsync(cancellationToken);
 
