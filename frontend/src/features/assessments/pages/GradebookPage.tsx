@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, ClipboardList, Table2 } from "lucide-react";
+import { PageTransition } from "@/components/PageTransition";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { LinkButton } from "@/components/ui/link-button";
@@ -14,7 +15,8 @@ export function GradebookPage() {
   const { data, isLoading, isError, error } = useGradebook(courseId);
 
   return (
-    <div className="space-y-6">
+    <PageTransition>
+      <div className="space-y-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <Link
@@ -151,7 +153,8 @@ export function GradebookPage() {
           </p>
         </>
       )}
-    </div>
+      </div>
+    </PageTransition>
   );
 }
 

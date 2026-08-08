@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { TriangleAlert, Users } from "lucide-react";
+import { PageTransition } from "@/components/PageTransition";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
@@ -84,7 +85,8 @@ export function UsersPage() {
   const actionError = setStatusMutation.error ?? verifyEmail.error;
 
   return (
-    <div className="space-y-6">
+    <PageTransition>
+      <div className="space-y-6">
       <header>
         <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
           <Users className="h-6 w-6 text-primary" aria-hidden />
@@ -182,5 +184,6 @@ export function UsersPage() {
         </div>
       </Modal>
     </div>
+    </PageTransition>
   );
 }

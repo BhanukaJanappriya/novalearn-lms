@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, ClipboardList, Clock, Inbox, Pencil, Plus, Table2, Trash2, TriangleAlert } from "lucide-react";
+import { PageTransition } from "@/components/PageTransition";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -61,7 +62,8 @@ export function AssignmentsManagerPage() {
   const formError = editing ? updateAssignment.error : createAssignment.error;
 
   return (
-    <div className="space-y-6">
+    <PageTransition>
+      <div className="space-y-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <Link
@@ -220,5 +222,6 @@ export function AssignmentsManagerPage() {
         </div>
       </Modal>
     </div>
+    </PageTransition>
   );
 }

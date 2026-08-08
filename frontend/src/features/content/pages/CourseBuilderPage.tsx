@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Modal } from "@/components/ui/modal";
+import { PageTransition } from "@/components/PageTransition";
 import { Alert } from "@/components/ui/alert";
 import { useAuth } from "@/context/AuthContext";
 import { isAdmin } from "@/lib/roles";
@@ -96,7 +97,8 @@ export function CourseBuilderPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <PageTransition>
+      <div className="space-y-6">
       <div>
         <Link
           to="/admin/courses"
@@ -286,5 +288,6 @@ export function CourseBuilderPage() {
         </div>
       </Modal>
     </div>
+    </PageTransition>
   );
 }

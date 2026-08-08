@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, BarChart3, Clock, PenLine } from "lucide-react";
+import { PageTransition } from "@/components/PageTransition";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,8 @@ export function QuizResultsPage() {
   const [marking, setMarking] = useState<string | null>(null);
 
   return (
-    <div className="space-y-6">
+    <PageTransition>
+      <div className="space-y-6">
       <header>
         <Link
           to={`/admin/courses/${courseId}/quizzes`}
@@ -165,7 +167,8 @@ export function QuizResultsPage() {
         open={marking !== null}
         onClose={() => setMarking(null)}
       />
-    </div>
+      </div>
+    </PageTransition>
   );
 }
 

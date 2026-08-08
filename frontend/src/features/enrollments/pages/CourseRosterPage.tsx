@@ -1,4 +1,5 @@
 import { Link, useParams } from "react-router-dom";
+import { PageTransition } from "@/components/PageTransition";
 import { ArrowLeft, TriangleAlert, Users } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +28,8 @@ export function CourseRosterPage() {
     : 0;
 
   return (
-    <div className="space-y-6">
+    <PageTransition>
+      <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <Link
@@ -133,5 +135,6 @@ export function CourseRosterPage() {
         </div>
       )}
     </div>
+    </PageTransition>
   );
 }
