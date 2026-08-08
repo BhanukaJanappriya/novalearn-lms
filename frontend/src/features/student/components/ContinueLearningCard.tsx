@@ -1,10 +1,12 @@
 import { motion } from "framer-motion";
 import { BookOpen, Clock, Layers, Minus, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { CourseImage } from "@/components/ui/course-image";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { coverGradient, levelVariant } from "@/features/enrollments/lib/courseVisuals";
 import { useSpotlight } from "@/hooks/useSpotlight";
+import { staggerItem } from "@/lib/motion";
 import type { StudentCourse } from "../api/types";
 import { formatDuration, snapToStep } from "../lib/learning";
 
@@ -31,23 +33,27 @@ export function ContinueLearningCard({ course, onProgressChange, isSaving }: Con
       ref={ref}
       onMouseMove={onMouseMove}
       layout
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
+      variants={staggerItem}
+      whileHover={{ y: -4 }}
       transition={{ type: "spring", stiffness: 320, damping: 24 }}
       className="spotlight flex flex-col overflow-hidden rounded-[18px] border border-border bg-card shadow-soft"
     >
-      <div className="relative h-20" style={{ backgroundImage: coverGradient(course.code) }}>
-        {course.coverImageUrl && (
-          <img src={course.coverImageUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
-        <span className="absolute left-3 top-3 rounded-md bg-black/30 px-2 py-0.5 text-xs font-semibold text-white backdrop-blur">
+      <CourseImage
+        code={course.code}
+        category={course.category}
+        coverImageUrl={course.coverImageUrl}
+        gradient={coverGradient(course.code)}
+        width={560}
+        height={240}
+        className="h-28"
+      >
+        <span className="absolute left-3 top-3 rounded-md bg-black/40 px-2 py-0.5 text-xs font-semibold text-white backdrop-blur">
           {course.code}
         </span>
         <span className="absolute right-3 top-3">
           <Badge variant={levelVariant[course.level]}>{course.level}</Badge>
         </span>
-      </div>
+      </CourseImage>
 
       <div className="flex flex-1 flex-col p-4">
         <h3 className="line-clamp-2 font-semibold leading-snug">{course.title}</h3>
