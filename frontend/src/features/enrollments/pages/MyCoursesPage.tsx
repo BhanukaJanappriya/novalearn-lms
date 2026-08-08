@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Compass, GraduationCap, TriangleAlert } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Modal } from "@/components/ui/modal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LearnerHeader } from "@/layouts/LearnerHeader";
 import { getApiErrorMessage } from "@/lib/apiError";
+import { staggerContainer } from "@/lib/motion";
 import { useMyEnrollments, useUnenroll } from "../api/queries";
 import type { Enrollment } from "../api/types";
 import { EnrolledCourseCard } from "../components/EnrolledCourseCard";
@@ -82,7 +83,12 @@ export function MyCoursesPage() {
         )}
 
         {active.length > 0 && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <motion.div
+            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+          >
             <AnimatePresence mode="popLayout">
               {active.map((enrollment) => (
                 <EnrolledCourseCard
@@ -92,7 +98,7 @@ export function MyCoursesPage() {
                 />
               ))}
             </AnimatePresence>
-          </div>
+          </motion.div>
         )}
       </main>
 

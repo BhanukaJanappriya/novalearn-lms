@@ -1,4 +1,4 @@
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Award,
   BookOpen,
@@ -15,6 +15,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useUpdateProgress } from "@/features/enrollments/api/queries";
 import { LearnerHeader } from "@/layouts/LearnerHeader";
 import { getApiErrorMessage } from "@/lib/apiError";
+import { staggerContainer } from "@/lib/motion";
 import { useStudentDashboard } from "../api/queries";
 import { ActivityChart } from "../components/ActivityChart";
 import { CategoryProgressPanel } from "../components/CategoryProgressPanel";
@@ -64,7 +65,12 @@ export function StudentDashboardPage() {
 
         {data && (
           <div className="space-y-8">
-            <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <motion.section
+              className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer}
+            >
               <StatTile
                 label="Courses in progress"
                 value={String(data.summary.activeCourses)}
@@ -95,7 +101,7 @@ export function StudentDashboardPage() {
                 hint={`${data.summary.lessonsAvailable} lessons available`}
                 icon={Clock}
               />
-            </section>
+            </motion.section>
 
             <section>
               <div className="mb-4 flex items-center justify-between gap-3">
@@ -128,7 +134,12 @@ export function StudentDashboardPage() {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <motion.div
+                  className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                  initial="hidden"
+                  animate="visible"
+                  variants={staggerContainer}
+                >
                   <AnimatePresence mode="popLayout">
                     {data.continueLearning.map((course) => (
                       <ContinueLearningCard
@@ -139,7 +150,7 @@ export function StudentDashboardPage() {
                       />
                     ))}
                   </AnimatePresence>
-                </div>
+                </motion.div>
               )}
             </section>
 

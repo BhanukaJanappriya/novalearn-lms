@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, Plus, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Modal } from "@/components/ui/modal";
+import { PageTransition } from "@/components/PageTransition";
 import { Alert } from "@/components/ui/alert";
 import { useAuth } from "@/context/AuthContext";
 import { isAdmin, canManageCourses } from "@/lib/roles";
 import { getApiErrorMessage } from "@/lib/apiError";
+import { staggerContainer } from "@/lib/motion";
 import { useCourses, useDeleteCourse } from "../api/queries";
 import type { Course } from "../api/types";
 import { CourseCard } from "../components/CourseCard";
@@ -41,7 +43,8 @@ export function CoursesPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <PageTransition>
+      <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Courses</h1>
@@ -94,7 +97,12 @@ export function CoursesPage() {
       )}
 
       {courses && courses.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <motion.div
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+        >
           <AnimatePresence mode="popLayout">
             {courses.map((course) => (
               <CourseCard
@@ -106,7 +114,7 @@ export function CoursesPage() {
               />
             ))}
           </AnimatePresence>
-        </div>
+        </motion.div>
       )}
 
       <CourseFormDialog open={formOpen} course={editingCourse} onClose={() => setFormOpen(false)} />
@@ -131,5 +139,6 @@ export function CoursesPage() {
         </div>
       </Modal>
     </div>
+    </PageTransition>
   );
 }

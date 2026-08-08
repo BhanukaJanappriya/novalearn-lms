@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Compass, TriangleAlert } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LearnerHeader } from "@/layouts/LearnerHeader";
 import { getApiErrorMessage } from "@/lib/apiError";
+import { staggerContainer } from "@/lib/motion";
 import { formatNumber } from "@/lib/format";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useCourses } from "@/features/courses/api/queries";
@@ -124,10 +125,13 @@ export function CatalogPage() {
         )}
 
         {courses.length > 0 && (
-          <div
+          <motion.div
             className={`grid gap-4 transition-opacity sm:grid-cols-2 lg:grid-cols-3 ${
               isFetching ? "opacity-60" : "opacity-100"
             }`}
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
           >
             <AnimatePresence mode="popLayout">
               {courses.map((course) => (
@@ -139,7 +143,7 @@ export function CatalogPage() {
                 />
               ))}
             </AnimatePresence>
-          </div>
+          </motion.div>
         )}
 
         {data && (
