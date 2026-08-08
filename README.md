@@ -121,7 +121,7 @@ dotnet run --project src/NovaLearn.API
 ```bash
 cd frontend
 npm install
-npm run dev                    # http://localhost:5173
+npm run dev                    
 ```
 
 ### 4. Run tests
