@@ -102,4 +102,38 @@
       transition: none;
     }
   }
+
+  /*
+    Fade a photograph in once it decodes rather than letting it pop over the gradient
+    underneath it.
+  */
+  .image-fade-in {
+    animation: image-fade-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes image-fade-in {
+    from {
+      opacity: 0;
+      transform: scale(1.02);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+/*
+  The CSS half of the reduced-motion promise. Framer Motion is handled by the MotionConfig in
+  App; this covers plain CSS transitions, keyframes and smooth scrolling, which that cannot see.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
