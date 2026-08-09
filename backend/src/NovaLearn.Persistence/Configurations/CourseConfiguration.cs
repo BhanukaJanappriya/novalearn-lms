@@ -31,6 +31,14 @@ public sealed class CourseConfiguration : IEntityTypeConfiguration<Course>
         builder.HasIndex(c => c.Code).IsUnique().HasFilter("\"IsDeleted\" = false");
         builder.HasIndex(c => c.Status);
         builder.HasIndex(c => c.LecturerId);
+        builder.HasIndex(c => c.DepartmentId);
+
+        // Retiring a department must not take its courses with it, so the link is simply cleared.
+        builder
+            .HasOne(c => c.Department)
+            .WithMany()
+            .HasForeignKey(c => c.DepartmentId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         // Owner relationship. Optional navigation avoids a query-filter mismatch with Users.
         builder

@@ -5,6 +5,7 @@ using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Domain.Assessments;
 using NovaLearn.Domain.Content;
 using NovaLearn.Domain.Courses;
+using NovaLearn.Domain.Departments;
 using NovaLearn.Domain.Enrollments;
 using NovaLearn.Domain.Identity;
 using NovaLearn.Domain.Notifications;
@@ -23,6 +24,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     public DbSet<Course> Courses => Set<Course>();
+
+    public DbSet<Department> Departments => Set<Department>();
 
     public DbSet<CourseModule> CourseModules => Set<CourseModule>();
 

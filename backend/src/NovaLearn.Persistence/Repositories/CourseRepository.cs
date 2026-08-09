@@ -12,6 +12,7 @@ public sealed class CourseRepository(ApplicationDbContext dbContext) : ICourseRe
     public Task<Course?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
         dbContext.Courses
             .Include(c => c.Lecturer)
+            .Include(c => c.Department)
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 
     public void Remove(Course course) => dbContext.Courses.Remove(course);
@@ -22,6 +23,7 @@ public sealed class CourseRepository(ApplicationDbContext dbContext) : ICourseRe
     public async Task<IReadOnlyList<Course>> ListAsync(CancellationToken cancellationToken) =>
         await dbContext.Courses
             .Include(c => c.Lecturer)
+            .Include(c => c.Department)
             .OrderByDescending(c => c.CreatedAtUtc)
             .ToListAsync(cancellationToken);
 }
