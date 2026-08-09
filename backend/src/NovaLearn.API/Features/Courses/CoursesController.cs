@@ -41,7 +41,7 @@ public sealed class CoursesController(ISender sender) : ApiControllerBase
     {
         var command = new CreateCourseCommand(
             request.Title, request.Code, request.Description, request.Category,
-            request.Level, request.Status, request.Price, request.CoverImageUrl);
+            request.Level, request.Status, request.Price, request.CoverImageUrl, request.DepartmentId);
 
         Result<CourseDto> result = await sender.Send(command, cancellationToken);
         return HandleResult(result, course => CreatedAtAction(nameof(List), new { id = course.Id }, course));
@@ -59,7 +59,7 @@ public sealed class CoursesController(ISender sender) : ApiControllerBase
     {
         var command = new UpdateCourseCommand(
             id, request.Title, request.Code, request.Description, request.Category,
-            request.Level, request.Status, request.Price, request.CoverImageUrl);
+            request.Level, request.Status, request.Price, request.CoverImageUrl, request.DepartmentId);
 
         return HandleResult(await sender.Send(command, cancellationToken));
     }

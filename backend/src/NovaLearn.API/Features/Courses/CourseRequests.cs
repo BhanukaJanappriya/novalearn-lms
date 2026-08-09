@@ -11,7 +11,8 @@ public sealed record CreateCourseRequest(
     CourseLevel Level,
     CourseStatus Status,
     decimal Price,
-    string? CoverImageUrl);
+    string? CoverImageUrl,
+    Guid? DepartmentId = null);
 
 /// <summary>Body for editing a course (the id comes from the route).</summary>
 public sealed record UpdateCourseRequest(
@@ -22,4 +23,5 @@ public sealed record UpdateCourseRequest(
     CourseLevel Level,
     CourseStatus Status,
     decimal Price,
-    string? CoverImageUrl);
+    string? CoverImageUrl,
+    Guid? DepartmentId = null);

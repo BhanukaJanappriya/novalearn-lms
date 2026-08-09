@@ -15,4 +15,5 @@ public sealed record UpdateCourseCommand(
     CourseLevel Level,
     CourseStatus Status,
     decimal Price,
-    string? CoverImageUrl) : IRequest<Result<CourseDto>>;
+    string? CoverImageUrl,
+    Guid? DepartmentId) : IRequest<Result<CourseDto>>;

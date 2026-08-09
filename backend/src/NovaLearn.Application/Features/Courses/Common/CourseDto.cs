@@ -13,6 +13,8 @@ public sealed record CourseDto(
     string Status,
     decimal Price,
     string? CoverImageUrl,
+    Guid? DepartmentId,
+    string? DepartmentName,
     Guid LecturerId,
     string LecturerName,
     DateTimeOffset CreatedAtUtc)
@@ -27,6 +29,8 @@ public sealed record CourseDto(
         course.Status.ToString(),
         course.Price,
         course.CoverImageUrl,
+        course.DepartmentId,
+        course.Department?.Name,
         course.LecturerId,
         course.Lecturer?.FullName ?? "Unknown",
         course.CreatedAtUtc);

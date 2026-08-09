@@ -46,10 +46,18 @@ public sealed class UpdateCourseCommandHandler(
             request.Level,
             request.Status,
             request.Price,
-            request.CoverImageUrl);
+            request.CoverImageUrl,
+            request.DepartmentId);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return CourseDto.FromEntity(course);
+        // Re-read so a newly assigned department comes back with its name. Setting the foreign
+        // key does not populate the navigation, so projecting the tracked entity would report
+        // the course as having no department right after one was chosen.
+        Course? saved = await courses.GetByIdAsync(course.Id, cancellationToken);
+
+        return saved is null
+            ? Result.Failure<CourseDto>(CourseErrors.NotFound)
+            : CourseDto.FromEntity(saved);
     }
 }
