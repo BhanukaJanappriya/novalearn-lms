@@ -1,4 +1,5 @@
 using NovaLearn.Domain.Common;
+using NovaLearn.Domain.Departments;
 using NovaLearn.Domain.Identity;
 
 namespace NovaLearn.Domain.Courses;
@@ -29,6 +30,15 @@ public sealed class Course : BaseEntity
 
     public string? CoverImageUrl { get; private set; }
 
+    /// <summary>
+    /// The department this course sits under, if one has been chosen. Optional so departments
+    /// could be introduced without every existing course needing to be reassigned first.
+    /// </summary>
+    public Guid? DepartmentId { get; private set; }
+
+    /// <summary>Optional navigation to the owning department (for read projections).</summary>
+    public Department? Department { get; private set; }
+
     /// <summary>The user (lecturer or admin) who owns this course.</summary>
     public Guid LecturerId { get; private set; }
 
@@ -44,10 +54,12 @@ public sealed class Course : BaseEntity
         CourseStatus status,
         decimal price,
         string? coverImageUrl,
-        Guid lecturerId)
+        Guid lecturerId,
+        Guid? departmentId = null)
     {
         return new Course
         {
+            DepartmentId = departmentId,
             Title = title.Trim(),
             Code = code.Trim().ToUpperInvariant(),
             Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim(),
@@ -69,8 +81,10 @@ public sealed class Course : BaseEntity
         CourseLevel level,
         CourseStatus status,
         decimal price,
-        string? coverImageUrl)
+        string? coverImageUrl,
+        Guid? departmentId = null)
     {
+        DepartmentId = departmentId;
         Title = title.Trim();
         Code = code.Trim().ToUpperInvariant();
         Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
