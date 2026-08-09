@@ -8,6 +8,8 @@ export const createCourseSchema = z.object({
     .max(20)
     .regex(/^[A-Za-z0-9- ]+$/, "Letters, numbers, spaces and hyphens only"),
   category: z.string().min(1, "Category is required").max(100),
+  // Optional: departments were introduced after courses, so a course need not belong to one.
+  departmentId: z.string().optional().or(z.literal("")),
   level: z.enum(["Beginner", "Intermediate", "Advanced"]),
   status: z.enum(["Draft", "Published"]),
   price: z.coerce.number({ invalid_type_error: "Enter a number" }).min(0, "Price cannot be negative"),

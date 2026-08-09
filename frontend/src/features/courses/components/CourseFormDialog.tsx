@@ -9,6 +9,7 @@ import { Modal } from "@/components/ui/modal";
 import { cn } from "@/lib/utils";
 import { getApiErrorMessage } from "@/lib/apiError";
 import { useCreateCourse, useUpdateCourse } from "../api/queries";
+import { useDepartments } from "@/features/departments/api/queries";
 import { createCourseSchema, type CreateCourseValues } from "../schemas";
 import type { Course, CreateCoursePayload } from "../api/types";
 
@@ -19,6 +20,7 @@ const emptyValues: CreateCourseValues = {
   title: "",
   code: "",
   category: "",
+  departmentId: "",
   level: "Beginner",
   status: "Draft",
   price: 0,
@@ -41,6 +43,9 @@ export function CourseFormDialog({
   const update = useUpdateCourse();
   const mutation = isEdit ? update : create;
 
+  // Only fetched while the dialog is open, so the courses list does not pay for it.
+  const { data: departments } = useDepartments(open);
+
   const {
     register,
     handleSubmit,
@@ -59,6 +64,7 @@ export function CourseFormDialog({
             title: course.title,
             code: course.code,
             category: course.category,
+            departmentId: course.departmentId ?? "",
             level: course.level,
             status: course.status,
             price: course.price,
@@ -81,6 +87,7 @@ export function CourseFormDialog({
       title: values.title,
       code: values.code,
       category: values.category,
+      departmentId: values.departmentId || null,
       level: values.level,
       status: values.status,
       price: values.price,
@@ -110,6 +117,22 @@ export function CourseFormDialog({
         <div className="grid grid-cols-2 gap-3">
           <FormField label="Code" placeholder="CS101" error={errors.code?.message} {...register("code")} />
           <FormField label="Category" placeholder="Computer Science" error={errors.category?.message} {...register("category")} />
+
+          <div className="space-y-1.5">
+            <label htmlFor="course-department" className="text-sm font-medium">
+              Department
+            </label>
+            <select id="course-department" className={selectClass} {...register("departmentId")}>
+              <option value="">No department</option>
+              {(departments ?? [])
+                .filter((d) => d.isActive || d.id === course?.departmentId)
+                .map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.code} · {d.name}
+                  </option>
+                ))}
+            </select>
+          </div>
         </div>
 
         <div className="grid grid-cols-3 gap-3">

@@ -12,12 +12,15 @@ export interface Course {
   status: CourseStatus;
   price: number;
   coverImageUrl: string | null;
+  departmentId: string | null;
+  departmentName: string | null;
   lecturerId: string;
   lecturerName: string;
   createdAtUtc: string;
 }
 
 export interface CreateCoursePayload {
+  departmentId?: string | null;
   title: string;
   code: string;
   description?: string | null;
