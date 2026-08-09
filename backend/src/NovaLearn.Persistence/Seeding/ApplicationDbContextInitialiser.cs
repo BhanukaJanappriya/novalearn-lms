@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NovaLearn.Domain.Content;
 using NovaLearn.Domain.Courses;
+using NovaLearn.Domain.Departments;
 using NovaLearn.Domain.Enrollments;
 using NovaLearn.Domain.Identity;
 
@@ -40,6 +41,7 @@ public sealed class ApplicationDbContextInitialiser(
     {
         await SeedRolesAsync();
         await SeedSuperAdminAsync();
+        await SeedDepartmentsAsync();
 
         // Enrolment seeding runs first because it back-fills demo students and courses on an
         // empty database; content seeding then gives every course that exists an outline.
@@ -103,6 +105,49 @@ public sealed class ApplicationDbContextInitialiser(
 
         await userManager.AddToRoleAsync(admin, Roles.SuperAdministrator);
         logger.LogInformation("Seeded super administrator {Email}", _seed.SuperAdminEmail);
+    }
+
+    /// <summary>
+    /// Seeds the science faculty. Runs only while the table is empty, so an operator who has
+    /// renamed or removed departments never has them reappear on the next restart.
+    /// </summary>
+    private async Task SeedDepartmentsAsync()
+    {
+        if (await dbContext.Departments.AnyAsync())
+        {
+            return;
+        }
+
+        (string Name, string Code, string Description)[] faculty =
+        [
+            ("Computer Science", "CS",
+                "Software engineering, algorithms, systems and human computer interaction."),
+            ("Mathematics", "MATH",
+                "Pure and applied mathematics, from analysis and algebra to optimisation."),
+            ("Physics", "PHYS",
+                "Classical and quantum physics, mechanics, electromagnetism and thermodynamics."),
+            ("Chemistry", "CHEM",
+                "Organic, inorganic, physical and analytical chemistry."),
+            ("Biology", "BIO",
+                "Molecular biology, genetics, ecology and human physiology."),
+            ("Earth and Environmental Science", "EES",
+                "Geology, climate science, oceanography and environmental management."),
+            ("Statistics and Data Science", "STAT",
+                "Probability, statistical inference, machine learning and data engineering."),
+            ("Biotechnology", "BTEC",
+                "Bioprocessing, genetic engineering and applied life sciences."),
+            ("Astronomy and Astrophysics", "ASTR",
+                "Observational astronomy, cosmology and planetary science."),
+        ];
+
+        var departments = faculty
+            .Select(d => Department.Create(d.Name, d.Code, d.Description, headId: null))
+            .ToList();
+
+        await dbContext.Departments.AddRangeAsync(departments);
+        await dbContext.SaveChangesAsync();
+
+        logger.LogInformation("Seeded {Count} departments", departments.Count);
     }
 
     /// <summary>
