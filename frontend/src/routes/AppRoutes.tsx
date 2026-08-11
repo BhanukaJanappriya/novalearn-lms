@@ -62,6 +62,9 @@ const QuizAttemptPage = lazy(() =>
 const AttemptResultPage = lazy(() =>
   import("@/features/quizzes/pages/AttemptResultPage").then((m) => ({ default: m.AttemptResultPage })),
 );
+const ProfilePage = lazy(() =>
+  import("@/features/profile/pages/ProfilePage").then((m) => ({ default: m.ProfilePage })),
+);
 const DepartmentsPage = lazy(() =>
   import("@/features/departments/pages/DepartmentsPage").then((m) => ({
     default: m.DepartmentsPage,
@@ -133,6 +136,14 @@ export function AppRoutes() {
           element={
             <Suspense fallback={<FullScreenLoader />}>
               <MyAssignmentsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <Suspense fallback={<FullScreenLoader />}>
+              <ProfilePage />
             </Suspense>
           }
         />
