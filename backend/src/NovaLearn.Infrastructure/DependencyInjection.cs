@@ -30,6 +30,7 @@ public static class DependencyInjection
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IUserAdministration, UserAdministrationService>();
+        services.AddScoped<IProfileService, ProfileService>();
         services.AddScoped<IEmailSender, LoggingEmailSender>();
 
         return services;
