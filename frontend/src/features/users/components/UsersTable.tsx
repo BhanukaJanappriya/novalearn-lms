@@ -1,9 +1,10 @@
 import { BadgeCheck, BookOpen, GraduationCap, Lock, MailCheck, Shield, UserCheck, UserX } from "lucide-react";
+import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { timeAgo } from "@/lib/format";
 import type { AdminUser } from "../api/types";
-import { avatarColor, initials, roleVariant, sortRoles } from "../lib/userVisuals";
+import { avatarColor, roleVariant, sortRoles } from "../lib/userVisuals";
 
 interface UsersTableProps {
   users: AdminUser[];
@@ -53,13 +54,12 @@ export function UsersTable({
               <tr key={user.id} className="border-b border-border last:border-0 hover:bg-muted/30">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <span
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
-                      style={{ backgroundColor: avatarColor(user.email) }}
-                      aria-hidden
-                    >
-                      {initials(user.fullName)}
-                    </span>
+                    <Avatar
+                      name={user.fullName}
+                      src={user.avatarUrl}
+                      color={avatarColor(user.email)}
+                      size="md"
+                    />
                     <span className="min-w-0">
                       <span className="flex items-center gap-1.5">
                         <span className="truncate font-medium">{user.fullName}</span>
