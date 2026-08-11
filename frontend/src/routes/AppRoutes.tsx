@@ -65,6 +65,9 @@ const AttemptResultPage = lazy(() =>
 const ProfilePage = lazy(() =>
   import("@/features/profile/pages/ProfilePage").then((m) => ({ default: m.ProfilePage })),
 );
+const DirectoryPage = lazy(() =>
+  import("@/features/directory/pages/DirectoryPage").then((m) => ({ default: m.DirectoryPage })),
+);
 const DepartmentsPage = lazy(() =>
   import("@/features/departments/pages/DepartmentsPage").then((m) => ({
     default: m.DepartmentsPage,
@@ -182,6 +185,26 @@ export function AppRoutes() {
               <Suspense fallback={<FullScreenLoader />}>
                 <CoursesPage />
               </Suspense>
+            }
+          />
+          <Route
+            path="students"
+            element={
+              <RequireAdmin>
+                <Suspense fallback={<FullScreenLoader />}>
+                  <DirectoryPage audience="students" />
+                </Suspense>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="lecturers"
+            element={
+              <RequireAdmin>
+                <Suspense fallback={<FullScreenLoader />}>
+                  <DirectoryPage audience="lecturers" />
+                </Suspense>
+              </RequireAdmin>
             }
           />
           <Route

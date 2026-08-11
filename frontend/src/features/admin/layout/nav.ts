@@ -10,6 +10,7 @@ import {
   GraduationCap,
   LayoutDashboard,
   LifeBuoy,
+  Presentation,
   ScrollText,
   Settings,
   Shield,
@@ -42,7 +43,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { label: "Users", icon: Users, href: "/admin/users" },
       { label: "Students", icon: GraduationCap, href: "/admin/students" },
-      { label: "Lecturers", icon: Users, href: "/admin/lecturers" },
+      { label: "Lecturers", icon: Presentation, href: "/admin/lecturers" },
       { label: "Departments", icon: Boxes, href: "/admin/departments" },
     ],
   },
