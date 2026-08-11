@@ -49,6 +49,8 @@ Built with **ASP.NET Core 9** (Clean Architecture + DDD + CQRS) and **React 19**
 | **Assignments & Gradebook** (author, submit, mark, grade grid) | ✅ | ✅ | ✅ | Done |
 | **Quizzes** (5 question types, timed attempts, auto-marking, essays marked by hand) | ✅ | ✅ | ✅ | Done |
 | **Real-time** (SignalR notifications, live badge and toast) | ✅ | ✅ | ✅ | Done |
+| **Departments** (9 science departments, heads, course assignment) | ✅ | ✅ | ✅ | Done |
+| **Profiles & people directory** (own picture only, read-only student and lecturer views) | ✅ | ✅ | ✅ | Done |
 
 ---
 
