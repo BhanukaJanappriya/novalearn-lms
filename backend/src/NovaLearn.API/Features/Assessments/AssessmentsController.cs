@@ -6,6 +6,7 @@ using NovaLearn.API.Common;
 using NovaLearn.Application.Features.Assessments.Common;
 using NovaLearn.Application.Features.Assessments.CreateAssignment;
 using NovaLearn.Application.Features.Assessments.DeleteAssignment;
+using NovaLearn.Application.Features.Assessments.GetAssessmentOverview;
 using NovaLearn.Application.Features.Assessments.GetAssignmentSubmissions;
 using NovaLearn.Application.Features.Assessments.GetCourseAssignments;
 using NovaLearn.Application.Features.Assessments.GetGradebook;
@@ -32,6 +33,17 @@ public sealed class AssessmentsController(ISender sender) : ApiControllerBase
 {
     private const string ManagerRoles =
         $"{Roles.Lecturer},{Roles.Administrator},{Roles.SuperAdministrator}";
+
+    /// <summary>
+    /// Every assignment and quiz the caller is responsible for, across all of their courses.
+    /// Administrators see the whole platform; a lecturer sees only courses they own.
+    /// </summary>
+    [HttpGet("assessments/overview")]
+    [Authorize(Roles = ManagerRoles)]
+    [ProducesResponseType(typeof(AssessmentOverviewDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetOverview(CancellationToken cancellationToken) =>
+        HandleResult(await sender.Send(new GetAssessmentOverviewQuery(), cancellationToken));
 
     /// <summary>Lists a course's assignments (staff see drafts and tallies; learners see their own work).</summary>
     [HttpGet("courses/{courseId:guid}/assignments")]
