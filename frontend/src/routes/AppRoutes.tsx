@@ -36,6 +36,11 @@ const AssignmentsManagerPage = lazy(() =>
     default: m.AssignmentsManagerPage,
   })),
 );
+const AssessmentsPage = lazy(() =>
+  import("@/features/assessments/pages/AssessmentsPage").then((m) => ({
+    default: m.AssessmentsPage,
+  })),
+);
 const GradebookPage = lazy(() =>
   import("@/features/assessments/pages/GradebookPage").then((m) => ({ default: m.GradebookPage })),
 );
@@ -184,6 +189,23 @@ export function AppRoutes() {
             element={
               <Suspense fallback={<FullScreenLoader />}>
                 <CoursesPage />
+              </Suspense>
+            }
+          />
+          {/* Staff, not admins only: a lecturer sees their own courses' work here. */}
+          <Route
+            path="assessments"
+            element={
+              <Suspense fallback={<FullScreenLoader />}>
+                <AssessmentsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="assignments"
+            element={
+              <Suspense fallback={<FullScreenLoader />}>
+                <AssessmentsPage only="assignments" />
               </Suspense>
             }
           />
