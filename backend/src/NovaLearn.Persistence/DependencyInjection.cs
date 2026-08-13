@@ -43,6 +43,7 @@ public static class DependencyInjection
         services.AddScoped<IStudentDashboardService, StudentDashboardService>();
         services.AddScoped<IUserDirectory, UserDirectory>();
         services.AddScoped<IPeopleDirectory, PeopleDirectory>();
+        services.AddScoped<IAssessmentOverview, AssessmentOverview>();
 
         AddIdentity(services);
 
