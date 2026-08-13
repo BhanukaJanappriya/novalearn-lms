@@ -51,6 +51,7 @@ Built with **ASP.NET Core 9** (Clean Architecture + DDD + CQRS) and **React 19**
 | **Real-time** (SignalR notifications, live badge and toast) | ✅ | ✅ | ✅ | Done |
 | **Departments** (9 science departments, heads, course assignment) | ✅ | ✅ | ✅ | Done |
 | **Profiles & people directory** (own picture only, read-only student and lecturer views) | ✅ | ✅ | ✅ | Done |
+| **Assessment hub** (cross course marking queue, deadlines, drafts, scoped per lecturer) | ✅ | ✅ | ✅ | Done |
 
 ---
 
