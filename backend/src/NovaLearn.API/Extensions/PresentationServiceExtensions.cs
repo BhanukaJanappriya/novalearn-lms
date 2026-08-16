@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Asp.Versioning;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
@@ -24,6 +25,13 @@ public static class PresentationServiceExtensions
         services.AddEndpointsApiExplorer();
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, CurrentUser>();
+
+        // Multipart defaults to 128 MB, which would reject a video before the upload use case ever
+        // sees it and gets a chance to answer with a readable error.
+        services.Configure<FormOptions>(options =>
+        {
+            options.MultipartBodyLengthLimit = 210L * 1024 * 1024;
+        });
 
         services.AddProblemDetails();
         services.AddExceptionHandler<GlobalExceptionHandler>();
