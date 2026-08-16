@@ -2,6 +2,7 @@
 bin/
 obj/
 publish/
+App_Data/
 [Dd]ebug/
 [Rr]elease/
 *.user
