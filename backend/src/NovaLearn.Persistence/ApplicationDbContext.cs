@@ -10,6 +10,7 @@ using NovaLearn.Domain.Enrollments;
 using NovaLearn.Domain.Identity;
 using NovaLearn.Domain.Notifications;
 using NovaLearn.Domain.Quizzes;
+using NovaLearn.Domain.Resources;
 
 namespace NovaLearn.Persistence;
 
@@ -44,6 +45,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<QuizAttempt> QuizAttempts => Set<QuizAttempt>();
 
     public DbSet<Notification> Notifications => Set<Notification>();
+
+    public DbSet<Resource> Resources => Set<Resource>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
