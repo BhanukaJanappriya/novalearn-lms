@@ -73,6 +73,9 @@ const ProfilePage = lazy(() =>
 const DirectoryPage = lazy(() =>
   import("@/features/directory/pages/DirectoryPage").then((m) => ({ default: m.DirectoryPage })),
 );
+const WallPage = lazy(() =>
+  import("@/features/wall/pages/WallPage").then((m) => ({ default: m.WallPage })),
+);
 const DepartmentsPage = lazy(() =>
   import("@/features/departments/pages/DepartmentsPage").then((m) => ({
     default: m.DepartmentsPage,
@@ -156,6 +159,14 @@ export function AppRoutes() {
           }
         />
         <Route
+          path="/wall"
+          element={
+            <Suspense fallback={<FullScreenLoader />}>
+              <WallPage />
+            </Suspense>
+          }
+        />
+        <Route
           path="/my-courses"
           element={
             <Suspense fallback={<FullScreenLoader />}>
@@ -189,6 +200,14 @@ export function AppRoutes() {
             element={
               <Suspense fallback={<FullScreenLoader />}>
                 <CoursesPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="content"
+            element={
+              <Suspense fallback={<FullScreenLoader />}>
+                <WallPage />
               </Suspense>
             }
           />

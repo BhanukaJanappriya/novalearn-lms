@@ -13,6 +13,7 @@ const links = [
   { to: "/dashboard", label: "Dashboard" },
   { to: "/catalog", label: "Catalog" },
   { to: "/my-courses", label: "My courses" },
+  { to: "/wall", label: "Wall" },
   { to: "/profile", label: "Profile" },
 ];
 
