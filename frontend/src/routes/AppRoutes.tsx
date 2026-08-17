@@ -73,6 +73,9 @@ const ProfilePage = lazy(() =>
 const DirectoryPage = lazy(() =>
   import("@/features/directory/pages/DirectoryPage").then((m) => ({ default: m.DirectoryPage })),
 );
+const AnalyticsPage = lazy(() =>
+  import("@/features/analytics/pages/AnalyticsPage").then((m) => ({ default: m.AnalyticsPage })),
+);
 const WallPage = lazy(() =>
   import("@/features/wall/pages/WallPage").then((m) => ({ default: m.WallPage })),
 );
@@ -244,6 +247,16 @@ export function AppRoutes() {
               <RequireAdmin>
                 <Suspense fallback={<FullScreenLoader />}>
                   <DirectoryPage audience="lecturers" />
+                </Suspense>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="analytics"
+            element={
+              <RequireAdmin>
+                <Suspense fallback={<FullScreenLoader />}>
+                  <AnalyticsPage />
                 </Suspense>
               </RequireAdmin>
             }
