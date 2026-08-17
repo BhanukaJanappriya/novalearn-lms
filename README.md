@@ -53,6 +53,7 @@ Built with **ASP.NET Core 9** (Clean Architecture + DDD + CQRS) and **React 19**
 | **Profiles & people directory** (own picture only, read-only student and lecturer views) | ✅ | ✅ | ✅ | Done |
 | **Assessment hub** (cross course marking queue, deadlines, drafts, scoped per lecturer) | ✅ | ✅ | ✅ | Done |
 | **Content wall** (PDF/video/image uploads, YouTube and Drive links, thumbnails) | ✅ | ✅ | ✅ | Done |
+| **Analytics** (period trends, course and department performance, mark distribution) | ✅ | ✅ | ✅ | Done |
 
 ---
 
