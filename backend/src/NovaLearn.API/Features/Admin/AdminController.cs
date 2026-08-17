@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using NovaLearn.API.Common;
+using NovaLearn.Application.Common.Models;
+using NovaLearn.Application.Features.Admin.Analytics;
 using NovaLearn.Application.Features.Admin.Dashboard;
 using NovaLearn.Application.Features.Admin.Users.Common;
 using NovaLearn.Application.Features.Admin.Users.GetUsers;
@@ -33,6 +35,18 @@ public sealed class AdminController(ISender sender) : ApiControllerBase
 
         return HandleResult(result);
     }
+
+    /// <summary>
+    /// Platform analytics for a window: trends against the previous period, course and
+    /// department performance, and how marks were distributed.
+    /// </summary>
+    [HttpGet("analytics")]
+    [ProducesResponseType(typeof(PlatformAnalytics), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetAnalytics(
+        [FromQuery] int days = 30, CancellationToken cancellationToken = default) =>
+        HandleResult(await sender.Send(new GetPlatformAnalyticsQuery(days), cancellationToken));
 
     /// <summary>Lists accounts, newest first, with optional search, role and state filters.</summary>
     [HttpGet("users")]
