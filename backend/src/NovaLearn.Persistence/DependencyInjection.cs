@@ -45,6 +45,7 @@ public static class DependencyInjection
         services.AddScoped<IPeopleDirectory, PeopleDirectory>();
         services.AddScoped<IAssessmentOverview, AssessmentOverview>();
         services.AddScoped<IResourceRepository, ResourceRepository>();
+        services.AddScoped<IPlatformAnalytics, PlatformAnalyticsService>();
 
         AddIdentity(services);
 
