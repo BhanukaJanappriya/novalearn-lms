@@ -71,36 +71,60 @@
 }
 
 @layer components {
-  /* Cursor-reactive spotlight: a soft brand glow follows the pointer across the
-     surface. Position is driven by --spot-x / --spot-y from useSpotlight(). */
-  .spotlight {
-    position: relative;
-  }
-
-  .spotlight::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(
-      240px circle at var(--spot-x, 50%) var(--spot-y, -120%),
-      hsl(var(--primary) / 0.16),
-      transparent 60%
-    );
-    opacity: 0;
-    transition: opacity 0.35s ease;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .spotlight:hover::after {
-    opacity: 1;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .spotlight::after {
-      transition: none;
+  /*
+    Custom cursor: a tight dot plus a trailing ring, driven by CursorField. The native cursor is
+    hidden here rather than by a JS-toggled class, so there is no frame where neither cursor is
+    visible while the component's effect is still warming up. Untouched on touch/stylus input and
+    when the OS asks for reduced motion — a shape trailing the finger is exactly that motion.
+  */
+  @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    body {
+      cursor: none;
     }
+  }
+
+  .cursor-dot,
+  .cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    border-radius: 9999px;
+    transition: opacity 0.2s ease;
+    will-change: transform;
+  }
+
+  .cursor-dot {
+    height: 8px;
+    width: 8px;
+    margin: -4px 0 0 -4px;
+    background: hsl(var(--primary));
+  }
+
+  .cursor-ring {
+    height: 36px;
+    width: 36px;
+    margin: -18px 0 0 -18px;
+    border: 1.5px solid hsl(var(--primary) / 0.5);
+    /*
+      No "transform" here on purpose: it is rewritten every animation frame in JS, which already
+      eases both position and scale. A CSS transition on the same property would smooth on top of
+      an already-smoothed value and read as sluggish rather than as one clean motion.
+    */
+    transition:
+      opacity 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  /*
+    Scale lives in JS, not here: the ring's transform is rewritten every animation frame to move
+    it, and an inline style always wins over a class's rule for the same property, so a scale
+    declared in CSS on top of a JS-driven transform would simply never be seen.
+  */
+  .cursor-ring--active {
+    background: hsl(var(--primary) / 0.1);
+    border-color: hsl(var(--primary) / 0.8);
   }
 
   /*

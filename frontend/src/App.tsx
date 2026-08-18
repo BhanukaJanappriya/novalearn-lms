@@ -1,6 +1,7 @@
 import { BrowserRouter } from "react-router-dom";
 import { MotionConfig } from "framer-motion";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { CursorField } from "@/components/CursorField";
 import { AuthProvider } from "@/context/AuthProvider";
 import { NotificationsProvider } from "@/features/notifications/NotificationsProvider";
 import { AppRoutes } from "@/routes/AppRoutes";
@@ -21,6 +22,9 @@ export function App() {
         reduced motion. Doing it here means no individual component has to remember.
       */}
       <MotionConfig reducedMotion="user">
+        {/* Mounted once, outside the router, so it survives route changes rather than
+            remounting (and losing its trailing position) on every navigation. */}
+        <CursorField />
         <BrowserRouter>
           <AuthProvider>
             <NotificationsProvider>
