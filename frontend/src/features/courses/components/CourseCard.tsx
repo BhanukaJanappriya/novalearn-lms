@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { BookOpen, ClipboardList, Layers, ListChecks, Pencil, Trash2, User, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { CourseImage } from "@/components/ui/course-image";
-import { useSpotlight } from "@/hooks/useSpotlight";
 import { staggerItem } from "@/lib/motion";
 import type { Course, CourseLevel, CourseStatus } from "../api/types";
 
@@ -42,18 +41,14 @@ interface CourseCardProps {
 }
 
 export function CourseCard({ course, canManage, onEdit, onDelete }: CourseCardProps) {
-  const { ref, onMouseMove } = useSpotlight<HTMLDivElement>();
-
   return (
     <motion.div
-      ref={ref}
-      onMouseMove={onMouseMove}
       layout
       variants={staggerItem}
       exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.18 } }}
       whileHover={{ y: -4 }}
       transition={{ type: "spring", stiffness: 320, damping: 24 }}
-      className="spotlight flex flex-col overflow-hidden rounded-[18px] border border-border bg-card shadow-soft"
+      className="flex flex-col overflow-hidden rounded-[18px] border border-border bg-card shadow-soft"
     >
       <CourseImage
         code={course.code}

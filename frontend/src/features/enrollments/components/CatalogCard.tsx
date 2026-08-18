@@ -3,7 +3,6 @@ import { BookOpen, Check, Plus, User, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CourseImage } from "@/components/ui/course-image";
-import { useSpotlight } from "@/hooks/useSpotlight";
 import { staggerItem } from "@/lib/motion";
 import { formatNumber } from "@/lib/format";
 import { coverGradient, levelVariant } from "../lib/courseVisuals";
@@ -17,18 +16,14 @@ interface CatalogCardProps {
 
 /** A single catalogue tile with the join action and the caller's enrolment state. */
 export function CatalogCard({ course, isEnrolling, onEnroll }: CatalogCardProps) {
-  const { ref, onMouseMove } = useSpotlight<HTMLDivElement>();
-
   return (
     <motion.div
-      ref={ref}
-      onMouseMove={onMouseMove}
       layout
       variants={staggerItem}
       exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.18 } }}
       whileHover={{ y: -4 }}
       transition={{ type: "spring", stiffness: 320, damping: 24 }}
-      className="spotlight flex flex-col overflow-hidden rounded-[18px] border border-border bg-card shadow-soft"
+      className="flex flex-col overflow-hidden rounded-[18px] border border-border bg-card shadow-soft"
     >
       <CourseImage
         code={course.code}

@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { CourseImage } from "@/components/ui/course-image";
 import { LinkButton } from "@/components/ui/link-button";
 import { Progress } from "@/components/ui/progress";
-import { useSpotlight } from "@/hooks/useSpotlight";
 import { staggerItem } from "@/lib/motion";
 import { coverGradient, levelVariant, statusVariant } from "../lib/courseVisuals";
 import type { Enrollment } from "../api/types";
@@ -16,19 +15,16 @@ interface EnrolledCourseCardProps {
 
 /** One enrolled course with its progress, status and the continue / leave actions. */
 export function EnrolledCourseCard({ enrollment, onUnenroll }: EnrolledCourseCardProps) {
-  const { ref, onMouseMove } = useSpotlight<HTMLDivElement>();
   const isComplete = enrollment.status === "Completed";
 
   return (
     <motion.div
-      ref={ref}
-      onMouseMove={onMouseMove}
       layout
       variants={staggerItem}
       exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.18 } }}
       whileHover={{ y: -4 }}
       transition={{ type: "spring", stiffness: 320, damping: 24 }}
-      className="spotlight flex flex-col overflow-hidden rounded-[18px] border border-border bg-card shadow-soft"
+      className="flex flex-col overflow-hidden rounded-[18px] border border-border bg-card shadow-soft"
     >
       <CourseImage
         code={enrollment.courseCode}

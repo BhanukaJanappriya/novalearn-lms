@@ -5,7 +5,6 @@ import { CourseImage } from "@/components/ui/course-image";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { coverGradient, levelVariant } from "@/features/enrollments/lib/courseVisuals";
-import { useSpotlight } from "@/hooks/useSpotlight";
 import { staggerItem } from "@/lib/motion";
 import type { StudentCourse } from "../api/types";
 import { formatDuration, snapToStep } from "../lib/learning";
@@ -23,20 +22,16 @@ interface ContinueLearningCardProps {
  * this control should give way to it.
  */
 export function ContinueLearningCard({ course, onProgressChange, isSaving }: ContinueLearningCardProps) {
-  const { ref, onMouseMove } = useSpotlight<HTMLDivElement>();
-
   const step = (delta: number) =>
     onProgressChange(course.enrollmentId, snapToStep(course.progressPercent + delta));
 
   return (
     <motion.div
-      ref={ref}
-      onMouseMove={onMouseMove}
       layout
       variants={staggerItem}
       whileHover={{ y: -4 }}
       transition={{ type: "spring", stiffness: 320, damping: 24 }}
-      className="spotlight flex flex-col overflow-hidden rounded-[18px] border border-border bg-card shadow-soft"
+      className="flex flex-col overflow-hidden rounded-[18px] border border-border bg-card shadow-soft"
     >
       <CourseImage
         code={course.code}

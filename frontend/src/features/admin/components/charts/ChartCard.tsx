@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { useSpotlight } from "@/hooks/useSpotlight";
 
 interface ChartCardProps {
   title: string;
@@ -13,13 +12,10 @@ interface ChartCardProps {
 
 /** Consistent framed container for every analytics chart. */
 export function ChartCard({ title, subtitle, actions, className, children }: ChartCardProps) {
-  const { ref, onMouseMove } = useSpotlight<HTMLElement>();
   return (
     <section
-      ref={ref}
-      onMouseMove={onMouseMove}
       className={cn(
-        "spotlight flex flex-col rounded-[18px] border border-border bg-card p-5 shadow-soft",
+        "flex flex-col rounded-[18px] border border-border bg-card p-5 shadow-soft transition-colors hover:border-primary/30",
         className,
       )}
     >

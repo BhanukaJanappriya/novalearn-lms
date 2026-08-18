@@ -1,5 +1,4 @@
 import type { LucideIcon } from "lucide-react";
-import { useSpotlight } from "@/hooks/useSpotlight";
 import { cn } from "@/lib/utils";
 
 export interface StatTileProps {
@@ -16,13 +15,9 @@ export interface StatTileProps {
  * every student, so pulling Recharts in here would hand them the admin bundle on sign-in.
  */
 export function StatTile({ label, value, hint, icon: Icon, accent = "text-primary" }: StatTileProps) {
-  const { ref, onMouseMove } = useSpotlight<HTMLDivElement>();
-
   return (
     <div
-      ref={ref}
-      onMouseMove={onMouseMove}
-      className="spotlight flex flex-col gap-3 rounded-[18px] border border-border bg-card p-5 shadow-soft"
+      className="flex flex-col gap-3 rounded-[18px] border border-border bg-card p-5 shadow-soft"
     >
       <div className="flex items-start justify-between gap-3">
         <p className="min-w-0 truncate text-sm text-muted-foreground">{label}</p>
