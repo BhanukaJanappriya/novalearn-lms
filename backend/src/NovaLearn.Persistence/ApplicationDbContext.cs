@@ -9,6 +9,7 @@ using NovaLearn.Domain.Departments;
 using NovaLearn.Domain.Enrollments;
 using NovaLearn.Domain.Identity;
 using NovaLearn.Domain.Notifications;
+using NovaLearn.Domain.Payments;
 using NovaLearn.Domain.Quizzes;
 using NovaLearn.Domain.Resources;
 
@@ -47,6 +48,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Notification> Notifications => Set<Notification>();
 
     public DbSet<Resource> Resources => Set<Resource>();
+
+    public DbSet<Payment> Payments => Set<Payment>();
+
+    public DbSet<ProcessedWebhookEvent> ProcessedWebhookEvents => Set<ProcessedWebhookEvent>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

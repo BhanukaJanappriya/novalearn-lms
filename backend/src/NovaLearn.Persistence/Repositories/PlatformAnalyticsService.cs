@@ -30,12 +30,7 @@ internal sealed class PlatformAnalyticsService(ApplicationDbContext context) : I
         // The window immediately before this one, of the same length, so the two are comparable.
         DateTimeOffset previousFrom = from.AddDays(-days);
 
-        AnalyticsGranularity granularity = days switch
-        {
-            <= 31 => AnalyticsGranularity.Day,
-            <= 120 => AnalyticsGranularity.Week,
-            _ => AnalyticsGranularity.Month
-        };
+        AnalyticsGranularity granularity = AnalyticsBucketing.GranularityFor(days);
 
         var window = new AnalyticsWindow(from, now, days, granularity);
 
@@ -148,50 +143,15 @@ internal sealed class PlatformAnalyticsService(ApplicationDbContext context) : I
             .Select(e => e.CompletedAtUtc!.Value)
             .ToListAsync(cancellationToken);
 
-        Dictionary<DateOnly, int> enrolmentsByBucket = Bucket(enrolled, granularity);
-        Dictionary<DateOnly, int> completionsByBucket = Bucket(completed, granularity);
+        Dictionary<DateOnly, int> enrolmentsByBucket = AnalyticsBucketing.Count(enrolled, granularity);
+        Dictionary<DateOnly, int> completionsByBucket = AnalyticsBucketing.Count(completed, granularity);
 
-        // Every bucket in the window is emitted, including the empty ones. A chart that silently
-        // omits quiet days draws a straight line through them and overstates activity.
-        return AllBuckets(from, DateTimeOffset.UtcNow, granularity)
+        return AnalyticsBucketing.AllBuckets(from, DateTimeOffset.UtcNow, granularity)
             .Select(bucket => new AnalyticsPoint(
                 bucket,
                 enrolmentsByBucket.GetValueOrDefault(bucket),
                 completionsByBucket.GetValueOrDefault(bucket)))
             .ToList();
-    }
-
-    private static Dictionary<DateOnly, int> Bucket(
-        IEnumerable<DateTimeOffset> dates, AnalyticsGranularity granularity) =>
-        dates
-            .GroupBy(date => StartOfBucket(DateOnly.FromDateTime(date.UtcDateTime), granularity))
-            .ToDictionary(group => group.Key, group => group.Count());
-
-    private static DateOnly StartOfBucket(DateOnly date, AnalyticsGranularity granularity) =>
-        granularity switch
-        {
-            AnalyticsGranularity.Day => date,
-            AnalyticsGranularity.Week => date.AddDays(-(int)date.DayOfWeek),
-            _ => new DateOnly(date.Year, date.Month, 1)
-        };
-
-    private static IEnumerable<DateOnly> AllBuckets(
-        DateTimeOffset from, DateTimeOffset to, AnalyticsGranularity granularity)
-    {
-        DateOnly cursor = StartOfBucket(DateOnly.FromDateTime(from.UtcDateTime), granularity);
-        DateOnly last = StartOfBucket(DateOnly.FromDateTime(to.UtcDateTime), granularity);
-
-        while (cursor <= last)
-        {
-            yield return cursor;
-
-            cursor = granularity switch
-            {
-                AnalyticsGranularity.Day => cursor.AddDays(1),
-                AnalyticsGranularity.Week => cursor.AddDays(7),
-                _ => cursor.AddMonths(1)
-            };
-        }
     }
 
     /// <summary>
