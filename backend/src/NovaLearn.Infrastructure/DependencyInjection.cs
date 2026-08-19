@@ -10,6 +10,7 @@ using NovaLearn.Application.Features.Authentication.Common;
 using NovaLearn.Infrastructure.Authentication;
 using NovaLearn.Infrastructure.Email;
 using NovaLearn.Infrastructure.Identity;
+using NovaLearn.Infrastructure.Payments;
 using NovaLearn.Infrastructure.Storage;
 using NovaLearn.Infrastructure.Time;
 
@@ -27,6 +28,7 @@ public static class DependencyInjection
         services.Configure<AuthTokenOptions>(configuration.GetSection(AuthTokenOptions.SectionName));
         services.Configure<AppUrlsOptions>(configuration.GetSection(AppUrlsOptions.SectionName));
         services.Configure<FileStorageOptions>(configuration.GetSection(FileStorageOptions.SectionName));
+        services.Configure<StripeOptions>(configuration.GetSection(StripeOptions.SectionName));
 
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
@@ -36,6 +38,8 @@ public static class DependencyInjection
         services.AddScoped<IEmailSender, LoggingEmailSender>();
         services.AddSingleton<IFileStorage, LocalFileStorage>();
         services.AddSingleton<IUploadLimits, UploadLimits>();
+        services.AddScoped<IFrontendUrls, FrontendUrls>();
+        services.AddScoped<IPaymentGateway, StripePaymentGateway>();
 
         return services;
     }
