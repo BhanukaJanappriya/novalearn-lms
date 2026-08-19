@@ -7,6 +7,8 @@ interface TrendMetricCardProps {
   icon: LucideIcon;
   /** Appended to the current value, for figures that are percentages. */
   suffix?: string;
+  /** Overrides how the current value is rendered — for currency, with its own symbol and decimals. */
+  formatValue?: (value: number) => string;
   /**
    * Whether a rise is good news. True for everything here today, but stated rather than assumed
    * so a future metric like dropouts cannot inherit the wrong colour by default.
@@ -20,6 +22,7 @@ export function TrendMetricCard({
   metric,
   icon: Icon,
   suffix = "",
+  formatValue,
   riseIsGood = true,
 }: TrendMetricCardProps) {
   const change = metric.changePercent;
@@ -43,7 +46,7 @@ export function TrendMetricCard({
       </p>
 
       <p className="mt-1 text-2xl font-semibold tabular-nums">
-        {Math.round(metric.current * 10) / 10}
+        {formatValue ? formatValue(metric.current) : Math.round(metric.current * 10) / 10}
         {suffix}
       </p>
 

@@ -73,6 +73,19 @@ const ProfilePage = lazy(() =>
 const DirectoryPage = lazy(() =>
   import("@/features/directory/pages/DirectoryPage").then((m) => ({ default: m.DirectoryPage })),
 );
+const CheckoutSuccessPage = lazy(() =>
+  import("@/features/payments/pages/CheckoutSuccessPage").then((m) => ({
+    default: m.CheckoutSuccessPage,
+  })),
+);
+const CheckoutCancelledPage = lazy(() =>
+  import("@/features/payments/pages/CheckoutCancelledPage").then((m) => ({
+    default: m.CheckoutCancelledPage,
+  })),
+);
+const FinancePage = lazy(() =>
+  import("@/features/finance/pages/FinancePage").then((m) => ({ default: m.FinancePage })),
+);
 const AnalyticsPage = lazy(() =>
   import("@/features/analytics/pages/AnalyticsPage").then((m) => ({ default: m.AnalyticsPage })),
 );
@@ -158,6 +171,22 @@ export function AppRoutes() {
           element={
             <Suspense fallback={<FullScreenLoader />}>
               <ProfilePage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/checkout/success"
+          element={
+            <Suspense fallback={<FullScreenLoader />}>
+              <CheckoutSuccessPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/checkout/cancelled"
+          element={
+            <Suspense fallback={<FullScreenLoader />}>
+              <CheckoutCancelledPage />
             </Suspense>
           }
         />
@@ -257,6 +286,16 @@ export function AppRoutes() {
               <RequireAdmin>
                 <Suspense fallback={<FullScreenLoader />}>
                   <AnalyticsPage />
+                </Suspense>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="finance"
+            element={
+              <RequireAdmin>
+                <Suspense fallback={<FullScreenLoader />}>
+                  <FinancePage />
                 </Suspense>
               </RequireAdmin>
             }
