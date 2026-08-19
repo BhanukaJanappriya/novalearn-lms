@@ -21,11 +21,12 @@ export function useCourseCatalog(filters: CatalogFilters) {
   });
 }
 
-export function useMyEnrollments() {
+export function useMyEnrollments(options?: { refetchInterval?: number | false }) {
   return useQuery({
     queryKey: enrollmentKeys.mine(),
     queryFn: () => enrollmentsApi.mine(),
     staleTime: 15_000,
+    refetchInterval: options?.refetchInterval,
   });
 }
 

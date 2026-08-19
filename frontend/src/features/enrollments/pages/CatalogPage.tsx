@@ -17,6 +17,7 @@ import type { CatalogCourse, CatalogFilters as Filters } from "../api/types";
 import { CatalogCard } from "../components/CatalogCard";
 import { CatalogFilters } from "../components/CatalogFilters";
 import { PaginationControls } from "@/components/ui/pagination";
+import { useStartCheckout } from "@/features/payments/api/queries";
 
 const PAGE_SIZE = 12;
 
@@ -42,6 +43,7 @@ export function CatalogPage() {
 
   const { data, isLoading, isError, isFetching, refetch } = useCourseCatalog(filters);
   const enroll = useEnrollInCourse();
+  const checkout = useStartCheckout();
 
   // Category options come from the shared course list so they stay stable while paging.
   const { data: allCourses } = useCourses();
@@ -59,7 +61,21 @@ export function CatalogPage() {
     setLevel("");
   };
 
-  const onEnroll = (course: CatalogCourse) => enroll.mutate(course.id);
+  // A priced course starts checkout and leaves the page entirely for Stripe's hosted payment
+  // page; only a free course is enrolled directly here. The redirect itself never counts as
+  // success — that is decided by the webhook, long after this function returns.
+  const onEnroll = (course: CatalogCourse) => {
+    if (course.price > 0) {
+      checkout.mutate(course.id, {
+        onSuccess: (session) => {
+          window.location.href = session.checkoutUrl;
+        },
+      });
+      return;
+    }
+
+    enroll.mutate(course.id);
+  };
 
   const courses = data?.items ?? [];
   const isEmpty = !isLoading && courses.length === 0;
@@ -90,6 +106,9 @@ export function CatalogPage() {
         />
 
         {enroll.isError && <Alert>{getApiErrorMessage(enroll.error)}</Alert>}
+        {checkout.isError && (
+          <Alert>{getApiErrorMessage(checkout.error, "We could not start checkout.")}</Alert>
+        )}
 
         {isLoading && (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -138,7 +157,10 @@ export function CatalogPage() {
                 <CatalogCard
                   key={course.id}
                   course={course}
-                  isEnrolling={enroll.isPending && enroll.variables === course.id}
+                  isEnrolling={
+                    (enroll.isPending && enroll.variables === course.id)
+                    || (checkout.isPending && checkout.variables === course.id)
+                  }
                   onEnroll={onEnroll}
                 />
               ))}

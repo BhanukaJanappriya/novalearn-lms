@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { BookOpen, Check, Plus, User, Users } from "lucide-react";
+import { BookOpen, Check, CreditCard, Plus, User, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CourseImage } from "@/components/ui/course-image";
@@ -80,8 +80,8 @@ export function CatalogCard({ course, isEnrolling, onEnroll }: CatalogCardProps)
             </span>
           ) : (
             <Button size="sm" isLoading={isEnrolling} onClick={() => onEnroll(course)}>
-              {!isEnrolling && <Plus className="h-4 w-4" />}
-              {isEnrolling ? "Enrolling" : "Enroll"}
+              {!isEnrolling && (course.price > 0 ? <CreditCard className="h-4 w-4" /> : <Plus className="h-4 w-4" />)}
+              {isEnrolling ? "Please wait" : course.price > 0 ? "Pay & enroll" : "Enroll"}
             </Button>
           )}
         </div>
