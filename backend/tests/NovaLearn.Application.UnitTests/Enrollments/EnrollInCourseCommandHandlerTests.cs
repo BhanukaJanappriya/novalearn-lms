@@ -57,6 +57,25 @@ public sealed class EnrollInCourseCommandHandlerTests
     }
 
     [Fact]
+    public async Task Enrolling_directly_in_a_priced_course_is_rejected()
+    {
+        // Free courses are enrolled here directly; a priced course goes through checkout, which
+        // creates the enrolment itself once payment is confirmed.
+        Course course = Course.Create(
+            "Intro to Programming", "CS101", "Fundamentals", "Computer Science",
+            CourseLevel.Beginner, CourseStatus.Published, 49.99m, null, Guid.NewGuid());
+        _courses.GetByIdAsync(course.Id, Arg.Any<CancellationToken>()).Returns(course);
+
+        Result<EnrollmentDto> result =
+            await _sut.Handle(new EnrollInCourseCommand(course.Id), CancellationToken.None);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(EnrollmentErrors.PaymentRequired);
+
+        await _enrollments.DidNotReceive().AddAsync(Arg.Any<Enrollment>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task Enrolling_in_an_unpublished_course_is_rejected()
     {
         Course course = SampleCourse(CourseStatus.Draft);

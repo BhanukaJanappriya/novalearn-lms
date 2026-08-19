@@ -36,6 +36,14 @@ public sealed class EnrollInCourseCommandHandler(
             return Result.Failure<EnrollmentDto>(EnrollmentErrors.CourseNotPublished);
         }
 
+        // A priced course is enrolled through checkout, which creates the enrolment itself once
+        // payment is confirmed. This endpoint stays the direct path for the free case, which is
+        // the ordinary one and should not need a round trip to a payment provider.
+        if (course.Price > 0)
+        {
+            return Result.Failure<EnrollmentDto>(EnrollmentErrors.PaymentRequired);
+        }
+
         Enrollment? existing = await enrollments.GetActiveAsync(studentId, course.Id, cancellationToken);
         if (existing is not null)
         {

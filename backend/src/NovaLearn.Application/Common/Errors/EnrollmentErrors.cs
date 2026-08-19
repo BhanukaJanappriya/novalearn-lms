@@ -14,6 +14,11 @@ public static class EnrollmentErrors
     public static readonly Error CourseNotPublished =
         Error.Conflict("enrollment.course_not_published", "This course is not open for enrollment yet.");
 
+    public static readonly Error PaymentRequired =
+        Error.Conflict(
+            "enrollment.payment_required",
+            "This course has a price. Start checkout instead of enrolling directly.");
+
     public static readonly Error NotOwner =
         Error.Forbidden("enrollment.not_owner", "You can only manage your own enrollments.");
 

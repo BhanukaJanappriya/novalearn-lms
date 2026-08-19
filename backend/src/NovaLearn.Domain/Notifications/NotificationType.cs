@@ -16,5 +16,8 @@ public enum NotificationType
     QuizPublished,
 
     /// <summary>A learner has handed work in, so the course owner has something to mark.</summary>
-    SubmissionReceived
+    SubmissionReceived,
+
+    /// <summary>A learner's payment for a course was confirmed and the enrolment created.</summary>
+    PaymentSucceeded
 }
