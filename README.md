@@ -54,6 +54,7 @@ Built with **ASP.NET Core 9** (Clean Architecture + DDD + CQRS) and **React 19**
 | **Assessment hub** (cross course marking queue, deadlines, drafts, scoped per lecturer) | ✅ | ✅ | ✅ | Done |
 | **Content wall** (PDF/video/image uploads, YouTube and Drive links, thumbnails) | ✅ | ✅ | ✅ | Done |
 | **Analytics** (period trends, course and department performance, mark distribution) | ✅ | ✅ | ✅ | Done |
+| **Finance** (Stripe Checkout, webhook-confirmed enrolment, refunds, revenue ledger) | ✅ | ✅ | ✅ | Done |
 
 ---
 
@@ -135,6 +136,34 @@ npm run dev
 cd backend && dotnet test
 cd frontend && npm test
 ```
+
+### 5. Payments (Stripe) — optional, only needed to exercise checkout
+
+Course purchase runs on Stripe Checkout in test mode. The app runs fine without this section —
+free courses, and everything else, work regardless — but a paid course's "Pay & enroll" button
+will fail at the gateway until it's set up.
+
+1. Create a free Stripe account and switch to **test mode**: <https://dashboard.stripe.com/register>
+2. Grab the test secret key from <https://dashboard.stripe.com/test/apikeys> and store it with
+   `dotnet user-secrets`, **never** in a committed `appsettings*.json`:
+   ```bash
+   cd backend
+   dotnet user-secrets set "Stripe:SecretKey" "sk_test_..." --project src/NovaLearn.API
+   ```
+3. Install the [Stripe CLI](https://docs.stripe.com/stripe-cli) and forward webhooks to the local
+   API — the route is versioned, so the path has to be exact:
+   ```bash
+   stripe login
+   stripe listen --forward-to https://localhost:7001/api/v1/payments/webhook
+   ```
+   The CLI prints a webhook signing secret (`whsec_...`) when it starts. Store that too:
+   ```bash
+   dotnet user-secrets set "Stripe:WebhookSecret" "whsec_..." --project src/NovaLearn.API
+   ```
+4. Restart the backend so it picks up the secrets, then buy a priced course using
+   [any Stripe test card](https://docs.stripe.com/testing#cards) (`4242 4242 4242 4242`, any
+   future expiry, any CVC). Keep `stripe listen` running throughout — without it, Stripe has
+   nowhere to deliver the webhook that actually confirms the payment and creates the enrolment.
 
 ---
 
