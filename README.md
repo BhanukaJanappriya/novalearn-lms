@@ -55,6 +55,7 @@ Built with **ASP.NET Core 9** (Clean Architecture + DDD + CQRS) and **React 19**
 | **Content wall** (PDF/video/image uploads, YouTube and Drive links, thumbnails) | ✅ | ✅ | ✅ | Done |
 | **Analytics** (period trends, course and department performance, mark distribution) | ✅ | ✅ | ✅ | Done |
 | **Finance** (Stripe Checkout, webhook-confirmed enrolment, refunds, revenue ledger) | ✅ | ✅ | ✅ | Done |
+| **Settings** (branding, registration, maintenance mode, checkout currency, upload limit) | ✅ | ✅ | ✅ | Done |
 
 ---
 
