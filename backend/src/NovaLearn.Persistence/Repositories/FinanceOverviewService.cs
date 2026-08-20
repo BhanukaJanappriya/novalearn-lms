@@ -20,7 +20,8 @@ namespace NovaLearn.Persistence.Repositories;
 /// payment are rare enough here that attributing the whole cumulative refund to the last one's
 /// date is an acceptable approximation rather than a dedicated refund ledger table.
 /// </summary>
-internal sealed class FinanceOverviewService(ApplicationDbContext context) : IFinanceOverview
+internal sealed class FinanceOverviewService(ApplicationDbContext context, ISettingsProvider settings)
+    : IFinanceOverview
 {
     public async Task<FinanceOverview> GetAsync(int days, CancellationToken cancellationToken)
     {
@@ -35,12 +36,13 @@ internal sealed class FinanceOverviewService(ApplicationDbContext context) : IFi
         IReadOnlyList<RevenuePoint> series = await BuildSeriesAsync(from, granularity, cancellationToken);
         IReadOnlyList<CourseRevenueRow> courses = await BuildCoursesAsync(cancellationToken);
 
-        return new FinanceOverview(window, headline, series, courses, PaymentDefaultsCurrency);
-    }
+        // The currency label on the report tracks what a new checkout charges in right now.
+        // Individual rows still carry whatever currency they were actually charged in at the
+        // time, which does not change retroactively just because the setting since moved on.
+        PlatformSettingsSnapshot platform = await settings.GetAsync(cancellationToken);
 
-    // Kept local to Persistence rather than referencing Application's PaymentDefaults, which
-    // belongs to the write side (checkout); the read side names its own copy of the same fact.
-    private const string PaymentDefaultsCurrency = "usd";
+        return new FinanceOverview(window, headline, series, courses, platform.DefaultCurrency);
+    }
 
     private async Task<FinanceHeadline> BuildHeadlineAsync(
         DateTimeOffset from, DateTimeOffset previousFrom, CancellationToken cancellationToken)

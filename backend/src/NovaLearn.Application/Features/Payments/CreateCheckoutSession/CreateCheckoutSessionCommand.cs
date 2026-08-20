@@ -1,6 +1,7 @@
 using MediatR;
 using NovaLearn.Application.Common.Errors;
 using NovaLearn.Application.Common.Interfaces;
+using NovaLearn.Application.Common.Models;
 using NovaLearn.Application.Features.Payments.Common;
 using NovaLearn.Domain.Courses;
 using NovaLearn.Domain.Enrollments;
@@ -18,6 +19,7 @@ public sealed class CreateCheckoutSessionCommandHandler(
     IPaymentRepository payments,
     IPaymentGateway gateway,
     IFrontendUrls frontendUrls,
+    ISettingsProvider settings,
     ICurrentUser currentUser,
     IUnitOfWork unitOfWork)
     : IRequestHandler<CreateCheckoutSessionCommand, Result<CheckoutSessionDto>>
@@ -52,6 +54,8 @@ public sealed class CreateCheckoutSessionCommandHandler(
             return Result.Failure<CheckoutSessionDto>(PaymentErrors.AlreadyEnrolled);
         }
 
+        PlatformSettingsSnapshot platform = await settings.GetAsync(cancellationToken);
+
         // Stripe substitutes {CHECKOUT_SESSION_ID} into the success URL itself; the success page
         // uses it only to show the right confirmation, never to decide that payment happened —
         // that decision is the webhook's alone.
@@ -66,7 +70,7 @@ public sealed class CreateCheckoutSessionCommandHandler(
                 new CheckoutSessionRequest(
                     course.Title,
                     course.Price,
-                    PaymentDefaults.Currency,
+                    platform.DefaultCurrency,
                     successUrl,
                     cancelUrl,
                     Metadata: new Dictionary<string, string>
@@ -82,7 +86,7 @@ public sealed class CreateCheckoutSessionCommandHandler(
         }
 
         Payment payment = Payment.StartCheckout(
-            studentId, course.Id, course.Title, course.Price, PaymentDefaults.Currency, session.SessionId);
+            studentId, course.Id, course.Title, course.Price, platform.DefaultCurrency, session.SessionId);
 
         await payments.AddAsync(payment, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);

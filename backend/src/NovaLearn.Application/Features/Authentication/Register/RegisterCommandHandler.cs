@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
+using NovaLearn.Application.Common.Errors;
 using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application.Common.Models;
 using NovaLearn.Shared.Results;
@@ -14,11 +15,19 @@ namespace NovaLearn.Application.Features.Authentication.Register;
 public sealed class RegisterCommandHandler(
     IIdentityService identityService,
     IEmailSender emailSender,
+    ISettingsProvider settings,
     ILogger<RegisterCommandHandler> logger)
     : IRequestHandler<RegisterCommand, Result<RegisterResponse>>
 {
     public async Task<Result<RegisterResponse>> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
+        PlatformSettingsSnapshot platform = await settings.GetAsync(cancellationToken);
+
+        if (!platform.AllowNewRegistrations)
+        {
+            return Result.Failure<RegisterResponse>(AuthenticationErrors.RegistrationClosed);
+        }
+
         Result<AuthenticatedUser> creation = await identityService.CreateUserAsync(
             request.Email.Trim(),
             request.Password,

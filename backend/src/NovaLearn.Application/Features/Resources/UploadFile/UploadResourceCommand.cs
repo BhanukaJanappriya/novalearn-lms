@@ -1,7 +1,7 @@
 using MediatR;
-using Microsoft.Extensions.Options;
 using NovaLearn.Application.Common.Errors;
 using NovaLearn.Application.Common.Interfaces;
+using NovaLearn.Application.Common.Models;
 using NovaLearn.Application.Features.Resources.Common;
 using NovaLearn.Domain.Courses;
 using NovaLearn.Domain.Resources;
@@ -29,6 +29,7 @@ public sealed class UploadResourceCommandHandler(
     ICourseRepository courses,
     IFileStorage storage,
     IUploadLimits limits,
+    ISettingsProvider settings,
     ICurrentUser currentUser,
     IUnitOfWork unitOfWork)
     : IRequestHandler<UploadResourceCommand, Result<ResourceDto>>
@@ -52,12 +53,19 @@ public sealed class UploadResourceCommandHandler(
             return Result.Failure<ResourceDto>(ResourceErrors.EmptyFile);
         }
 
+        // The effective ceiling is the tighter of two numbers: the request pipeline's own hard
+        // limit, fixed at startup and unrelated to any setting, and the admin-configured business
+        // limit, which can move at any time. An admin raising the setting can never promise more
+        // than the pipeline actually allows through.
+        PlatformSettingsSnapshot platform = await settings.GetAsync(cancellationToken);
+        int effectiveMaxMegabytes = Math.Min(platform.MaxUploadSizeMb, limits.MaxFileSizeMegabytes);
+        long effectiveMaxBytes = effectiveMaxMegabytes * 1024L * 1024L;
+
         // Checked before a byte is written. The request pipeline caps the body as well, so this is
         // about giving a clear answer rather than about being the only line of defence.
-        if (request.DeclaredSizeBytes > limits.MaxFileSizeBytes)
+        if (request.DeclaredSizeBytes > effectiveMaxBytes)
         {
-            return Result.Failure<ResourceDto>(
-                ResourceErrors.FileTooLarge(limits.MaxFileSizeMegabytes));
+            return Result.Failure<ResourceDto>(ResourceErrors.FileTooLarge(effectiveMaxMegabytes));
         }
 
         // The kind and the content type come from the extension, never from what the browser said

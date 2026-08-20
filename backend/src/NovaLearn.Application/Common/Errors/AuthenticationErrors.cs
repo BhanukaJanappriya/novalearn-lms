@@ -23,6 +23,11 @@ public static class AuthenticationErrors
     public static readonly Error EmailAlreadyInUse =
         Error.Conflict("auth.email_in_use", "An account with this email already exists.");
 
+    public static readonly Error RegistrationClosed =
+        Error.Forbidden(
+            "auth.registration_closed",
+            "New registrations are closed at the moment. Contact an administrator for access.");
+
     public static readonly Error InvalidRefreshToken =
         Error.Unauthorized("auth.invalid_refresh_token", "The refresh token is invalid or has been revoked.");
 
