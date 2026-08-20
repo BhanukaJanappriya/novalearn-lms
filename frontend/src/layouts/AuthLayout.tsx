@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AUTH_HERO_URL } from "@/lib/imagery";
+import { usePublicSettings } from "@/features/settings/api/queries";
 
 interface AuthLayoutProps {
   title: string;
@@ -12,6 +13,9 @@ interface AuthLayoutProps {
 
 /** Two-pane authentication shell: brand/marketing panel + focused form card. */
 export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProps) {
+  const { data: platform } = usePublicSettings();
+  const siteName = platform?.siteName ?? "NovaLearn";
+
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       {/* Brand panel */}
@@ -54,7 +58,8 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
           </p>
         </motion.div>
         <p className="relative text-sm text-primary-foreground/60">
-          © {new Date().getFullYear()} NovaLearn
+          © {new Date().getFullYear()} {siteName}
+          {platform?.supportEmail && <> · {platform.supportEmail}</>}
         </p>
       </div>
 
