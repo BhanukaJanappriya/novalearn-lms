@@ -2,6 +2,7 @@ using FluentAssertions;
 using NSubstitute;
 using NovaLearn.Application.Common.Errors;
 using NovaLearn.Application.Common.Interfaces;
+using NovaLearn.Application.Common.Models;
 using NovaLearn.Application.Features.Payments.Common;
 using NovaLearn.Application.Features.Payments.CreateCheckoutSession;
 using NovaLearn.Domain.Courses;
@@ -19,6 +20,7 @@ public sealed class CreateCheckoutSessionCommandHandlerTests
     private readonly IPaymentRepository _payments = Substitute.For<IPaymentRepository>();
     private readonly IPaymentGateway _gateway = Substitute.For<IPaymentGateway>();
     private readonly IFrontendUrls _frontendUrls = Substitute.For<IFrontendUrls>();
+    private readonly ISettingsProvider _settings = Substitute.For<ISettingsProvider>();
     private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
     private readonly Guid _studentId = Guid.NewGuid();
@@ -27,9 +29,11 @@ public sealed class CreateCheckoutSessionCommandHandlerTests
     public CreateCheckoutSessionCommandHandlerTests()
     {
         _sut = new CreateCheckoutSessionCommandHandler(
-            _courses, _enrollments, _payments, _gateway, _frontendUrls, _currentUser, _unitOfWork);
+            _courses, _enrollments, _payments, _gateway, _frontendUrls, _settings, _currentUser, _unitOfWork);
 
         _currentUser.UserId.Returns(_studentId);
+        _settings.GetAsync(Arg.Any<CancellationToken>()).Returns(
+            new PlatformSettingsSnapshot("NovaLearn", "support@novalearn.local", true, false, null, "usd", 200));
         _frontendUrls.Build(Arg.Any<string>()).Returns(call => "https://app.test" + call.Arg<string>());
         _enrollments.GetActiveAsync(Arg.Any<Guid>(), Arg.Any<Guid>(), Arg.Any<CancellationToken>())
             .Returns((Enrollment?)null);
