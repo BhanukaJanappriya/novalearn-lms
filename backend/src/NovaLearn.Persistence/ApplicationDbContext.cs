@@ -12,6 +12,7 @@ using NovaLearn.Domain.Notifications;
 using NovaLearn.Domain.Payments;
 using NovaLearn.Domain.Quizzes;
 using NovaLearn.Domain.Resources;
+using NovaLearn.Domain.Settings;
 
 namespace NovaLearn.Persistence;
 
@@ -52,6 +53,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Payment> Payments => Set<Payment>();
 
     public DbSet<ProcessedWebhookEvent> ProcessedWebhookEvents => Set<ProcessedWebhookEvent>();
+
+    public DbSet<PlatformSettings> PlatformSettings => Set<PlatformSettings>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

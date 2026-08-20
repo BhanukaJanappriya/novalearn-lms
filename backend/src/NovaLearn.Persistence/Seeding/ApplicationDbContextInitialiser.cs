@@ -8,6 +8,7 @@ using NovaLearn.Domain.Courses;
 using NovaLearn.Domain.Departments;
 using NovaLearn.Domain.Enrollments;
 using NovaLearn.Domain.Identity;
+using NovaLearn.Domain.Settings;
 
 namespace NovaLearn.Persistence.Seeding;
 
@@ -42,6 +43,7 @@ public sealed class ApplicationDbContextInitialiser(
         await SeedRolesAsync();
         await SeedSuperAdminAsync();
         await SeedDepartmentsAsync();
+        await SeedPlatformSettingsAsync();
 
         // Enrolment seeding runs first because it back-fills demo students and courses on an
         // empty database; content seeding then gives every course that exists an outline.
@@ -111,6 +113,25 @@ public sealed class ApplicationDbContextInitialiser(
     /// Seeds the science faculty. Runs only while the table is empty, so an operator who has
     /// renamed or removed departments never has them reappear on the next restart.
     /// </summary>
+    /// <summary>
+    /// Creates the one settings row if it does not already exist. Checked by its fixed id rather
+    /// than by <c>AnyAsync</c>: that id is the whole definition of "already seeded" for a
+    /// singleton, so this is correct even if something else ever inserted a row that should not
+    /// count.
+    /// </summary>
+    private async Task SeedPlatformSettingsAsync()
+    {
+        bool exists = await dbContext.PlatformSettings.AnyAsync(s => s.Id == PlatformSettings.SingletonId);
+
+        if (exists)
+        {
+            return;
+        }
+
+        await dbContext.PlatformSettings.AddAsync(PlatformSettings.CreateDefault());
+        await dbContext.SaveChangesAsync();
+    }
+
     private async Task SeedDepartmentsAsync()
     {
         if (await dbContext.Departments.AnyAsync())
