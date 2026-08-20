@@ -83,6 +83,9 @@ const CheckoutCancelledPage = lazy(() =>
     default: m.CheckoutCancelledPage,
   })),
 );
+const SettingsPage = lazy(() =>
+  import("@/features/settings/pages/SettingsPage").then((m) => ({ default: m.SettingsPage })),
+);
 const FinancePage = lazy(() =>
   import("@/features/finance/pages/FinancePage").then((m) => ({ default: m.FinancePage })),
 );
@@ -296,6 +299,16 @@ export function AppRoutes() {
               <RequireAdmin>
                 <Suspense fallback={<FullScreenLoader />}>
                   <FinancePage />
+                </Suspense>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="settings"
+            element={
+              <RequireAdmin>
+                <Suspense fallback={<FullScreenLoader />}>
+                  <SettingsPage />
                 </Suspense>
               </RequireAdmin>
             }
