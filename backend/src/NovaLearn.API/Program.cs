@@ -1,5 +1,6 @@
 using NovaLearn.API.Extensions;
 using NovaLearn.API.Features.Notifications;
+using NovaLearn.API.Middleware;
 using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application;
 using NovaLearn.Infrastructure;
@@ -44,6 +45,7 @@ app.UseHttpsRedirection();
 app.UseCors(PresentationServiceExtensions.CorsPolicy);
 app.UseRateLimiter();
 app.UseAuthentication();
+app.UseMiddleware<MaintenanceModeMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
