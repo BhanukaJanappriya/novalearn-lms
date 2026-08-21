@@ -19,5 +19,11 @@ public enum NotificationType
     SubmissionReceived,
 
     /// <summary>A learner's payment for a course was confirmed and the enrolment created.</summary>
-    PaymentSucceeded
+    PaymentSucceeded,
+
+    /// <summary>A support ticket the recipient cares about received a new reply.</summary>
+    SupportTicketReplied,
+
+    /// <summary>A support ticket's status changed.</summary>
+    SupportTicketStatusChanged
 }
