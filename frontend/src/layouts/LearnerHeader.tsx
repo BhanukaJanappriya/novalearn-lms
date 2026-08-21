@@ -14,6 +14,7 @@ const links = [
   { to: "/catalog", label: "Catalog" },
   { to: "/my-courses", label: "My courses" },
   { to: "/wall", label: "Wall" },
+  { to: "/support", label: "Support" },
   { to: "/profile", label: "Profile" },
 ];
 

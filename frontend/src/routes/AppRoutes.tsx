@@ -83,6 +83,20 @@ const CheckoutCancelledPage = lazy(() =>
     default: m.CheckoutCancelledPage,
   })),
 );
+const SupportPage = lazy(() =>
+  import("@/features/support/pages/SupportPage").then((m) => ({ default: m.SupportPage })),
+);
+const TicketDetailPage = lazy(() =>
+  import("@/features/support/pages/TicketDetailPage").then((m) => ({ default: m.TicketDetailPage })),
+);
+const SupportQueuePage = lazy(() =>
+  import("@/features/support/pages/SupportQueuePage").then((m) => ({ default: m.SupportQueuePage })),
+);
+const StaffTicketDetailPage = lazy(() =>
+  import("@/features/support/pages/StaffTicketDetailPage").then((m) => ({
+    default: m.StaffTicketDetailPage,
+  })),
+);
 const SettingsPage = lazy(() =>
   import("@/features/settings/pages/SettingsPage").then((m) => ({ default: m.SettingsPage })),
 );
@@ -190,6 +204,22 @@ export function AppRoutes() {
           element={
             <Suspense fallback={<FullScreenLoader />}>
               <CheckoutCancelledPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/support"
+          element={
+            <Suspense fallback={<FullScreenLoader />}>
+              <SupportPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/support/:ticketId"
+          element={
+            <Suspense fallback={<FullScreenLoader />}>
+              <TicketDetailPage />
             </Suspense>
           }
         />
@@ -309,6 +339,26 @@ export function AppRoutes() {
               <RequireAdmin>
                 <Suspense fallback={<FullScreenLoader />}>
                   <SettingsPage />
+                </Suspense>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="support"
+            element={
+              <RequireAdmin>
+                <Suspense fallback={<FullScreenLoader />}>
+                  <SupportQueuePage />
+                </Suspense>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="support/:ticketId"
+            element={
+              <RequireAdmin>
+                <Suspense fallback={<FullScreenLoader />}>
+                  <StaffTicketDetailPage />
                 </Suspense>
               </RequireAdmin>
             }
