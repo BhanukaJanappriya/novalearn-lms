@@ -13,6 +13,7 @@ using NovaLearn.Domain.Payments;
 using NovaLearn.Domain.Quizzes;
 using NovaLearn.Domain.Resources;
 using NovaLearn.Domain.Settings;
+using NovaLearn.Domain.Support;
 
 namespace NovaLearn.Persistence;
 
@@ -55,6 +56,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<ProcessedWebhookEvent> ProcessedWebhookEvents => Set<ProcessedWebhookEvent>();
 
     public DbSet<PlatformSettings> PlatformSettings => Set<PlatformSettings>();
+
+    public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
+
+    public DbSet<SupportTicketMessage> SupportTicketMessages => Set<SupportTicketMessage>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

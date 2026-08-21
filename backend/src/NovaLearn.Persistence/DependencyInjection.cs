@@ -50,6 +50,7 @@ public static class DependencyInjection
         services.AddScoped<IPlatformAnalytics, PlatformAnalyticsService>();
         services.AddMemoryCache();
         services.AddScoped<ISettingsRepository, SettingsRepository>();
+        services.AddScoped<ISupportTicketRepository, SupportTicketRepository>();
         // Scoped, not singleton: it depends on the scoped ApplicationDbContext. The cache itself
         // is still shared across every request, since IMemoryCache is registered as a singleton
         // and this class holds no state of its own beyond a reference to it.
