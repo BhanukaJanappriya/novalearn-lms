@@ -11,6 +11,7 @@ using NovaLearn.Domain.Identity;
 using NovaLearn.Domain.Notifications;
 using NovaLearn.Domain.Payments;
 using NovaLearn.Domain.Quizzes;
+using NovaLearn.Domain.Reports;
 using NovaLearn.Domain.Resources;
 using NovaLearn.Domain.Settings;
 using NovaLearn.Domain.Support;
@@ -60,6 +61,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
 
     public DbSet<SupportTicketMessage> SupportTicketMessages => Set<SupportTicketMessage>();
+
+    public DbSet<ReportRun> ReportRuns => Set<ReportRun>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
