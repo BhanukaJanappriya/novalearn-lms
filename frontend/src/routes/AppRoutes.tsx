@@ -106,6 +106,9 @@ const FinancePage = lazy(() =>
 const AnalyticsPage = lazy(() =>
   import("@/features/analytics/pages/AnalyticsPage").then((m) => ({ default: m.AnalyticsPage })),
 );
+const ReportsPage = lazy(() =>
+  import("@/features/reports/pages/ReportsPage").then((m) => ({ default: m.ReportsPage })),
+);
 const WallPage = lazy(() =>
   import("@/features/wall/pages/WallPage").then((m) => ({ default: m.WallPage })),
 );
@@ -329,6 +332,16 @@ export function AppRoutes() {
               <RequireAdmin>
                 <Suspense fallback={<FullScreenLoader />}>
                   <FinancePage />
+                </Suspense>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="reports"
+            element={
+              <RequireAdmin>
+                <Suspense fallback={<FullScreenLoader />}>
+                  <ReportsPage />
                 </Suspense>
               </RequireAdmin>
             }
