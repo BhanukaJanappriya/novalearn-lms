@@ -17,11 +17,11 @@ export const reportsKeys = {
   all: ["reports"] as const,
   enrollments: (filters: EnrollmentReportFilters) => [...reportsKeys.all, "enrollments", filters] as const,
   revenue: (filters: RevenueReportFilters) => [...reportsKeys.all, "revenue", filters] as const,
-  coursePerformance: [...reportsKeys.all, "course-performance"] as const,
+  coursePerformance: ["reports", "course-performance"] as const,
   users: (filters: UsersReportFilters) => [...reportsKeys.all, "users", filters] as const,
   supportTickets: (filters: SupportTicketsReportFilters) =>
     [...reportsKeys.all, "support-tickets", filters] as const,
-  recentRuns: [...reportsKeys.all, "recent-runs"] as const,
+  recentRuns: ["reports", "recent-runs"] as const,
 };
 
 /**

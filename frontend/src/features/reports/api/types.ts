@@ -1,9 +1,16 @@
 import type { PaymentStatus, Transaction } from "@/features/finance/api/queries";
 import type { CoursePerformanceRow } from "@/features/analytics/api/queries";
 import type { TicketCategory, TicketPriority, TicketStatus, TicketSummary } from "@/features/support/api/types";
-import type { AdminUser } from "@/features/users/api/types";
 
-export type { PaymentStatus, Transaction, CoursePerformanceRow, TicketSummary };
+export type {
+  PaymentStatus,
+  Transaction,
+  CoursePerformanceRow,
+  TicketSummary,
+  TicketCategory,
+  TicketPriority,
+  TicketStatus,
+};
 
 export type ReportType = "Enrollments" | "Revenue" | "CoursePerformance" | "Users" | "SupportTickets";
 
