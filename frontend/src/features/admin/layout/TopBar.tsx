@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  Bell,
   CircleDot,
   HelpCircle,
   LogOut,
@@ -14,7 +13,6 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationBell } from "@/features/notifications/components/NotificationBell";
-import { cn } from "@/lib/utils";
 
 interface TopBarProps {
   userName: string;
@@ -24,16 +22,8 @@ interface TopBarProps {
   onMobileMenu: () => void;
 }
 
-const notifications = [
-  { id: "n1", title: "5 lecturers awaiting approval", time: "2m ago", unread: true },
-  { id: "n2", title: "Payment gateway reconciled", time: "40m ago", unread: true },
-  { id: "n3", title: "Backup completed successfully", time: "1h ago", unread: false },
-  { id: "n4", title: "SignalR hub latency elevated", time: "2h ago", unread: false },
-];
-
 export function TopBar({ userName, userEmail, roles, onLogout, onMobileMenu }: TopBarProps) {
-  const [openMenu, setOpenMenu] = useState<"notifications" | "profile" | null>(null);
-  const unread = notifications.filter((n) => n.unread).length;
+  const [openMenu, setOpenMenu] = useState<"profile" | null>(null);
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-card/80 px-4 backdrop-blur-md">
@@ -73,43 +63,6 @@ export function TopBar({ userName, userEmail, roles, onLogout, onMobileMenu }: T
           <MessageSquare className="h-5 w-5" />
           <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
         </Button>
-
-        {/* Notifications */}
-        <div className="relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Notifications"
-            className="relative"
-            onClick={() => setOpenMenu((m) => (m === "notifications" ? null : "notifications"))}
-          >
-            <Bell className="h-5 w-5" />
-            {unread > 0 && (
-              <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-semibold text-white">
-                {unread}
-              </span>
-            )}
-          </Button>
-          {openMenu === "notifications" && (
-            <Dropdown onClose={() => setOpenMenu(null)}>
-              <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
-                <p className="text-sm font-semibold">Notifications</p>
-                <button className="text-xs font-medium text-primary hover:underline">Mark all read</button>
-              </div>
-              <ul className="max-h-80 overflow-y-auto">
-                {notifications.map((n) => (
-                  <li key={n.id} className="flex gap-2.5 px-4 py-2.5 hover:bg-muted">
-                    <span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", n.unread ? "bg-primary" : "bg-transparent")} />
-                    <div className="min-w-0">
-                      <p className="text-sm leading-snug">{n.title}</p>
-                      <p className="text-xs text-muted-foreground">{n.time}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </Dropdown>
-          )}
-        </div>
 
         <NotificationBell />
         <ThemeToggle />
