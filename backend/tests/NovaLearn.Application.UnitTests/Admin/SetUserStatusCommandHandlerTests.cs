@@ -5,6 +5,7 @@ using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application.Common.Models;
 using NovaLearn.Application.Features.Admin.Users.Common;
 using NovaLearn.Application.Features.Admin.Users.SetUserStatus;
+using NovaLearn.Domain.Audit;
 using NovaLearn.Domain.Identity;
 using NovaLearn.Shared.Results;
 using Xunit;
@@ -16,13 +17,14 @@ public sealed class SetUserStatusCommandHandlerTests
     private readonly IUserDirectory _directory = Substitute.For<IUserDirectory>();
     private readonly IUserAdministration _users = Substitute.For<IUserAdministration>();
     private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
+    private readonly IAuditLogger _auditLogger = Substitute.For<IAuditLogger>();
     private readonly Guid _callerId = Guid.NewGuid();
     private readonly Guid _targetId = Guid.NewGuid();
     private readonly SetUserStatusCommandHandler _sut;
 
     public SetUserStatusCommandHandlerTests()
     {
-        _sut = new SetUserStatusCommandHandler(_directory, _users, _currentUser);
+        _sut = new SetUserStatusCommandHandler(_directory, _users, _currentUser, _auditLogger);
         _users.SetActiveAsync(Arg.Any<Guid>(), Arg.Any<bool>(), Arg.Any<CancellationToken>())
             .Returns(Result.Success());
     }
@@ -48,6 +50,9 @@ public sealed class SetUserStatusCommandHandlerTests
 
         result.IsSuccess.Should().BeTrue();
         await _users.Received(1).SetActiveAsync(_targetId, false, Arg.Any<CancellationToken>());
+        await _auditLogger.Received(1).RecordAsync(
+            _callerId, AuditCategory.UserManagement, "Deactivated account", Arg.Any<string>(), "User", _targetId,
+            Arg.Any<CancellationToken>());
     }
 
     [Fact]

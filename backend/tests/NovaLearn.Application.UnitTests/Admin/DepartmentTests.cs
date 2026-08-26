@@ -7,6 +7,7 @@ using NovaLearn.Application.Common.Models;
 using NovaLearn.Application.Features.Admin.Departments.Common;
 using NovaLearn.Application.Features.Admin.Departments.DeleteDepartment;
 using NovaLearn.Application.Features.Admin.Departments.SaveDepartment;
+using NovaLearn.Domain.Audit;
 using NovaLearn.Domain.Departments;
 using NovaLearn.Domain.Identity;
 using NovaLearn.Shared.Results;
@@ -19,14 +20,17 @@ public sealed class DepartmentTests
     private readonly IDepartmentRepository _departments = Substitute.For<IDepartmentRepository>();
     private readonly IUserDirectory _users = Substitute.For<IUserDirectory>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
+    private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
+    private readonly IAuditLogger _auditLogger = Substitute.For<IAuditLogger>();
 
     private readonly SaveDepartmentCommandHandler _save;
     private readonly DeleteDepartmentCommandHandler _delete;
 
     public DepartmentTests()
     {
-        _save = new SaveDepartmentCommandHandler(_departments, _users, _unitOfWork);
-        _delete = new DeleteDepartmentCommandHandler(_departments, _unitOfWork);
+        _currentUser.UserId.Returns(Guid.NewGuid());
+        _save = new SaveDepartmentCommandHandler(_departments, _users, _unitOfWork, _currentUser, _auditLogger);
+        _delete = new DeleteDepartmentCommandHandler(_departments, _unitOfWork, _currentUser, _auditLogger);
 
         // Nothing is in use and nothing has courses unless a test says so.
         _departments.CountCoursesAsync(Arg.Any<CancellationToken>())
@@ -203,6 +207,9 @@ public sealed class DepartmentTests
         result.IsSuccess.Should().BeTrue();
         _departments.Received(1).Remove(department);
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+        await _auditLogger.Received(1).RecordAsync(
+            _currentUser.UserId!.Value, AuditCategory.Departments, "Deleted department", "Physics",
+            "Department", department.Id, Arg.Any<CancellationToken>());
     }
 
     [Fact]

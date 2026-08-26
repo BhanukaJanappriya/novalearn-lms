@@ -4,6 +4,7 @@ using NovaLearn.Application.Common.Errors;
 using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application.Features.Payments.Common;
 using NovaLearn.Application.Features.Payments.RefundPayment;
+using NovaLearn.Domain.Audit;
 using NovaLearn.Domain.Identity;
 using NovaLearn.Domain.Payments;
 using NovaLearn.Shared.Results;
@@ -20,11 +21,13 @@ public sealed class RefundPaymentCommandHandlerTests
     private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
     private readonly IDateTimeProvider _clock = Substitute.For<IDateTimeProvider>();
+    private readonly IAuditLogger _auditLogger = Substitute.For<IAuditLogger>();
     private readonly RefundPaymentCommandHandler _sut;
 
     public RefundPaymentCommandHandlerTests()
     {
-        _sut = new RefundPaymentCommandHandler(_payments, _gateway, _currentUser, _unitOfWork, _clock);
+        _sut = new RefundPaymentCommandHandler(
+            _payments, _gateway, _currentUser, _unitOfWork, _clock, _auditLogger);
         _clock.UtcNow.Returns(Now);
         SignedInAs(Roles.Administrator);
 
@@ -32,8 +35,11 @@ public sealed class RefundPaymentCommandHandlerTests
             .Returns(new RefundResult("re_test_1", 0));
     }
 
-    private void SignedInAs(params string[] roles) =>
+    private void SignedInAs(params string[] roles)
+    {
+        _currentUser.UserId.Returns(Guid.NewGuid());
         _currentUser.IsInRole(Arg.Any<string>()).Returns(call => roles.Contains(call.Arg<string>()));
+    }
 
     private static Payment PaidPayment(decimal amount = 100m)
     {
@@ -107,6 +113,9 @@ public sealed class RefundPaymentCommandHandlerTests
         await _gateway.Received(1).RefundAsync("pi_test_1", 80m, "usd", Arg.Any<CancellationToken>());
         payment.RefundedAmount.Should().Be(80m);
         payment.Status.Should().Be(PaymentStatus.Refunded);
+        await _auditLogger.Received(1).RecordAsync(
+            _currentUser.UserId!.Value, AuditCategory.Finance, "Refunded payment", Arg.Any<string>(),
+            "Payment", payment.Id, Arg.Any<CancellationToken>());
     }
 
     [Fact]

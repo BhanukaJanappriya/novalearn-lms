@@ -5,6 +5,7 @@ using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application.Common.Models;
 using NovaLearn.Application.Features.Admin.Users.Common;
 using NovaLearn.Application.Features.Admin.Users.UpdateUserRoles;
+using NovaLearn.Domain.Audit;
 using NovaLearn.Domain.Identity;
 using NovaLearn.Shared.Results;
 using Xunit;
@@ -16,13 +17,14 @@ public sealed class UpdateUserRolesCommandHandlerTests
     private readonly IUserDirectory _directory = Substitute.For<IUserDirectory>();
     private readonly IUserAdministration _users = Substitute.For<IUserAdministration>();
     private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
+    private readonly IAuditLogger _auditLogger = Substitute.For<IAuditLogger>();
     private readonly Guid _callerId = Guid.NewGuid();
     private readonly Guid _targetId = Guid.NewGuid();
     private readonly UpdateUserRolesCommandHandler _sut;
 
     public UpdateUserRolesCommandHandlerTests()
     {
-        _sut = new UpdateUserRolesCommandHandler(_directory, _users, _currentUser);
+        _sut = new UpdateUserRolesCommandHandler(_directory, _users, _currentUser, _auditLogger);
         _users.SetRolesAsync(Arg.Any<Guid>(), Arg.Any<IReadOnlyList<string>>(), Arg.Any<CancellationToken>())
             .Returns(Result.Success());
     }
@@ -51,6 +53,9 @@ public sealed class UpdateUserRolesCommandHandlerTests
         await _users.Received(1).SetRolesAsync(
             _targetId,
             Arg.Is<IReadOnlyList<string>>(r => r.Contains(Roles.TeachingAssistant) && r.Contains(Roles.Student)),
+            Arg.Any<CancellationToken>());
+        await _auditLogger.Received(1).RecordAsync(
+            _callerId, AuditCategory.UserManagement, Arg.Any<string>(), Arg.Any<string>(), "User", _targetId,
             Arg.Any<CancellationToken>());
     }
 

@@ -5,6 +5,7 @@ using NovaLearn.Application.Common.Errors;
 using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application.Features.Settings.Common;
 using NovaLearn.Application.Features.Settings.UpdateSettings;
+using NovaLearn.Domain.Audit;
 using NovaLearn.Domain.Identity;
 using NovaLearn.Domain.Settings;
 using NovaLearn.Shared.Results;
@@ -18,12 +19,13 @@ public sealed class UpdateSettingsCommandHandlerTests
     private readonly ISettingsProvider _provider = Substitute.For<ISettingsProvider>();
     private readonly ICurrentUser _currentUser = Substitute.For<ICurrentUser>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
+    private readonly IAuditLogger _auditLogger = Substitute.For<IAuditLogger>();
     private readonly Guid _callerId = Guid.NewGuid();
     private readonly UpdateSettingsCommandHandler _sut;
 
     public UpdateSettingsCommandHandlerTests()
     {
-        _sut = new UpdateSettingsCommandHandler(_settings, _provider, _currentUser, _unitOfWork);
+        _sut = new UpdateSettingsCommandHandler(_settings, _provider, _currentUser, _unitOfWork, _auditLogger);
         _settings.GetAsync(Arg.Any<CancellationToken>()).Returns(PlatformSettings.CreateDefault());
     }
 
@@ -66,6 +68,9 @@ public sealed class UpdateSettingsCommandHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.Value.MaintenanceModeEnabled.Should().BeTrue();
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+        await _auditLogger.Received(1).RecordAsync(
+            _callerId, AuditCategory.Settings, "Updated platform settings", Arg.Any<string>(),
+            "PlatformSettings", Arg.Any<Guid>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
