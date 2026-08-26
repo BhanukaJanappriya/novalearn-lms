@@ -123,6 +123,9 @@ const UsersPage = lazy(() =>
 const CourseBuilderPage = lazy(() =>
   import("@/features/content/pages/CourseBuilderPage").then((m) => ({ default: m.CourseBuilderPage })),
 );
+const AuditLogsPage = lazy(() =>
+  import("@/features/auditLogs/pages/AuditLogsPage").then((m) => ({ default: m.AuditLogsPage })),
+);
 
 export function AppRoutes() {
   return (
@@ -382,6 +385,16 @@ export function AppRoutes() {
               <RequireAdmin>
                 <Suspense fallback={<FullScreenLoader />}>
                   <DepartmentsPage />
+                </Suspense>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="audit"
+            element={
+              <RequireAdmin>
+                <Suspense fallback={<FullScreenLoader />}>
+                  <AuditLogsPage />
                 </Suspense>
               </RequireAdmin>
             }
