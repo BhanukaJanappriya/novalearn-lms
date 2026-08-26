@@ -3,6 +3,7 @@ using NovaLearn.Application.Common.Errors;
 using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application.Common.Models;
 using NovaLearn.Application.Features.Admin.Users.Common;
+using NovaLearn.Domain.Audit;
 using NovaLearn.Domain.Identity;
 using NovaLearn.Shared.Results;
 
@@ -11,7 +12,8 @@ namespace NovaLearn.Application.Features.Admin.Users.SetUserStatus;
 public sealed class SetUserStatusCommandHandler(
     IUserDirectory directory,
     IUserAdministration users,
-    ICurrentUser currentUser)
+    ICurrentUser currentUser,
+    IAuditLogger auditLogger)
     : IRequestHandler<SetUserStatusCommand, Result<AdminUserDto>>
 {
     public async Task<Result<AdminUserDto>> Handle(
@@ -44,6 +46,15 @@ public sealed class SetUserStatusCommandHandler(
         {
             return Result.Failure<AdminUserDto>(result.Error);
         }
+
+        await auditLogger.RecordAsync(
+            currentUser.UserId!.Value,
+            AuditCategory.UserManagement,
+            request.IsActive ? "Activated account" : "Deactivated account",
+            target.FullName,
+            "User",
+            target.Id,
+            cancellationToken);
 
         return await ReloadAsync(request.UserId, cancellationToken);
     }

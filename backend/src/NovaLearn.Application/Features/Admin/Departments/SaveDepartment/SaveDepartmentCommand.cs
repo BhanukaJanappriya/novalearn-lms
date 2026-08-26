@@ -3,6 +3,7 @@ using MediatR;
 using NovaLearn.Application.Common.Errors;
 using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application.Features.Admin.Departments.Common;
+using NovaLearn.Domain.Audit;
 using NovaLearn.Domain.Departments;
 using NovaLearn.Domain.Identity;
 using NovaLearn.Shared.Results;
@@ -42,7 +43,9 @@ public sealed class SaveDepartmentCommandValidator : AbstractValidator<SaveDepar
 public sealed class SaveDepartmentCommandHandler(
     IDepartmentRepository departments,
     IUserDirectory users,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    ICurrentUser currentUser,
+    IAuditLogger auditLogger)
     : IRequestHandler<SaveDepartmentCommand, Result<DepartmentDto>>
 {
     public async Task<Result<DepartmentDto>> Handle(
@@ -59,6 +62,7 @@ public sealed class SaveDepartmentCommandHandler(
         }
 
         Department department;
+        bool isNew = request.DepartmentId is null;
 
         if (request.DepartmentId is { } id)
         {
@@ -80,6 +84,15 @@ public sealed class SaveDepartmentCommandHandler(
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await auditLogger.RecordAsync(
+            currentUser.UserId!.Value,
+            AuditCategory.Departments,
+            isNew ? "Created department" : "Updated department",
+            department.Name,
+            "Department",
+            department.Id,
+            cancellationToken);
 
         // Re-read so the head's name comes back populated on a freshly assigned head.
         Department? saved = await departments.GetByIdAsync(department.Id, cancellationToken);

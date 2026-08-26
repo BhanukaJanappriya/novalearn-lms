@@ -1,6 +1,7 @@
 using MediatR;
 using NovaLearn.Application.Common.Errors;
 using NovaLearn.Application.Common.Interfaces;
+using NovaLearn.Domain.Audit;
 using NovaLearn.Domain.Courses;
 using NovaLearn.Domain.Identity;
 using NovaLearn.Shared.Results;
@@ -10,7 +11,8 @@ namespace NovaLearn.Application.Features.Courses.DeleteCourse;
 public sealed class DeleteCourseCommandHandler(
     ICourseRepository courses,
     IUnitOfWork unitOfWork,
-    ICurrentUser currentUser)
+    ICurrentUser currentUser,
+    IAuditLogger auditLogger)
     : IRequestHandler<DeleteCourseCommand, Result>
 {
     public async Task<Result> Handle(DeleteCourseCommand request, CancellationToken cancellationToken)
@@ -32,6 +34,15 @@ public sealed class DeleteCourseCommandHandler(
 
         courses.Remove(course);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await auditLogger.RecordAsync(
+            currentUser.UserId!.Value,
+            AuditCategory.Courses,
+            "Deleted course",
+            course.Title,
+            "Course",
+            course.Id,
+            cancellationToken);
 
         return Result.Success();
     }

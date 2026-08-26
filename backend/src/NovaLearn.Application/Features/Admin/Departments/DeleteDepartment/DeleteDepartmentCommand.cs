@@ -1,6 +1,7 @@
 using MediatR;
 using NovaLearn.Application.Common.Errors;
 using NovaLearn.Application.Common.Interfaces;
+using NovaLearn.Domain.Audit;
 using NovaLearn.Domain.Departments;
 using NovaLearn.Shared.Results;
 
@@ -10,7 +11,9 @@ public sealed record DeleteDepartmentCommand(Guid DepartmentId) : IRequest<Resul
 
 public sealed class DeleteDepartmentCommandHandler(
     IDepartmentRepository departments,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    ICurrentUser currentUser,
+    IAuditLogger auditLogger)
     : IRequestHandler<DeleteDepartmentCommand, Result>
 {
     public async Task<Result> Handle(DeleteDepartmentCommand request, CancellationToken cancellationToken)
@@ -31,6 +34,15 @@ public sealed class DeleteDepartmentCommandHandler(
 
         departments.Remove(department);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await auditLogger.RecordAsync(
+            currentUser.UserId!.Value,
+            AuditCategory.Departments,
+            "Deleted department",
+            department.Name,
+            "Department",
+            department.Id,
+            cancellationToken);
 
         return Result.Success();
     }

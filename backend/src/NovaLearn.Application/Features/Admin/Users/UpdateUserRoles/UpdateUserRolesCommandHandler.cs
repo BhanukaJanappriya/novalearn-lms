@@ -3,6 +3,7 @@ using NovaLearn.Application.Common.Errors;
 using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application.Common.Models;
 using NovaLearn.Application.Features.Admin.Users.Common;
+using NovaLearn.Domain.Audit;
 using NovaLearn.Domain.Identity;
 using NovaLearn.Shared.Results;
 
@@ -11,7 +12,8 @@ namespace NovaLearn.Application.Features.Admin.Users.UpdateUserRoles;
 public sealed class UpdateUserRolesCommandHandler(
     IUserDirectory directory,
     IUserAdministration users,
-    ICurrentUser currentUser)
+    ICurrentUser currentUser,
+    IAuditLogger auditLogger)
     : IRequestHandler<UpdateUserRolesCommand, Result<AdminUserDto>>
 {
     public async Task<Result<AdminUserDto>> Handle(
@@ -50,8 +52,20 @@ public sealed class UpdateUserRolesCommandHandler(
         }
 
         AdminUserRow? updated = await directory.GetAsync(request.UserId, cancellationToken);
-        return updated is null
-            ? Result.Failure<AdminUserDto>(UserAdminErrors.NotFound)
-            : AdminUserDto.FromRow(updated);
+        if (updated is null)
+        {
+            return Result.Failure<AdminUserDto>(UserAdminErrors.NotFound);
+        }
+
+        await auditLogger.RecordAsync(
+            currentUser.UserId!.Value,
+            AuditCategory.UserManagement,
+            "Updated roles",
+            $"Set {target.FullName}'s roles to {string.Join(", ", request.Roles)}",
+            "User",
+            target.Id,
+            cancellationToken);
+
+        return AdminUserDto.FromRow(updated);
     }
 }

@@ -2,6 +2,7 @@ using MediatR;
 using NovaLearn.Application.Common.Errors;
 using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application.Features.Payments.Common;
+using NovaLearn.Domain.Audit;
 using NovaLearn.Domain.Payments;
 using NovaLearn.Shared.Results;
 
@@ -32,7 +33,8 @@ public sealed class RefundPaymentCommandHandler(
     IPaymentGateway gateway,
     ICurrentUser currentUser,
     IUnitOfWork unitOfWork,
-    IDateTimeProvider dateTimeProvider)
+    IDateTimeProvider dateTimeProvider,
+    IAuditLogger auditLogger)
     : IRequestHandler<RefundPaymentCommand, Result<TransactionDto>>
 {
     public async Task<Result<TransactionDto>> Handle(
@@ -89,6 +91,15 @@ public sealed class RefundPaymentCommandHandler(
             // is a "check the ledger" situation, not a "the refund did not happen" one.
             return Result.Failure<TransactionDto>(PaymentErrors.ConcurrentModification);
         }
+
+        await auditLogger.RecordAsync(
+            currentUser.UserId!.Value,
+            AuditCategory.Finance,
+            "Refunded payment",
+            $"{amount} {payment.Currency} for {payment.CourseTitle}",
+            "Payment",
+            payment.Id,
+            cancellationToken);
 
         return Result.Success(PaymentMapper.ToTransactionDto(payment));
     }

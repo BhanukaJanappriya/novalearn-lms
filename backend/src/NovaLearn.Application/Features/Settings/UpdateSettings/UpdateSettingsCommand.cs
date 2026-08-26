@@ -3,6 +3,7 @@ using MediatR;
 using NovaLearn.Application.Common.Errors;
 using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application.Features.Settings.Common;
+using NovaLearn.Domain.Audit;
 using NovaLearn.Domain.Identity;
 using NovaLearn.Domain.Settings;
 using NovaLearn.Shared.Results;
@@ -51,7 +52,8 @@ public sealed class UpdateSettingsCommandHandler(
     ISettingsRepository settings,
     ISettingsProvider provider,
     ICurrentUser currentUser,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IAuditLogger auditLogger)
     : IRequestHandler<UpdateSettingsCommand, Result<PlatformSettingsDto>>
 {
     public async Task<Result<PlatformSettingsDto>> Handle(
@@ -84,6 +86,16 @@ public sealed class UpdateSettingsCommandHandler(
         // answering with what was true a moment ago — maintenance mode in particular is meant to
         // take effect the instant it is switched on.
         provider.Invalidate();
+
+        await auditLogger.RecordAsync(
+            currentUser.UserId!.Value,
+            AuditCategory.Settings,
+            "Updated platform settings",
+            $"Maintenance mode: {(request.MaintenanceModeEnabled ? "on" : "off")}, "
+                + $"registrations: {(request.AllowNewRegistrations ? "open" : "closed")}",
+            "PlatformSettings",
+            current.Id,
+            cancellationToken);
 
         return Result.Success(PlatformSettingsMapper.ToDto(current));
     }
