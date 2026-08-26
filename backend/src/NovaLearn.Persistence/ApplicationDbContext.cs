@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Domain.Assessments;
+using NovaLearn.Domain.Audit;
 using NovaLearn.Domain.Content;
 using NovaLearn.Domain.Courses;
 using NovaLearn.Domain.Departments;
@@ -63,6 +64,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<SupportTicketMessage> SupportTicketMessages => Set<SupportTicketMessage>();
 
     public DbSet<ReportRun> ReportRuns => Set<ReportRun>();
+
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
