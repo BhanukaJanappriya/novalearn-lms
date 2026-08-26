@@ -58,6 +58,7 @@ Built with **ASP.NET Core 9** (Clean Architecture + DDD + CQRS) and **React 19**
 | **Settings** (branding, registration, maintenance mode, checkout currency, upload limit) | ✅ | ✅ | ✅ | Done |
 | **Support portal** (tickets, threaded replies, internal notes, triage queue) | ✅ | ✅ | ✅ | Done |
 | **Reports** (exportable enrolment, revenue, course, user and ticket reports, run audit trail) | ✅ | ✅ | ✅ | Done |
+| **Audit Logs** (who did what and when — role/status changes, deletions, settings, refunds) | ✅ | ✅ | ✅ | Done |
 
 ---
 
