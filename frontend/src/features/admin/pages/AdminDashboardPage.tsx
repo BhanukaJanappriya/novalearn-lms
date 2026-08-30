@@ -21,6 +21,9 @@ import { AiInsightsPanel } from "../components/AiInsightsPanel";
 import { QuickActions } from "../components/QuickActions";
 
 const RANGES = ["7D", "30D", "90D", "1Y"] as const;
+type Range = (typeof RANGES)[number];
+
+const rangeDays: Record<Range, number> = { "7D": 7, "30D": 30, "90D": 90, "1Y": 365 };
 
 const stagger = {
   hidden: { opacity: 0, y: 12 },
@@ -29,8 +32,8 @@ const stagger = {
 
 export function AdminDashboardPage() {
   const { user } = useAuth();
-  const { data, isLoading, isError, refetch, isFetching } = useAdminDashboard();
-  const [range, setRange] = useState<(typeof RANGES)[number]>("1Y");
+  const [range, setRange] = useState<Range>("1Y");
+  const { data, isLoading, isError, refetch, isFetching } = useAdminDashboard(rangeDays[range]);
 
   if (isLoading) return <DashboardSkeleton />;
 
@@ -94,7 +97,7 @@ export function AdminDashboardPage() {
       <section className="grid gap-4 lg:grid-cols-3">
         <ChartCard
           title="Enrollment trend"
-          subtitle="New enrolments vs. previous year"
+          subtitle="New enrolments vs. completions, for the selected window"
           className="lg:col-span-2"
           actions={
             <>
@@ -110,8 +113,8 @@ export function AdminDashboardPage() {
                     "enrollment-trend.csv",
                     data.enrollmentTrend.map((p) => ({
                       period: p.label,
-                      thisYear: p.value,
-                      previousYear: p.compare ?? 0,
+                      enrolments: p.value,
+                      completions: p.compare ?? 0,
                     })),
                   )
                 }

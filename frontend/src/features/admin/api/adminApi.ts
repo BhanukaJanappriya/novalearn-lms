@@ -8,8 +8,9 @@ import { apiClient } from "@/services/apiClient";
  * The API client attaches the bearer token and transparently refreshes it on 401.
  */
 export const adminApi = {
-  async getDashboard(): Promise<AdminDashboard> {
-    const { data } = await apiClient.get<AdminDashboard>("/admin/dashboard");
+  /** @param days Length of the window the enrollment/completion trend charts cover. */
+  async getDashboard(days: number): Promise<AdminDashboard> {
+    const { data } = await apiClient.get<AdminDashboard>("/admin/dashboard", { params: { days } });
     return data;
   },
 };

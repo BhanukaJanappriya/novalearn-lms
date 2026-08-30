@@ -32,7 +32,7 @@ export function TrendAreaChart({ data, showCompare = true }: Props) {
           <Area
             type="monotone"
             dataKey="compare"
-            name="Previous year"
+            name="Completions"
             stroke={theme.axis}
             strokeWidth={2}
             strokeDasharray="4 4"
@@ -43,7 +43,7 @@ export function TrendAreaChart({ data, showCompare = true }: Props) {
         <Area
           type="monotone"
           dataKey="value"
-          name="This year"
+          name="Enrolments"
           stroke={theme.brand}
           strokeWidth={2.5}
           fill="url(#grad-current)"
