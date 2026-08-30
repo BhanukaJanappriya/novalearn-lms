@@ -11,7 +11,8 @@ namespace NovaLearn.Application.Features.Admin.Dashboard;
 /// domains not yet modelled (courses, finance, content, infra telemetry) are returned as
 /// clearly-marked server-provided values so the client contract stays complete and stable.
 /// </summary>
-public sealed class GetAdminDashboardQueryHandler(IAdminStatisticsService statistics)
+public sealed class GetAdminDashboardQueryHandler(
+    IAdminStatisticsService statistics, IPlatformAnalytics platformAnalytics)
     : IRequestHandler<GetAdminDashboardQuery, Result<AdminDashboardResponse>>
 {
     private static readonly string[] Palette =
@@ -32,11 +33,16 @@ public sealed class GetAdminDashboardQueryHandler(IAdminStatisticsService statis
         AdminStatistics stats = await statistics.GetStatisticsAsync(cancellationToken);
         DateTimeOffset now = DateTimeOffset.UtcNow;
 
+        // Real, window-sensitive data for the two trend charts — the same series platform
+        // analytics itself draws from, so the "7D/30D/90D/1Y" range control actually changes
+        // what is on screen instead of always showing the same fixed trailing twelve months.
+        PlatformAnalytics analytics = await platformAnalytics.GetAsync(request.Days, cancellationToken);
+
         return new AdminDashboardResponse(
             Summary: BuildSummary(stats),
             Kpis: BuildKpis(stats, now),
-            EnrollmentTrend: BuildMonthlySeries(stats.MonthlyEnrollments, now),
-            CompletionTrend: SyntheticSeries(72, 12, 3141),
+            EnrollmentTrend: BuildTrendSeries(analytics, point => point.Enrolments, point => point.Completions),
+            CompletionTrend: BuildTrendSeries(analytics, point => point.Completions, point => null),
             RoleDistribution: BuildRoleDistribution(stats),
             WeeklyActivity: BuildWeeklyActivity(),
             PopularCourses: BuildPopularCourses(),
@@ -114,23 +120,25 @@ public sealed class GetAdminDashboardQueryHandler(IAdminStatisticsService statis
             Accents[accentIndex % Accents.Length], Spark(value, id.GetHashCode()), href, hint);
     }
 
-    /// <summary>Projects month buckets onto the trailing 12 calendar months, zero-filling gaps.</summary>
-    private static List<TimeSeriesPointDto> BuildMonthlySeries(
-        IReadOnlyList<MonthlyCount> buckets, DateTimeOffset now)
-    {
-        var points = new List<TimeSeriesPointDto>(12);
-        DateTimeOffset cursor = FirstOfMonth(now).AddMonths(-11);
+    /// <summary>
+    /// Projects platform analytics' own bucketed series onto a trend chart point. The bucket
+    /// size (day, week or month) already tracks the requested window's length — see
+    /// <c>AnalyticsBucketing.GranularityFor</c> — so a 7D range reads as daily points and a 1Y
+    /// range reads as monthly ones, the same as the Analytics page's own charts.
+    /// </summary>
+    private static List<TimeSeriesPointDto> BuildTrendSeries(
+        PlatformAnalytics analytics, Func<AnalyticsPoint, double> value, Func<AnalyticsPoint, double?> compare) =>
+        analytics.Series
+            .Select(point => new TimeSeriesPointDto(
+                FormatLabel(point.Date, analytics.Window.Granularity), value(point), compare(point)))
+            .ToList();
 
-        for (int i = 0; i < 12; i++)
+    private static string FormatLabel(DateOnly date, AnalyticsGranularity granularity) =>
+        granularity switch
         {
-            int count = buckets
-                .FirstOrDefault(m => m.Year == cursor.Year && m.Month == cursor.Month)?.Count ?? 0;
-            points.Add(new TimeSeriesPointDto(MonthAbbrev[cursor.Month - 1], count, null));
-            cursor = cursor.AddMonths(1);
-        }
-
-        return points;
-    }
+            AnalyticsGranularity.Month => MonthAbbrev[date.Month - 1],
+            _ => $"{MonthAbbrev[date.Month - 1]} {date.Day}"
+        };
 
     private static DateTimeOffset FirstOfMonth(DateTimeOffset moment) =>
         new(new DateTime(moment.Year, moment.Month, 1), TimeSpan.Zero);
@@ -271,19 +279,6 @@ public sealed class GetAdminDashboardQueryHandler(IAdminStatisticsService statis
     ];
 
     // ---- Helpers ------------------------------------------------------------------------
-
-    private static List<TimeSeriesPointDto> SyntheticSeries(double baseValue, int count, int seed)
-    {
-        var rng = new Random(seed);
-        var points = new List<TimeSeriesPointDto>(count);
-        double v = baseValue;
-        for (int i = 0; i < count; i++)
-        {
-            v = Math.Max(0, v + (rng.NextDouble() - 0.35) * 3);
-            points.Add(new TimeSeriesPointDto(MonthAbbrev[i % 12], Math.Round(v, 1), null));
-        }
-        return points;
-    }
 
     private static IReadOnlyList<double> Spark(double baseValue, int seed)
     {

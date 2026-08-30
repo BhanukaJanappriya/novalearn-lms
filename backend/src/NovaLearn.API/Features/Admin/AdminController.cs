@@ -23,15 +23,19 @@ namespace NovaLearn.API.Features.Admin;
 [Authorize(Roles = $"{Roles.SuperAdministrator},{Roles.Administrator}")]
 public sealed class AdminController(ISender sender) : ApiControllerBase
 {
-    /// <summary>Returns the aggregate dashboard payload (KPIs, analytics, feeds, health, security).</summary>
+    /// <summary>
+    /// Returns the aggregate dashboard payload (KPIs, analytics, feeds, health, security).
+    /// <paramref name="days"/> controls only the enrollment/completion trend charts.
+    /// </summary>
     [HttpGet("dashboard")]
     [ProducesResponseType(typeof(AdminDashboardResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> GetDashboard(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetDashboard(
+        [FromQuery] int days = 365, CancellationToken cancellationToken = default)
     {
         Result<AdminDashboardResponse> result =
-            await sender.Send(new GetAdminDashboardQuery(), cancellationToken);
+            await sender.Send(new GetAdminDashboardQuery(days), cancellationToken);
 
         return HandleResult(result);
     }
