@@ -126,6 +126,9 @@ const CourseBuilderPage = lazy(() =>
 const AuditLogsPage = lazy(() =>
   import("@/features/auditLogs/pages/AuditLogsPage").then((m) => ({ default: m.AuditLogsPage })),
 );
+const SecurityPage = lazy(() =>
+  import("@/features/security/pages/SecurityPage").then((m) => ({ default: m.SecurityPage })),
+);
 
 export function AppRoutes() {
   return (
@@ -395,6 +398,16 @@ export function AppRoutes() {
               <RequireAdmin>
                 <Suspense fallback={<FullScreenLoader />}>
                   <AuditLogsPage />
+                </Suspense>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="security"
+            element={
+              <RequireAdmin>
+                <Suspense fallback={<FullScreenLoader />}>
+                  <SecurityPage />
                 </Suspense>
               </RequireAdmin>
             }
