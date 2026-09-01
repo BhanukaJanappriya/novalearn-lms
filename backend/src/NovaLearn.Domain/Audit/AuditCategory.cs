@@ -7,5 +7,6 @@ public enum AuditCategory
     Courses,
     Departments,
     Finance,
-    Settings
+    Settings,
+    Security
 }
