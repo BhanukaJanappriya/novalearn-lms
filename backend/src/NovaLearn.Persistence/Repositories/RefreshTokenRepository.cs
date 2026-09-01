@@ -14,6 +14,11 @@ public sealed class RefreshTokenRepository(ApplicationDbContext dbContext) : IRe
             .Include(rt => rt.User)
             .FirstOrDefaultAsync(rt => rt.TokenHash == tokenHash, cancellationToken);
 
+    public Task<RefreshToken?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
+        dbContext.RefreshTokens
+            .Include(rt => rt.User)
+            .FirstOrDefaultAsync(rt => rt.Id == id, cancellationToken);
+
     public async Task RevokeAllActiveForUserAsync(
         Guid userId, DateTimeOffset revokedAtUtc, string? revokedByIp, CancellationToken cancellationToken)
     {
