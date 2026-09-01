@@ -10,6 +10,9 @@ public interface IRefreshTokenRepository
     /// <summary>Loads a refresh token (with its <see cref="RefreshToken.User"/>) by token hash.</summary>
     Task<RefreshToken?> GetByHashAsync(string tokenHash, CancellationToken cancellationToken);
 
+    /// <summary>Loads a refresh token (with its <see cref="RefreshToken.User"/>) by its own id, for admin revocation.</summary>
+    Task<RefreshToken?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+
     /// <summary>
     /// Revokes every currently-active refresh token for a user. Used to break the token chain
     /// when replay of a rotated token is detected.
