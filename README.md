@@ -60,6 +60,7 @@ Built with **ASP.NET Core 9** (Clean Architecture + DDD + CQRS) and **React 19**
 | **Reports** (exportable enrolment, revenue, course, user and ticket reports, run audit trail) | ✅ | ✅ | ✅ | Done |
 | **Audit Logs** (who did what and when — role/status changes, deletions, settings, refunds) | ✅ | ✅ | ✅ | Done |
 | **Security** (active sessions + revoke, locked-account view + unlock, live posture figures) | ✅ | ✅ | ✅ | Done |
+| **Billing** (subscription, seat usage, card on file, invoice history, three-tier plan catalogue) | – | ✅ | – | Frontend only |
 
 ---
 
