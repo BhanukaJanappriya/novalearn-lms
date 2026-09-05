@@ -129,6 +129,9 @@ const AuditLogsPage = lazy(() =>
 const SecurityPage = lazy(() =>
   import("@/features/security/pages/SecurityPage").then((m) => ({ default: m.SecurityPage })),
 );
+const BillingPage = lazy(() =>
+  import("@/features/billing/pages/BillingPage").then((m) => ({ default: m.BillingPage })),
+);
 
 export function AppRoutes() {
   return (
@@ -408,6 +411,16 @@ export function AppRoutes() {
               <RequireAdmin>
                 <Suspense fallback={<FullScreenLoader />}>
                   <SecurityPage />
+                </Suspense>
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="billing"
+            element={
+              <RequireAdmin>
+                <Suspense fallback={<FullScreenLoader />}>
+                  <BillingPage />
                 </Suspense>
               </RequireAdmin>
             }
