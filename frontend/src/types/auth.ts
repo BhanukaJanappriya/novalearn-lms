@@ -26,6 +26,7 @@ export interface RegisterPayload {
   lastName: string;
   email: string;
   password: string;
+  acceptedTerms: boolean;
 }
 
 export interface LoginPayload {

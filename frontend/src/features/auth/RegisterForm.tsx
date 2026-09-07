@@ -1,19 +1,28 @@
 import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { FormField } from "@/components/ui/form-field";
 import { Alert } from "@/components/ui/alert";
 import { authApi } from "@/services/authApi";
 import { getApiErrorMessage } from "@/lib/apiError";
+import { PasswordRequirements } from "./PasswordRequirements";
 import { registerSchema, type RegisterFormValues } from "./schemas";
 
 export function RegisterForm({ onRegistered }: { onRegistered: (email: string) => void }) {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
-  } = useForm<RegisterFormValues>({ resolver: zodResolver(registerSchema) });
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { acceptTerms: false },
+  });
+
+  const passwordValue = watch("password") ?? "";
 
   const mutation = useMutation({
     mutationFn: (values: RegisterFormValues) =>
@@ -22,6 +31,7 @@ export function RegisterForm({ onRegistered }: { onRegistered: (email: string) =
         lastName: values.lastName,
         email: values.email,
         password: values.password,
+        acceptedTerms: values.acceptTerms,
       }),
     onSuccess: (_data, values) => onRegistered(values.email),
   });
@@ -54,13 +64,16 @@ export function RegisterForm({ onRegistered }: { onRegistered: (email: string) =
         {...register("email")}
       />
 
-      <FormField
-        label="Password"
-        type="password"
-        autoComplete="new-password"
-        error={errors.password?.message}
-        {...register("password")}
-      />
+      <div>
+        <FormField
+          label="Password"
+          type="password"
+          autoComplete="new-password"
+          error={errors.password?.message}
+          {...register("password")}
+        />
+        <PasswordRequirements value={passwordValue} />
+      </div>
 
       <FormField
         label="Confirm password"
@@ -69,6 +82,36 @@ export function RegisterForm({ onRegistered }: { onRegistered: (email: string) =
         error={errors.confirmPassword?.message}
         {...register("confirmPassword")}
       />
+
+      <div>
+        <label className="flex items-start gap-2.5 text-sm text-muted-foreground">
+          <Checkbox className="mt-0.5" {...register("acceptTerms")} />
+          <span>
+            I agree to the{" "}
+            <Link
+              to="/terms"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-primary hover:underline"
+            >
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link
+              to="/privacy"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-primary hover:underline"
+            >
+              Privacy Policy
+            </Link>
+            .
+          </span>
+        </label>
+        {errors.acceptTerms && (
+          <p className="mt-1 text-xs font-medium text-destructive">{errors.acceptTerms.message}</p>
+        )}
+      </div>
 
       <Button type="submit" className="w-full" isLoading={mutation.isPending}>
         Create account
