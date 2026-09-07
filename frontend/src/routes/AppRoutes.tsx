@@ -4,6 +4,8 @@ import { LoginPage } from "@/pages/LoginPage";
 import { RegisterPage } from "@/pages/RegisterPage";
 import { VerifyEmailPage } from "@/pages/VerifyEmailPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
+import { TermsPage } from "@/pages/legal/TermsPage";
+import { PrivacyPage } from "@/pages/legal/PrivacyPage";
 import { FullScreenLoader } from "@/components/FullScreenLoader";
 import { AdminAreaRoute, HomeRedirect, ProtectedRoute, PublicOnlyRoute, RequireAdmin } from "./ProtectedRoute";
 
@@ -140,6 +142,10 @@ export function AppRoutes() {
 
       {/* Verification works whether or not the user is signed in. */}
       <Route path="/verify-email" element={<VerifyEmailPage />} />
+
+      {/* Legal pages are public and linked from the sign-up form. */}
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
 
       <Route element={<PublicOnlyRoute />}>
         <Route path="/login" element={<LoginPage />} />
