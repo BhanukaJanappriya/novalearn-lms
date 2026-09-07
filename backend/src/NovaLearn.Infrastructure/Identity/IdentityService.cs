@@ -16,7 +16,13 @@ public sealed class IdentityService(UserManager<ApplicationUser> userManager, ID
     : IIdentityService
 {
     public async Task<Result<AuthenticatedUser>> CreateUserAsync(
-        string email, string password, string firstName, string lastName, CancellationToken cancellationToken)
+        string email,
+        string password,
+        string firstName,
+        string lastName,
+        DateTimeOffset termsAcceptedAtUtc,
+        string termsVersion,
+        CancellationToken cancellationToken)
     {
         if (await userManager.FindByEmailAsync(email) is not null)
         {
@@ -30,7 +36,9 @@ public sealed class IdentityService(UserManager<ApplicationUser> userManager, ID
             FirstName = firstName,
             LastName = lastName,
             EmailConfirmed = false,
-            IsActive = true
+            IsActive = true,
+            TermsAcceptedAtUtc = termsAcceptedAtUtc,
+            TermsVersion = termsVersion
         };
 
         IdentityResult created = await userManager.CreateAsync(user, password);

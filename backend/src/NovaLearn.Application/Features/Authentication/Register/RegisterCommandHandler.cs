@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using NovaLearn.Application.Common.Errors;
 using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application.Common.Models;
+using NovaLearn.Domain.Identity;
 using NovaLearn.Shared.Results;
 
 namespace NovaLearn.Application.Features.Authentication.Register;
@@ -16,6 +17,7 @@ public sealed class RegisterCommandHandler(
     IIdentityService identityService,
     IEmailSender emailSender,
     ISettingsProvider settings,
+    IDateTimeProvider dateTimeProvider,
     ILogger<RegisterCommandHandler> logger)
     : IRequestHandler<RegisterCommand, Result<RegisterResponse>>
 {
@@ -33,6 +35,8 @@ public sealed class RegisterCommandHandler(
             request.Password,
             request.FirstName.Trim(),
             request.LastName.Trim(),
+            dateTimeProvider.UtcNow,
+            TermsAgreement.CurrentVersion,
             cancellationToken);
 
         if (creation.IsFailure)

@@ -11,7 +11,7 @@ namespace NovaLearn.API.IntegrationTests;
 public sealed class AuthEndpointsTests(CustomWebApplicationFactory factory)
     : IClassFixture<CustomWebApplicationFactory>
 {
-    private const string Password = "Str0ng!Pass";
+    private const string Password = "Str0ng-Pass12";
 
     [Fact]
     public async Task Register_confirm_then_login_returns_tokens()
@@ -22,7 +22,7 @@ public sealed class AuthEndpointsTests(CustomWebApplicationFactory factory)
         // 1. Register
         HttpResponseMessage register = await client.PostAsJsonAsync(
             "/api/v1/auth/register",
-            new { firstName = "Ada", lastName = "Lovelace", email, password = Password });
+            new { firstName = "Ada", lastName = "Lovelace", email, password = Password, acceptedTerms = true });
         register.StatusCode.Should().Be(HttpStatusCode.OK);
 
         RegisterResponseDto? registered = await register.Content.ReadFromJsonAsync<RegisterResponseDto>();
@@ -52,7 +52,10 @@ public sealed class AuthEndpointsTests(CustomWebApplicationFactory factory)
     {
         HttpClient client = factory.CreateClient();
         string email = $"dupe-{Guid.NewGuid():N}@novalearn.local";
-        object payload = new { firstName = "Grace", lastName = "Hopper", email, password = Password };
+        object payload = new
+        {
+            firstName = "Grace", lastName = "Hopper", email, password = Password, acceptedTerms = true,
+        };
 
         (await client.PostAsJsonAsync("/api/v1/auth/register", payload)).StatusCode
             .Should().Be(HttpStatusCode.OK);

@@ -5,6 +5,7 @@ using NovaLearn.Application.Common.Errors;
 using NovaLearn.Application.Common.Interfaces;
 using NovaLearn.Application.Common.Models;
 using NovaLearn.Application.Features.Authentication.Register;
+using NovaLearn.Domain.Identity;
 using NovaLearn.Shared.Results;
 using Xunit;
 
@@ -12,21 +13,27 @@ namespace NovaLearn.Application.UnitTests.Authentication;
 
 public sealed class RegisterCommandHandlerTests
 {
+    private static readonly DateTimeOffset Now = new(2026, 9, 7, 10, 30, 0, TimeSpan.Zero);
+
     private readonly IIdentityService _identity = Substitute.For<IIdentityService>();
     private readonly IEmailSender _emailSender = Substitute.For<IEmailSender>();
     private readonly ISettingsProvider _settings = Substitute.For<ISettingsProvider>();
+    private readonly IDateTimeProvider _clock = Substitute.For<IDateTimeProvider>();
     private readonly RegisterCommandHandler _sut;
 
     public RegisterCommandHandlerTests()
     {
         _sut = new RegisterCommandHandler(
-            _identity, _emailSender, _settings, Substitute.For<ILogger<RegisterCommandHandler>>());
+            _identity, _emailSender, _settings, _clock, Substitute.For<ILogger<RegisterCommandHandler>>());
+
+        _clock.UtcNow.Returns(Now);
 
         _settings.GetAsync(Arg.Any<CancellationToken>()).Returns(
             new PlatformSettingsSnapshot("NovaLearn", "support@novalearn.local", true, false, null, "usd", 200));
 
         _identity.CreateUserAsync(
-                Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+                Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),
+                Arg.Any<DateTimeOffset>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(Result.Success(new AuthenticatedUser(
                 Guid.NewGuid(), "ada@novalearn.local", "Ada", "Lovelace", false, ["Student"])));
 
@@ -35,7 +42,7 @@ public sealed class RegisterCommandHandlerTests
     }
 
     private static RegisterCommand Command() =>
-        new("Ada", "Lovelace", "ada@novalearn.local", "Str0ng!Pass");
+        new("Ada", "Lovelace", "ada@novalearn.local", "Str0ng-Pass12", AcceptedTerms: true);
 
     [Fact]
     public async Task Registration_succeeds_while_the_platform_accepts_new_accounts()
@@ -44,7 +51,18 @@ public sealed class RegisterCommandHandlerTests
 
         result.IsSuccess.Should().BeTrue();
         await _identity.Received(1).CreateUserAsync(
-            Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+            Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),
+            Arg.Any<DateTimeOffset>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Registration_records_when_and_which_terms_the_user_accepted()
+    {
+        await _sut.Handle(Command(), CancellationToken.None);
+
+        await _identity.Received(1).CreateUserAsync(
+            Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),
+            Now, TermsAgreement.CurrentVersion, Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -61,7 +79,8 @@ public sealed class RegisterCommandHandlerTests
         // Checked before anything is created, not after — a closed platform never gets as far as
         // touching the identity store or sending a verification email for a rejected signup.
         await _identity.DidNotReceive().CreateUserAsync(
-            Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+            Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),
+            Arg.Any<DateTimeOffset>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
         await _emailSender.DidNotReceive().SendEmailVerificationAsync(
             Arg.Any<string>(), Arg.Any<string>(), Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
     }

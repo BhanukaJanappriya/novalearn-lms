@@ -1,7 +1,8 @@
 namespace NovaLearn.API.Features.Authentication;
 
 /// <summary>Request bodies for the authentication endpoints (kept separate from Application commands).</summary>
-public sealed record RegisterRequest(string FirstName, string LastName, string Email, string Password);
+public sealed record RegisterRequest(
+    string FirstName, string LastName, string Email, string Password, bool AcceptedTerms);
 
 public sealed record LoginRequest(string Email, string Password);
 

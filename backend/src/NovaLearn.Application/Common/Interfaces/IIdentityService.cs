@@ -10,11 +10,18 @@ namespace NovaLearn.Application.Common.Interfaces;
 public interface IIdentityService
 {
     /// <summary>
-    /// Creates a user with the default role and an unconfirmed email. Returns the created
-    /// user, or a <see cref="ErrorType.Conflict"/>/<see cref="ErrorType.Validation"/> error.
+    /// Creates a user with the default role and an unconfirmed email, recording the Terms of
+    /// Service acceptance passed in. Returns the created user, or a
+    /// <see cref="ErrorType.Conflict"/>/<see cref="ErrorType.Validation"/> error.
     /// </summary>
     Task<Result<AuthenticatedUser>> CreateUserAsync(
-        string email, string password, string firstName, string lastName, CancellationToken cancellationToken);
+        string email,
+        string password,
+        string firstName,
+        string lastName,
+        DateTimeOffset termsAcceptedAtUtc,
+        string termsVersion,
+        CancellationToken cancellationToken);
 
     /// <summary>
     /// Verifies credentials and account state (exists, active, not locked out, email confirmed).

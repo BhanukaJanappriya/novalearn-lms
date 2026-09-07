@@ -12,6 +12,7 @@ public sealed class ApplicationUserConfiguration : IEntityTypeConfiguration<Appl
         builder.Property(u => u.LastName).HasMaxLength(100).IsRequired();
         builder.Property(u => u.AvatarUrl).HasMaxLength(2048);
         builder.Property(u => u.IsActive).HasDefaultValue(true);
+        builder.Property(u => u.TermsVersion).HasMaxLength(32);
 
         builder.Property(u => u.CreatedBy).HasMaxLength(256);
         builder.Property(u => u.UpdatedBy).HasMaxLength(256);

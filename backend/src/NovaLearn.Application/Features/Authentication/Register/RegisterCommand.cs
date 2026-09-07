@@ -8,7 +8,8 @@ public sealed record RegisterCommand(
     string FirstName,
     string LastName,
     string Email,
-    string Password)
+    string Password,
+    bool AcceptedTerms)
     : IRequest<Result<RegisterResponse>>;
 
 /// <summary>Result of a successful registration. No tokens are issued until the email is verified.</summary>

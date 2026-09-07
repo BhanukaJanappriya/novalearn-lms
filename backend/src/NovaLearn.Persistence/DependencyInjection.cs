@@ -76,7 +76,10 @@ public static class DependencyInjection
             {
                 options.User.RequireUniqueEmail = true;
 
-                options.Password.RequiredLength = 8;
+                // The two-digit rule Identity can't express lives in RegisterCommandValidator,
+                // which runs before this. Everything Identity can check is set here so a password
+                // that slips past the command path (seeding, admin tooling) is still held to it.
+                options.Password.RequiredLength = 9;
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireUppercase = true;

@@ -24,6 +24,15 @@ public class ApplicationUser : IdentityUser<Guid>, IAuditable, ISoftDeletable, I
 
     public DateTimeOffset? LastLoginAtUtc { get; set; }
 
+    /// <summary>
+    /// When the account holder accepted the Terms of Service and Privacy Policy, and which version
+    /// (see <see cref="TermsAgreement"/>). Stamped once at self-service registration. Null for
+    /// accounts seeded or created before acceptance was recorded.
+    /// </summary>
+    public DateTimeOffset? TermsAcceptedAtUtc { get; set; }
+
+    public string? TermsVersion { get; set; }
+
     public string FullName => $"{FirstName} {LastName}".Trim();
 
     public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens.AsReadOnly();
