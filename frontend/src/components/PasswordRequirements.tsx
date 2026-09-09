@@ -1,11 +1,11 @@
 import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { passwordRules } from "./schemas";
+import { passwordRules } from "@/lib/passwordPolicy";
 
 /**
- * Live checklist under the password field. Every rule here is also enforced by the zod schema and
+ * Live checklist under a password field. Every rule here is also enforced by the zod schema and
  * again by the backend, so this is guidance, not the gate. Hidden until the user starts typing to
- * keep the initial form quiet.
+ * keep the form quiet. Used by self-registration and by the admin "add user" dialog.
  */
 export function PasswordRequirements({ value }: { value: string }) {
   if (!value) return null;

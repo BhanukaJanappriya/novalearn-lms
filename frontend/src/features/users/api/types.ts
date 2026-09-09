@@ -20,6 +20,15 @@ export interface AdminUser {
   coursesOwned: number;
 }
 
+/** Body for an administrator adding a new account. */
+export interface CreateUserInput {
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  password: string;
+}
+
 /** Query parameters accepted by the account directory endpoint. */
 export interface UserFilters {
   search?: string;

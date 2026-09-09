@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormField } from "@/components/ui/form-field";
 import { Alert } from "@/components/ui/alert";
+import { PasswordRequirements } from "@/components/PasswordRequirements";
 import { authApi } from "@/services/authApi";
 import { getApiErrorMessage } from "@/lib/apiError";
-import { PasswordRequirements } from "./PasswordRequirements";
 import { registerSchema, type RegisterFormValues } from "./schemas";
 
 export function RegisterForm({ onRegistered }: { onRegistered: (email: string) => void }) {

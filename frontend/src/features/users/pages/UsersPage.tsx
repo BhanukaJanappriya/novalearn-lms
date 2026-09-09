@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { TriangleAlert, Users } from "lucide-react";
+import { TriangleAlert, UserPlus, Users } from "lucide-react";
 import { PageTransition } from "@/components/PageTransition";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -11,12 +11,14 @@ import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { getApiErrorMessage } from "@/lib/apiError";
 import {
   useAssignableRoles,
+  useCreateUser,
   useSetUserRoles,
   useSetUserStatus,
   useUsers,
   useVerifyUserEmail,
 } from "../api/queries";
 import type { AdminUser, UserFilters as Filters } from "../api/types";
+import { AddUserDialog } from "../components/AddUserDialog";
 import { UserFilters, type StatusFilter } from "../components/UserFilters";
 import { UserRolesDialog } from "../components/UserRolesDialog";
 import { UsersTable } from "../components/UsersTable";
@@ -45,6 +47,7 @@ export function UsersPage() {
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<AdminUser | null>(null);
   const [pendingStatus, setPendingStatus] = useState<AdminUser | null>(null);
+  const [addingUser, setAddingUser] = useState(false);
 
   const debouncedSearch = useDebouncedValue(search, 300);
 
@@ -58,6 +61,7 @@ export function UsersPage() {
 
   const { data, isLoading, isError, error } = useUsers(filters);
   const { data: roles } = useAssignableRoles();
+  const createUser = useCreateUser();
   const setRoles = useSetUserRoles();
   const setStatusMutation = useSetUserStatus();
   const verifyEmail = useVerifyUserEmail();
@@ -82,19 +86,30 @@ export function UsersPage() {
     setRoles.mutate({ userId: editing.id, roles: next }, { onSuccess: () => setEditing(null) });
   };
 
+  const openAddUser = () => {
+    createUser.reset();
+    setAddingUser(true);
+  };
+
   const actionError = setStatusMutation.error ?? verifyEmail.error;
 
   return (
     <PageTransition>
       <div className="space-y-6">
-      <header>
-        <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-          <Users className="h-6 w-6 text-primary" aria-hidden />
-          Users
-        </h1>
-        <p className="mt-1 text-muted-foreground">
-          Manage accounts, roles and access across the platform.
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
+            <Users className="h-6 w-6 text-primary" aria-hidden />
+            Users
+          </h1>
+          <p className="mt-1 text-muted-foreground">
+            Manage accounts, roles and access across the platform.
+          </p>
+        </div>
+        <Button onClick={openAddUser}>
+          <UserPlus className="h-4 w-4" aria-hidden />
+          Add user
+        </Button>
       </header>
 
       {isError && <Alert variant="error">{getApiErrorMessage(error, "We could not load accounts.")}</Alert>}
@@ -142,6 +157,18 @@ export function UsersPage() {
           />
         </>
       ) : null}
+
+      <AddUserDialog
+        open={addingUser}
+        onClose={() => setAddingUser(false)}
+        availableRoles={roles ?? []}
+        lockedRoles={lockedRoles}
+        onSubmit={(input) =>
+          createUser.mutate(input, { onSuccess: () => setAddingUser(false) })
+        }
+        isSubmitting={createUser.isPending}
+        error={createUser.error}
+      />
 
       <UserRolesDialog
         user={editing}

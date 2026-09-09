@@ -1,7 +1,12 @@
 import { apiClient } from "@/services/apiClient";
-import type { AdminUser, PagedResult, UserFilters } from "./types";
+import type { AdminUser, CreateUserInput, PagedResult, UserFilters } from "./types";
 
 export const usersApi = {
+  async create(input: CreateUserInput): Promise<AdminUser> {
+    const { data } = await apiClient.post<AdminUser>("/admin/users", input);
+    return data;
+  },
+
   async list(filters: UserFilters): Promise<PagedResult<AdminUser>> {
     const { data } = await apiClient.get<PagedResult<AdminUser>>("/admin/users", {
       // Blank filters are omitted so the server keeps its defaults.

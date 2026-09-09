@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { usersApi } from "./usersApi";
-import type { UserFilters } from "./types";
+import type { CreateUserInput, UserFilters } from "./types";
 
 export const userKeys = {
   all: ["admin-users"] as const,
@@ -24,6 +24,14 @@ export function useAssignableRoles() {
     queryKey: userKeys.roles(),
     queryFn: () => usersApi.roles(),
     staleTime: 5 * 60_000,
+  });
+}
+
+export function useCreateUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CreateUserInput) => usersApi.create(input),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: userKeys.all }),
   });
 }
 
