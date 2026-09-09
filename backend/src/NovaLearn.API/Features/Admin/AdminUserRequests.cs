@@ -18,6 +18,10 @@ public sealed record AdminUserSearchRequest
     public int PageSize { get; init; } = 20;
 }
 
+/// <summary>Body for an administrator adding a new account directly.</summary>
+public sealed record CreateUserRequest(
+    string FirstName, string LastName, string Email, string Role, string Password);
+
 /// <summary>Body for enabling or disabling sign-in on an account.</summary>
 public sealed record SetUserStatusRequest(bool IsActive);
 

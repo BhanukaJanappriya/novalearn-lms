@@ -13,6 +13,47 @@ namespace NovaLearn.Infrastructure.Identity;
 internal sealed class UserAdministrationService(UserManager<ApplicationUser> userManager)
     : IUserAdministration
 {
+    public async Task<Result<Guid>> CreateAccountAsync(
+        string email,
+        string firstName,
+        string lastName,
+        string role,
+        string password,
+        CancellationToken cancellationToken)
+    {
+        if (await userManager.FindByEmailAsync(email) is not null)
+        {
+            return Result.Failure<Guid>(UserAdminErrors.EmailInUse);
+        }
+
+        var user = new ApplicationUser
+        {
+            UserName = email,
+            Email = email,
+            FirstName = firstName,
+            LastName = lastName,
+            // The administrator is vouching for this address, so there is no verification loop.
+            EmailConfirmed = true,
+            IsActive = true
+        };
+
+        IdentityResult created = await userManager.CreateAsync(user, password);
+        if (!created.Succeeded)
+        {
+            return Result.Failure<Guid>(MapCreationError(created));
+        }
+
+        IdentityResult roleAssigned = await userManager.AddToRoleAsync(user, role);
+        if (!roleAssigned.Succeeded)
+        {
+            // Don't leave a half-made account that can sign in but reach nothing.
+            await userManager.DeleteAsync(user);
+            return Result.Failure<Guid>(MapCreationError(roleAssigned));
+        }
+
+        return user.Id;
+    }
+
     public async Task<Result> SetActiveAsync(Guid userId, bool isActive, CancellationToken cancellationToken)
     {
         ApplicationUser? user = await userManager.FindByIdAsync(userId.ToString());
@@ -108,4 +149,9 @@ internal sealed class UserAdministrationService(UserManager<ApplicationUser> use
             ? Result.Success()
             : Result.Failure(UserAdminErrors.Identity(
                 string.Join("; ", result.Errors.Select(e => e.Description))));
+
+    private static Error MapCreationError(IdentityResult result) =>
+        result.Errors.Any(e => e.Code is "DuplicateUserName" or "DuplicateEmail")
+            ? UserAdminErrors.EmailInUse
+            : UserAdminErrors.Identity(string.Join("; ", result.Errors.Select(e => e.Description)));
 }

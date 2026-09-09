@@ -7,6 +7,7 @@ using NovaLearn.Application.Common.Models;
 using NovaLearn.Application.Features.Admin.Analytics;
 using NovaLearn.Application.Features.Admin.Dashboard;
 using NovaLearn.Application.Features.Admin.Users.Common;
+using NovaLearn.Application.Features.Admin.Users.CreateUser;
 using NovaLearn.Application.Features.Admin.Users.GetUsers;
 using NovaLearn.Application.Features.Admin.Users.SetUserStatus;
 using NovaLearn.Application.Features.Admin.Users.UpdateUserRoles;
@@ -65,6 +66,19 @@ public sealed class AdminController(ISender sender) : ApiControllerBase
 
         return HandleResult(await sender.Send(query, cancellationToken));
     }
+
+    /// <summary>Creates a new account with a single role and an already-confirmed email.</summary>
+    [HttpPost("users")]
+    [ProducesResponseType(typeof(AdminUserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> CreateUser(
+        CreateUserRequest request, CancellationToken cancellationToken) =>
+        HandleResult(await sender.Send(
+            new CreateUserCommand(
+                request.FirstName, request.LastName, request.Email, request.Role, request.Password),
+            cancellationToken));
 
     /// <summary>Enables or disables sign-in for an account.</summary>
     [HttpPut("users/{id:guid}/status")]

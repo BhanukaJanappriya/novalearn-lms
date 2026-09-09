@@ -8,6 +8,9 @@ public static class UserAdminErrors
     public static readonly Error NotFound =
         Error.NotFound("user_admin.not_found", "The requested user was not found.");
 
+    public static readonly Error EmailInUse =
+        Error.Conflict("user_admin.email_in_use", "An account with this email already exists.");
+
     public static readonly Error Unauthenticated =
         Error.Unauthorized("user_admin.unauthenticated", "You must be signed in to administer users.");
 

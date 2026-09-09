@@ -8,6 +8,19 @@ namespace NovaLearn.Application.Common.Interfaces;
 /// </summary>
 public interface IUserAdministration
 {
+    /// <summary>
+    /// Creates an account an administrator is adding directly: email already confirmed (the
+    /// administrator vouches for it), active, and holding the single <paramref name="role"/>.
+    /// Returns the new account's id.
+    /// </summary>
+    Task<Result<Guid>> CreateAccountAsync(
+        string email,
+        string firstName,
+        string lastName,
+        string role,
+        string password,
+        CancellationToken cancellationToken);
+
     /// <summary>Enables or disables sign-in for an account without deleting it.</summary>
     Task<Result> SetActiveAsync(Guid userId, bool isActive, CancellationToken cancellationToken);
 
