@@ -1,7 +1,7 @@
-import { motion } from "framer-motion";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AUTH_HERO_URL } from "@/lib/imagery";
+import { AuthShowcase } from "@/features/auth/testimonials/AuthShowcase";
 import { usePublicSettings } from "@/features/settings/api/queries";
 
 interface AuthLayoutProps {
@@ -43,20 +43,30 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
           aria-hidden
         />
         <Logo className="relative text-primary-foreground [&_span]:text-primary-foreground" />
-        <motion.div
-          className="relative max-w-md"
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <h1 className="text-3xl font-semibold leading-tight text-primary-foreground">
-            Learn without limits.
-          </h1>
-          <p className="mt-3 text-primary-foreground/80">
-            A modern learning platform for universities and teams — courses, assessments and
-            insights, in one elegant place.
-          </p>
-        </motion.div>
+
+        {/*
+          Marketing column: tagline, then social proof. `m-auto` on the inner block centres it
+          when the panel is tall enough and lets it scroll (scrollbar hidden) rather than clip on
+          a short viewport.
+        */}
+        <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto py-7 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="m-auto flex w-full max-w-md flex-col gap-6">
+            <div
+              className="animate-fade-in [animation-fill-mode:backwards]"
+              style={{ animationDelay: "0.05s" }}
+            >
+              <h1 className="text-3xl font-semibold leading-tight text-primary-foreground">
+                Learn without limits.
+              </h1>
+              <p className="mt-2 text-sm text-primary-foreground/75">
+                The learning platform universities and teams rely on.
+              </p>
+            </div>
+
+            <AuthShowcase />
+          </div>
+        </div>
+
         <p className="relative text-sm text-primary-foreground/60">
           © {new Date().getFullYear()} {siteName}
           {platform?.supportEmail && <> · {platform.supportEmail}</>}
@@ -75,19 +85,14 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
         </div>
 
         <div className="flex flex-1 items-center justify-center px-6 pb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="w-full max-w-md"
-          >
+          <div className="w-full max-w-md animate-fade-in">
             <div className="mb-6">
               <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
               <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
             </div>
             {children}
             {footer && <div className="mt-6 text-center text-sm text-muted-foreground">{footer}</div>}
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>
