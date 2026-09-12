@@ -31,6 +31,17 @@
     --ring: 258 90% 66%;
 
     --radius: 0.75rem;
+
+    /*
+      Deliberately NOT redefined under .dark. The auth marketing panel (AuthLayout's brand panel,
+      the testimonial showcase on it) is a fixed photo-plus-purple-wash hero, not a themed UI
+      surface — it renders almost identically in both themes because --primary barely moves
+      between them. Its text used to read --primary-foreground, which DOES flip (white in light
+      mode, near-black in dark mode) purely because the site theme toggled, not because the panel
+      itself got any lighter — that flip was the dark-theme contrast bug. Brand-panel text now
+      reads this instead, so it stays legible regardless of site theme.
+    */
+    --brand-foreground: 0 0% 100%;
   }
 
   .dark {

@@ -66,7 +66,7 @@ export function TestimonialCarousel() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="overflow-hidden rounded-2xl border border-primary-foreground/15 bg-primary-foreground/10 backdrop-blur-sm">
+      <div className="overflow-hidden rounded-2xl border border-brand-foreground/15 bg-brand-foreground/10 backdrop-blur-sm">
         {/*
           One track `count` panels wide (`flex-1` gives each panel an equal 1/count share, so a
           panel is exactly the card's width). Shifting by `100/count %` of the track = one panel.
@@ -80,11 +80,11 @@ export function TestimonialCarousel() {
         >
           {testimonials.map((t, i) => (
             <div key={t.name} className="min-w-0 flex-1 p-5" aria-hidden={i !== index}>
-              <Quote className="h-6 w-6 text-primary-foreground/25" aria-hidden />
+              <Quote className="h-6 w-6 text-brand-foreground/25" aria-hidden />
 
               {/* Fixed min-height, quote centred in it, so the card never resizes between slides. */}
               <div className="mt-2 flex min-h-[7rem] items-center">
-                <p className="font-medium leading-relaxed text-primary-foreground">{t.quote}</p>
+                <p className="font-medium leading-relaxed text-brand-foreground">{t.quote}</p>
               </div>
 
               <div className="mt-3.5">
@@ -98,8 +98,8 @@ export function TestimonialCarousel() {
                     {initials(t.name)}
                   </span>
                   <span className="flex flex-col">
-                    <span className="text-sm font-semibold text-primary-foreground">{t.name}</span>
-                    <span className="text-xs text-primary-foreground/70">
+                    <span className="text-sm font-semibold text-brand-foreground">{t.name}</span>
+                    <span className="text-xs text-brand-foreground/70">
                       {t.role + " · " + t.institution}
                     </span>
                   </span>
@@ -118,7 +118,7 @@ export function TestimonialCarousel() {
       >
         <span
           aria-hidden
-          className="absolute left-0 top-0 h-1.5 w-8 rounded-full bg-primary-foreground transition-transform duration-300 ease-out"
+          className="absolute left-0 top-0 h-1.5 w-8 rounded-full bg-brand-foreground transition-transform duration-300 ease-out"
           style={{ transform: `translateX(${index * TAB_STRIDE}px)` }}
         />
         {testimonials.map((t, i) => (
@@ -130,8 +130,8 @@ export function TestimonialCarousel() {
             aria-label={`Show testimonial ${i + 1}`}
             onClick={() => go(i)}
             className={cn(
-              "h-1.5 w-8 rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-foreground/50",
-              i === index ? "bg-transparent" : "bg-primary-foreground/20 hover:bg-primary-foreground/35",
+              "h-1.5 w-8 rounded-full outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-foreground/50",
+              i === index ? "bg-transparent" : "bg-brand-foreground/20 hover:bg-brand-foreground/35",
             )}
           />
         ))}

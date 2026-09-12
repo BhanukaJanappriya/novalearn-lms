@@ -37,6 +37,11 @@ const config: Config = {
         },
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
+        // Fixed light foreground for brand-hero surfaces (the auth marketing panel), which keep
+        // the same purple-photo look in both themes — see --brand-foreground in index.css.
+        brand: {
+          foreground: "hsl(var(--brand-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

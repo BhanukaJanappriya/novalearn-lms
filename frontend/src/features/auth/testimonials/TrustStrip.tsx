@@ -1,7 +1,7 @@
 /**
  * TrustStrip — social-proof block for the AuthLayout brand panel.
  *
- * Sits on brand purple, so every colour is a `text-primary-foreground` shade (the lone literal
+ * Sits on brand purple, so every colour is a `text-brand-foreground` shade (the lone literal
  * being `text-amber-300` for the stars). The figures show at their final value; the tiles fade in
  * with a small stagger via the tailwind `animate-fade-in` keyframe.
  */
@@ -27,23 +27,23 @@ export function TrustStrip() {
       {/* Aggregate rating */}
       <div className="flex items-center gap-2">
         <StarRating value={4.9} size={16} className="text-amber-300" />
-        <span className="font-semibold text-primary-foreground">4.9</span>
-        <span className="text-xs text-primary-foreground/70">from 1,200+ reviews</span>
+        <span className="font-semibold text-brand-foreground">4.9</span>
+        <span className="text-xs text-brand-foreground/70">from 1,200+ reviews</span>
       </div>
 
       {/* Headline figures */}
-      <div className="grid grid-cols-3 gap-4 border-t border-primary-foreground/15 pt-3.5">
+      <div className="grid grid-cols-3 gap-4 border-t border-brand-foreground/15 pt-3.5">
         {STATS.map((stat, i) => (
           <div
             key={stat.label}
             className="flex flex-col gap-0.5 animate-fade-in [animation-fill-mode:backwards]"
             style={{ animationDelay: `${0.25 + i * 0.08}s` }}
           >
-            <span className="text-2xl font-semibold tabular-nums text-primary-foreground">
+            <span className="text-2xl font-semibold tabular-nums text-brand-foreground">
               {formatCount(stat.value)}
               {stat.suffix}
             </span>
-            <span className="text-xs text-primary-foreground/70">{stat.label}</span>
+            <span className="text-xs text-brand-foreground/70">{stat.label}</span>
           </div>
         ))}
       </div>

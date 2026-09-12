@@ -42,7 +42,7 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
           }}
           aria-hidden
         />
-        <Logo className="relative text-primary-foreground [&_span]:text-primary-foreground" />
+        <Logo className="relative text-brand-foreground [&_span]:text-brand-foreground" />
 
         {/*
           Marketing column: tagline, then social proof. `m-auto` on the inner block centres it
@@ -55,10 +55,10 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
               className="animate-fade-in [animation-fill-mode:backwards]"
               style={{ animationDelay: "0.05s" }}
             >
-              <h1 className="text-3xl font-semibold leading-tight text-primary-foreground">
+              <h1 className="text-3xl font-semibold leading-tight text-brand-foreground">
                 Learn without limits.
               </h1>
-              <p className="mt-2 text-sm text-primary-foreground/75">
+              <p className="mt-2 text-sm text-brand-foreground/75">
                 The learning platform universities and teams rely on.
               </p>
             </div>
@@ -67,7 +67,7 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
           </div>
         </div>
 
-        <p className="relative text-sm text-primary-foreground/60">
+        <p className="relative text-sm text-brand-foreground/60">
           © {new Date().getFullYear()} {siteName}
           {platform?.supportEmail && <> · {platform.supportEmail}</>}
         </p>
