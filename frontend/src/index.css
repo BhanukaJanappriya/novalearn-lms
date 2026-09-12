@@ -121,11 +121,12 @@
       No "transform" here on purpose: it is rewritten every animation frame in JS, which already
       eases both position and scale. A CSS transition on the same property would smooth on top of
       an already-smoothed value and read as sluggish rather than as one clean motion.
+
+      Color is deliberately NOT transitioned either, unlike opacity: crossing onto a
+      purple-on-purple surface needs the swap in ".cursor-ring--inverted" below to be instant, not
+      faded — a fade would spend its middle frames exactly as invisible as the bug it fixes.
     */
-    transition:
-      opacity 0.2s ease,
-      background-color 0.2s ease,
-      border-color 0.2s ease;
+    transition: opacity 0.2s ease;
   }
 
   /*
@@ -136,6 +137,26 @@
   .cursor-ring--active {
     background: hsl(var(--primary) / 0.1);
     border-color: hsl(var(--primary) / 0.8);
+  }
+
+  /*
+    Contrast swap for surfaces CursorField marks with [data-cursor-surface="primary"] (the auth
+    brand panel, solid-purple buttons): the default purple cursor would all but disappear on its
+    own color, so it switches to the brand panel's fixed light foreground instead. Toggled
+    together with .cursor-dot the instant the pointer crosses the boundary — see the transition
+    note on .cursor-ring above for why there is no fade.
+  */
+  .cursor-dot--inverted {
+    background: hsl(var(--brand-foreground));
+  }
+
+  .cursor-ring--inverted {
+    border-color: hsl(var(--brand-foreground) / 0.6);
+  }
+
+  .cursor-ring--inverted.cursor-ring--active {
+    background: hsl(var(--brand-foreground) / 0.15);
+    border-color: hsl(var(--brand-foreground));
   }
 
   /*

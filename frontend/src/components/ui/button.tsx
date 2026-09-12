@@ -40,6 +40,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       className={cn(buttonVariants({ variant, size, className }))}
       disabled={disabled ?? isLoading}
+      // Solid brand purple, which the custom cursor would disappear into — flips it to a
+      // visible color instead. See the "primary surface" swap in CursorField/index.css.
+      data-cursor-surface={(variant ?? "default") === "default" ? "primary" : undefined}
       {...props}
     >
       {isLoading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}

@@ -10,5 +10,12 @@ export interface LinkButtonProps extends LinkProps, VariantProps<typeof buttonVa
  * instead of nesting an anchor inside a button element.
  */
 export function LinkButton({ className, variant, size, ...props }: LinkButtonProps) {
-  return <Link className={cn(buttonVariants({ variant, size, className }))} {...props} />;
+  return (
+    <Link
+      className={cn(buttonVariants({ variant, size, className }))}
+      // Same solid-purple cursor swap as Button's default variant — see CursorField.
+      data-cursor-surface={(variant ?? "default") === "default" ? "primary" : undefined}
+      {...props}
+    />
+  );
 }

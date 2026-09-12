@@ -6,6 +6,11 @@ import { useEffect, useRef } from "react";
  * per-card spotlight glow with one global effect that reads as "this whole product responds to
  * you" rather than "this one card does".
  *
+ * Both dot and ring default to the brand purple, which disappears on a purple surface (the auth
+ * hero panel, a solid-purple button). Anything marked `data-cursor-surface="primary"` flips them
+ * to the panel's fixed light foreground instead, the instant the pointer crosses onto it — see
+ * the ".cursor-ring--inverted" rule in index.css for why that swap has no transition.
+ *
  * Position is driven by direct style mutation inside a single rAF loop, the same technique the
  * spotlight it replaces used, rather than React state: a mousemove-driven re-render would fight
  * the browser's own paint budget on a page with many cards underneath it.
@@ -82,6 +87,14 @@ export function CursorField() {
       const target = event.target;
       isOverInteractive = target instanceof Element && target.closest(interactiveSelector) !== null;
       ring.classList.toggle("cursor-ring--active", isOverInteractive);
+
+      // Whole regions, not individual pixels: a container carries the marker (the auth panel,
+      // a button), so everything inside it — including lighter overlays on top of the purple —
+      // reads as "on the brand surface" too.
+      const isOnPrimarySurface =
+        target instanceof Element && target.closest('[data-cursor-surface="primary"]') !== null;
+      dot.classList.toggle("cursor-dot--inverted", isOnPrimarySurface);
+      ring.classList.toggle("cursor-ring--inverted", isOnPrimarySurface);
     };
 
     const onDown = () => {

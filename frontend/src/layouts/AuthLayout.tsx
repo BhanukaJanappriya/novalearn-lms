@@ -18,8 +18,14 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      {/* Brand panel */}
-      <div className="relative hidden overflow-hidden bg-primary lg:flex lg:flex-col lg:justify-between lg:p-12">
+      {/*
+        Brand panel. Marked as a primary-colored surface so the custom cursor (CursorField) swaps
+        to a color that stays visible on it — see the "on-brand-surface" rule in index.css.
+      */}
+      <div
+        data-cursor-surface="primary"
+        className="relative hidden overflow-hidden bg-primary lg:flex lg:flex-col lg:justify-between lg:p-12"
+      >
         {/*
           A photograph under the brand wash. It sits behind the existing gradients and is purely
           decorative, so if it never loads the panel looks exactly as it did before.
