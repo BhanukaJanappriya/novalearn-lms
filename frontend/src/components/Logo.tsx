@@ -1,7 +1,18 @@
 import { cn } from "@/lib/utils";
 
+interface LogoProps {
+  className?: string;
+  showWord?: boolean;
+  /**
+   * "default" splits the wordmark into a dark "Nova" and a purple "Learn", for light chrome.
+   * "inverted" drops that split and lets the whole word inherit `currentColor` instead, for a
+   * dark or brand-purple surface where purple-on-purple would make "Learn" disappear.
+   */
+  tone?: "default" | "inverted";
+}
+
 /** NovaLearn wordmark + glyph. The glyph mirrors public/logo.svg. */
-export function Logo({ className, showWord = true }: { className?: string; showWord?: boolean }) {
+export function Logo({ className, showWord = true, tone = "default" }: LogoProps) {
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <svg viewBox="0 0 512 512" className="h-8 w-8" role="img" aria-label="NovaLearn logo">
@@ -24,7 +35,8 @@ export function Logo({ className, showWord = true }: { className?: string; showW
       </svg>
       {showWord && (
         <span className="text-lg font-semibold tracking-tight">
-          Nova<span className="text-primary">Learn</span>
+          Nova
+          <span className={tone === "inverted" ? undefined : "text-primary"}>Learn</span>
         </span>
       )}
     </div>
