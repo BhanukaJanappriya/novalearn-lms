@@ -167,6 +167,52 @@
     animation: image-fade-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
+  /*
+    Continuously morphing decorative blob for the auth brand panel (MorphingBlobs). Each instance
+    gets its own animation-duration/delay so several never sync into one obvious repeating loop —
+    that variety is the "different morph effects". Only border-radius and this element's own
+    scale/rotate live here; a wrapping element carries any cursor-parallax transform instead, so
+    the two never fight over the same property (see MorphingBlobs' own note on this).
+  */
+  @keyframes blob-morph {
+    0%,
+    100% {
+      border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+      transform: scale(1) rotate(0deg);
+    }
+    33% {
+      border-radius: 63% 37% 41% 59% / 51% 62% 38% 49%;
+      transform: scale(1.08) rotate(6deg);
+    }
+    66% {
+      border-radius: 37% 63% 56% 44% / 63% 40% 60% 37%;
+      transform: scale(0.95) rotate(-5deg);
+    }
+  }
+
+  .blob-morph {
+    animation-name: blob-morph;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+
+  /* A gentle vertical bob for the "scroll for more" cue at the top of the brand panel. */
+  @keyframes scroll-cue-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.7;
+    }
+    50% {
+      transform: translateY(5px);
+      opacity: 1;
+    }
+  }
+
+  .scroll-cue-bob {
+    animation: scroll-cue-bob 1.8s ease-in-out infinite;
+  }
+
   @keyframes image-fade-in {
     from {
       opacity: 0;
