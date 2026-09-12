@@ -7,7 +7,7 @@ export function DocumentTitle() {
 
   useEffect(() => {
     if (platform?.siteName) {
-      document.title = `${platform.siteName} — Learn without limits`;
+      document.title = `${platform.siteName} - Learn without limits`;
     }
   }, [platform?.siteName]);
 
