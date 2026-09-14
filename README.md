@@ -144,7 +144,7 @@ cd backend && dotnet test
 cd frontend && npm test
 ```
 
-### 5. Payments (Stripe) — optional, only needed to exercise checkout
+### 5. Payments (Stripe) - optional, only needed to exercise checkout
 
 Course purchase runs on Stripe Checkout in test mode. The app runs fine without this section —
 free courses, and everything else, work regardless — but a paid course's "Pay & enroll" button
